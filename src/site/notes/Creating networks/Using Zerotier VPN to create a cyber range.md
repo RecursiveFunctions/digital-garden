@@ -12,6 +12,6 @@
 	* Inform users that these zerotier interfaces are out-of-bounds and not part of the cyber range. Otherwise they may get confused and waste time enumerating these interfaces.
 * Label each device in the zerotier web GUI  to easily identify them. 
 
-Users can [[Using Zerotier VPN to connect to a cyber range \| connect to the range]] themselves using zerotier as well.
+Users can [[Creating networks/Using Zerotier VPN to connect to a cyber range\|connect to the range]] themselves using zerotier as well.
 
 Give users at least one entry point into the network, like an [[starting an SSH server \| SSH Server]] on one of the target machines
