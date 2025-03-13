@@ -1,5 +1,5 @@
 ---
-{"dg-publish":true,"permalink":"/creating-networks/starting-an-ssh-server/"}
+{"dg-publish":true,"permalink":"/creating-networks/starting-an-ssh-server/","hide":"true"}
 ---
 
 ```bash 
