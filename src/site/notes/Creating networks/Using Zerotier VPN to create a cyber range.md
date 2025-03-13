@@ -14,4 +14,4 @@
 
 Users can [[Creating networks/Using Zerotier VPN to connect to a cyber range\|connect to the range]] themselves using zerotier as well.
 
-Give users at least one entry point into the network, like an [[starting an SSH server \| SSH Server]] on one of the target machines
+Give users at least one entry point into the network, like an [[Creating networks/starting an SSH server\|SSH Server]] on one of the target machines
