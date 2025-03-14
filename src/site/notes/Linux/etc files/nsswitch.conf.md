@@ -1,7 +1,6 @@
 ---
-{"dg-publish":true,"permalink":"/linux/etc-files/nsswitch-conf/","noteIcon":"","created":"2025-03-12T17:16:30.017-07:00","updated":"2025-03-14T02:10:03.122-07:00"}
+dg-publish: true
 ---
-
 The order of name resolution is handled by the [_/etc/nsswitch.conf](https://portal.offensive-security.com/courses/pen-100/books-and-videos/modal/modules/linux-networking-and-services-i/name-resolution/ip-addresses-and-domain-names#fn6) [🏛️](https://web.archive.org/web/20250314/https://portal.offensive-security.com/courses/pen-100/books-and-videos/modal/modules/linux-networking-and-services-i/name-resolution/ip-addresses-and-domain-names#fn6) 
 
 ```bash nums {13}

@@ -1,7 +1,9 @@
 ---
-{"dg-publish":true,"permalink":"/creating-networks/starting-an-ssh-server/","hide":"true","noteIcon":"","created":"2025-03-12T15:32:51.484-07:00","updated":"2025-03-12T21:01:29.681-07:00"}
+dg-publish: true
+aliases:
+  - SSH Server
+dg-hide: "true"
 ---
-
 ```bash 
 sudo systemctl start ssh
 sudo systemctl status ssh
