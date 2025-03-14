@@ -1,5 +1,5 @@
 ---
-{"dg-publish":true,"permalink":"/linux/ftp/"}
+{"dg-publish":true,"permalink":"/linux/ftp/","noteIcon":"","created":"2025-03-12T17:16:30.011-07:00","updated":"2025-03-12T17:18:18.459-07:00"}
 ---
 
  **-v** shows all responses from the FTP server. This can be useful when debugging connectivity issues.

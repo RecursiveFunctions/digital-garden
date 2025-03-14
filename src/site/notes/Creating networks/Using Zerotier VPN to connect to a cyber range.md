@@ -1,5 +1,5 @@
 ---
-{"dg-publish":true,"permalink":"/creating-networks/using-zerotier-vpn-to-connect-to-a-cyber-range/"}
+{"dg-publish":true,"permalink":"/creating-networks/using-zerotier-vpn-to-connect-to-a-cyber-range/","noteIcon":"","created":"2025-03-12T15:32:51.484-07:00","updated":"2025-03-12T17:08:16.416-07:00"}
 ---
 
 If you have a network you want to access remotely, you can use a VPN. I've used Zerotier to create cyber ranges for others to connect to and conduct some pentesting exercises. 

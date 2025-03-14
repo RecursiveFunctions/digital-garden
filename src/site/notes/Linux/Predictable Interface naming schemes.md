@@ -1,5 +1,5 @@
 ---
-{"dg-publish":true,"permalink":"/linux/predictable-interface-naming-schemes/"}
+{"dg-publish":true,"permalink":"/linux/predictable-interface-naming-schemes/","noteIcon":"","created":"2025-03-12T15:04:20.009-07:00","updated":"2025-03-12T15:28:33.660-07:00"}
 ---
 
 By default, `systemd v197` will name interfaces using the following naming schemes in this order. If the information from the firmware is not available, it will go down the list. 

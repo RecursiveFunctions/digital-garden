@@ -1,5 +1,5 @@
 ---
-{"dg-publish":true,"permalink":"/linux/etc-files/resolve-conf/"}
+{"dg-publish":true,"permalink":"/linux/etc-files/resolve-conf/","noteIcon":"","created":"2025-03-12T17:16:30.017-07:00","updated":"2025-03-12T17:18:20.459-07:00"}
 ---
 
 ```bash

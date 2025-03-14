@@ -1,5 +1,5 @@
 ---
-{"dg-publish":true,"permalink":"/creating-networks/creating-a-network-in-vm-ware/"}
+{"dg-publish":true,"permalink":"/creating-networks/creating-a-network-in-vm-ware/","noteIcon":"","created":"2025-03-12T15:32:51.482-07:00","updated":"2025-03-12T15:39:24.662-07:00"}
 ---
 
 For all Virtual Machines (VMs) in the range, make sure their Network adapters are in the same virtual network. You can check this in VMWare by going to `VM` > `Settings` > `Network Adapter`
