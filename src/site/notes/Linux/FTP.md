@@ -1,7 +1,6 @@
 ---
-{"dg-publish":true,"permalink":"/linux/ftp/","noteIcon":"","created":"2025-03-12T17:16:30.011-07:00","updated":"2025-03-12T17:18:18.459-07:00"}
+dg-publish: true
 ---
-
  **-v** shows all responses from the FTP server. This can be useful when debugging connectivity issues.
 
 the **-n** option prevents auto-login on the FTP server. If auto-login is enabled, the server will attempt log into the server with the current user, thus preventing us from specifying a different username and password.

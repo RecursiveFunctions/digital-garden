@@ -1,7 +1,6 @@
 ---
-{"dg-publish":true,"permalink":"/creating-networks/using-zerotier-vpn-to-create-a-cyber-range/","noteIcon":"","created":"2025-03-12T15:32:51.485-07:00","updated":"2025-03-12T17:16:58.676-07:00"}
+dg-publish: true
 ---
-
 1. Create an account at [Zerotier.com](https://www.my.zerotier.com/ )
 2. Create a network and give it a name
  ![Pasted image 20221111151933.png](/img/user/Images/Pasted%20image%2020221111151933.png)

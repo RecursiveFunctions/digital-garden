@@ -1,7 +1,6 @@
 ---
-{"dg-publish":true,"permalink":"/linux/how-to-disable-predictable-naming-schemes/","noteIcon":"","created":"2025-03-12T17:16:30.013-07:00","updated":"2025-03-14T02:10:52.094-07:00"}
+dg-publish: true
 ---
-
 There are 3 methods to do so:
 ## Disable assignment of fixed names
 ```bash
