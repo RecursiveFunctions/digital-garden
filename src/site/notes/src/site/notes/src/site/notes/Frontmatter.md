@@ -1,6 +1,7 @@
 ---
-dg-publish: true
+{"dg-publish":true,"permalink":"/src/site/notes/frontmatter/","noteIcon":"","created":"2025-03-14T03:27:50.042-07:00","updated":"2025-03-15T17:57:46.535-07:00"}
 ---
+
 Frontmatter is metadata you add to the top of your notes in Obsidian, enclosed between triple dashes (---)
 
 ## Digital Garden Plugin frontmatter
