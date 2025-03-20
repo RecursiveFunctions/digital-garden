@@ -1,5 +1,5 @@
 ---
-{"dg-publish":true,"permalink":"/site/using-home-assistant-to-replace-wyze/"}
+{"dg-publish":true,"dg-path":"Privacy/Home Assistant","permalink":"/privacy/home-assistant/"}
 ---
 
 
