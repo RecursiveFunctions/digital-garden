@@ -1,5 +1,5 @@
 ---
-{"dg-publish":true,"permalink":"/src/site/notes/markdown-file-format/","hide":"true","noteIcon":"","created":"2025-03-20T01:32:28.100-04:00","updated":"2025-03-20T01:32:28.100-04:00"}
+{"dg-publish":true,"dg-path":"markdown","permalink":"/markdown/","noteIcon":"","created":"2025-03-20T01:32:28.100-04:00","updated":"2025-03-20T01:35:15.277-04:00"}
 ---
 
 Text files created with Markdown language dialects are saved with  the **.md** or **.MARKDOWN** file extension. MD files are saved in plain text format that uses Markdown language which also includes inline text symbols, defining how a text can be formatted such as indentations, table formatting, fonts, and headers.  MD files can be converted to HTML with a program called Markdown.
