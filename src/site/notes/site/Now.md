@@ -1,5 +1,5 @@
 ---
-{"dg-publish":true,"dg-path":"Now","permalink":"/now/"}
+{"dg-publish":true,"permalink":"/site/now/"}
 ---
 
 
