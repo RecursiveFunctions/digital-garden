@@ -1,8 +1,9 @@
 ---
-{"dg-publish":true,"dg-path":"Philosophy/\"01-Personal-Views\"","permalink":"/philosophy/01-personal-views/","noteIcon":"","created":"2025-03-14T06:28:17.353-04:00","updated":"2025-03-20T00:20:27.648-04:00"}
+{"dg-publish":true,"dg-path":"Philosophy/\"01-Personal-Views\"","permalink":"/philosophy/01-personal-views/","noteIcon":"","created":"2025-03-14T06:28:17.353-04:00","updated":"2025-03-20T00:37:42.419-04:00"}
 ---
 
-On this page I'll post a handful of philosophers and influential figures I've learned about (mostly from my time as an undergrad at SDSU). Nothin' fancy, most of it's just gonna be a handful of notes, although I'll probably expand on them. No I'm not a Philosophy major. but I think Philosophy is important, if not for its own sake, then as a way to improve our (critical) thinking in other fields like Computer Science. 
+On this page I'll post a handful of philosophers and influential figures I've learned about (mostly from my time as an undergrad at SDSU). Nothin' fancy, most of it's just gonna be a handful of notes, although I'll probably expand on them. No I'm not a Philosophy major. but I think Philosophy is important, if not for its own sake, then as a way to improve our (critical) thinking in other fields like Computer Science. Also, I don't necessarily agree on every (or sometimes even any) viewpoints of anyone featured here. 
+
 
 # My personal views
 * I value the ability to humor different points of view to understand them without necessarily agreeing with all (or any) of their points.
