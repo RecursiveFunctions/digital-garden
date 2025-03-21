@@ -1,5 +1,7 @@
 ---
-dg-publish: 
+dg-publish: true
+dg-path: AI/Lessons learned from Nunjucks template development
+permalink: /ai/lessons-learned-from-nunjucks-template-development/
 aliases:
   - messing around with filters in Nunjucks
   - Nunjucks template
