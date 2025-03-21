@@ -1,0 +1,54 @@
+{% if page.filePathStem.includes("Daily Notes/") %}
+  {% set currentDate = page.fileSlug | date("YYYY-MM-DD") %}
+  {% set allDailyNotes = collections.notes | filterByTag("daily") | sortByDate("date") %}
+  {% set currentIndex = allDailyNotes | findIndex(currentDate) %}
+  
+  <div class="daily-note-nav">
+    {% if currentIndex > 0 %}
+      {% set prevNote = allDailyNotes[currentIndex - 1] %}
+      <a href="{{ prevNote.url }}" class="prev-day">
+        <i icon-name="chevron-left"></i>
+        {{ prevNote.date | date("MMM D, YYYY") }}
+      </a>
+    {% endif %}
+    
+    {% if currentIndex < allDailyNotes.length - 1 %}
+      {% set nextNote = allDailyNotes[currentIndex + 1] %}
+      <a href="{{ nextNote.url }}" class="next-day">
+        {{ nextNote.date | date("MMM D, YYYY") }}
+        <i icon-name="chevron-right"></i>
+      </a>
+    {% endif %}
+  </div>
+
+  <style>
+    .daily-note-nav {
+      display: flex;
+      justify-content: space-between;
+      margin: 2rem 0;
+      padding: 1rem;
+      border-top: 1px solid var(--background-modifier-border);
+      border-bottom: 1px solid var(--background-modifier-border);
+    }
+    
+    .daily-note-nav a {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--text-normal);
+      text-decoration: none;
+      padding: 0.5rem 1rem;
+      border-radius: var(--radius-s);
+      transition: background-color 0.2s ease;
+    }
+    
+    .daily-note-nav a:hover {
+      background-color: var(--background-modifier-hover);
+    }
+    
+    .daily-note-nav i {
+      width: 1em;
+      height: 1em;
+    }
+  </style>
+{% endif %} 
