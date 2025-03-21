@@ -1,4 +1,4 @@
-{% if page.filePathStem.includes("Daily Notes/") %}
+{% if page.filePathStem.includes("Daily Notes/") or page.filePathStem.includes("daily-notes") %}
   {% set currentDate = page.fileSlug %}
   {% set allDailyNotes = collections["Daily Notes"] %}
   
@@ -6,13 +6,14 @@
   {% set nextNote = null %}
   
   {% for note in allDailyNotes %}
-    {% if note.data.created < currentDate %}
-      {% if prevNote == null or note.data.created > prevNote.data.created %}
+    {% set noteDate = note.fileSlug %}
+    {% if noteDate < currentDate %}
+      {% if prevNote == null or noteDate > prevNote.fileSlug %}
         {% set prevNote = note %}
       {% endif %}
     {% endif %}
-    {% if note.data.created > currentDate %}
-      {% if nextNote == null or note.data.created < nextNote.data.created %}
+    {% if noteDate > currentDate %}
+      {% if nextNote == null or noteDate < nextNote.fileSlug %}
         {% set nextNote = note %}
       {% endif %}
     {% endif %}
@@ -22,13 +23,13 @@
     {% if prevNote %}
       <a href="{{ prevNote.url }}" class="prev-day">
         <i icon-name="chevron-left"></i>
-        {{ prevNote.data.created | date("MMM D, YYYY") }}
+        {{ prevNote.fileSlug | date("MMM D, YYYY") }}
       </a>
     {% endif %}
     
     {% if nextNote %}
       <a href="{{ nextNote.url }}" class="next-day">
-        {{ nextNote.data.created | date("MMM D, YYYY") }}
+        {{ nextNote.fileSlug | date("MMM D, YYYY") }}
         <i icon-name="chevron-right"></i>
       </a>
     {% endif %}
