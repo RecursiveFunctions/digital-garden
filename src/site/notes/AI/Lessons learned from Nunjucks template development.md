@@ -1,3 +1,9 @@
+---
+dg-publish: 
+aliases:
+  - messing around with filters in Nunjucks
+  - Nunjucks template
+---
 # Lessons Learned from Nunjucks Template Development
 
 ## Introduction

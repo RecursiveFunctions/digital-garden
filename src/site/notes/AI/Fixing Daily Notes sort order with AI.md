@@ -1,5 +1,11 @@
 ---
-{"dg-publish":true,"permalink":"/ai/fixing-daily-notes-sort-order-with-ai/","tags":["note"],"dg-path":"AI/Fixing Daily Notes sort order with AI"}
+dg-publish: true
+permalink: /ai/fixing-daily-notes-sort-order-with-ai/
+tags:
+  - note
+dg-path: AI/Fixing Daily Notes sort order with AI
+aliases:
+  - Changed the sort order of my daily notes
 ---
 
 # Fixing Daily Notes Sorting

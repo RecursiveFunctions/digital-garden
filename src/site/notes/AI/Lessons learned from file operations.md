@@ -1,5 +1,12 @@
 ---
-{"dg-publish":true,"dg-path":"AI/Lessons learned from file operations","permalink":"/ai/lessons-learned-from-file-operations/","noteIcon":"","created":"2024-03-21T02:30:00.000-04:00","updated":"2024-03-21T02:30:00.000-04:00"}
+dg-publish: true
+dg-path: AI/Lessons learned from file operations
+permalink: /ai/lessons-learned-from-file-operations/
+noteIcon: ""
+created: 2024-03-21T02:30:00.000-04:00
+updated: 2024-03-21T02:30:00.000-04:00
+aliases:
+  - update its rules
 ---
 
 # Lessons Learned from File Operations
