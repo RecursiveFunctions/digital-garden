@@ -1,15 +1,15 @@
 {% if page.filePathStem.includes("Daily Notes/") %}
   {% set currentDate = page.fileSlug %}
-  {% set allDailyNotes = collections["Daily Notes"] %}
+  {% set allDailyNotes = collections["Daily Notes"] | sortByDate("date") %}
   
   {% set prevNote = null %}
   {% set nextNote = null %}
   
   {% for note in allDailyNotes %}
-    {% if note.date < currentDate and (prevNote == null or note.date > prevNote.date) %}
+    {% if note.data.created < currentDate and (prevNote == null or note.data.created > prevNote.data.created) %}
       {% set prevNote = note %}
     {% endif %}
-    {% if note.date > currentDate and (nextNote == null or note.date < nextNote.date) %}
+    {% if note.data.created > currentDate and (nextNote == null or note.data.created < nextNote.data.created) %}
       {% set nextNote = note %}
     {% endif %}
   {% endfor %}
@@ -18,13 +18,13 @@
     {% if prevNote %}
       <a href="{{ prevNote.url }}" class="prev-day">
         <i icon-name="chevron-left"></i>
-        {{ prevNote.date | date("MMM D, YYYY") }}
+        {{ prevNote.data.created | date("MMM D, YYYY") }}
       </a>
     {% endif %}
     
     {% if nextNote %}
       <a href="{{ nextNote.url }}" class="next-day">
-        {{ nextNote.date | date("MMM D, YYYY") }}
+        {{ nextNote.data.created | date("MMM D, YYYY") }}
         <i icon-name="chevron-right"></i>
       </a>
     {% endif %}
