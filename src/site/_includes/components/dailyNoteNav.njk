@@ -24,13 +24,45 @@
     {% if prevNote %}
       <a href="{{ prevNote.url }}" class="prev-day">
         <i icon-name="chevron-left"></i>
-        {{ prevNote.fileSlug | replace("-", " ") | replace("2025", "2025") | replace("03", "Mar") | replace("04", "Apr") | replace("05", "May") | replace("06", "Jun") | replace("07", "Jul") | replace("08", "Aug") | replace("09", "Sep") | replace("10", "Oct") | replace("11", "Nov") | replace("12", "Dec") | replace("01", "Jan") | replace("02", "Feb") }}
+        {% set dateParts = prevNote.fileSlug | split("-") %}
+        {% set month = dateParts[1] %}
+        {% set day = dateParts[2] %}
+        {% set year = dateParts[0] %}
+        {% if month == "01" %}{% set month = "Jan" %}{% endif %}
+        {% if month == "02" %}{% set month = "Feb" %}{% endif %}
+        {% if month == "03" %}{% set month = "Mar" %}{% endif %}
+        {% if month == "04" %}{% set month = "Apr" %}{% endif %}
+        {% if month == "05" %}{% set month = "May" %}{% endif %}
+        {% if month == "06" %}{% set month = "Jun" %}{% endif %}
+        {% if month == "07" %}{% set month = "Jul" %}{% endif %}
+        {% if month == "08" %}{% set month = "Aug" %}{% endif %}
+        {% if month == "09" %}{% set month = "Sep" %}{% endif %}
+        {% if month == "10" %}{% set month = "Oct" %}{% endif %}
+        {% if month == "11" %}{% set month = "Nov" %}{% endif %}
+        {% if month == "12" %}{% set month = "Dec" %}{% endif %}
+        {{ month }} {{ day }}, {{ year }}
       </a>
     {% endif %}
     
     {% if nextNote %}
       <a href="{{ nextNote.url }}" class="next-day">
-        {{ nextNote.fileSlug | replace("-", " ") | replace("2025", "2025") | replace("03", "Mar") | replace("04", "Apr") | replace("05", "May") | replace("06", "Jun") | replace("07", "Jul") | replace("08", "Aug") | replace("09", "Sep") | replace("10", "Oct") | replace("11", "Nov") | replace("12", "Dec") | replace("01", "Jan") | replace("02", "Feb") }}
+        {% set dateParts = nextNote.fileSlug | split("-") %}
+        {% set month = dateParts[1] %}
+        {% set day = dateParts[2] %}
+        {% set year = dateParts[0] %}
+        {% if month == "01" %}{% set month = "Jan" %}{% endif %}
+        {% if month == "02" %}{% set month = "Feb" %}{% endif %}
+        {% if month == "03" %}{% set month = "Mar" %}{% endif %}
+        {% if month == "04" %}{% set month = "Apr" %}{% endif %}
+        {% if month == "05" %}{% set month = "May" %}{% endif %}
+        {% if month == "06" %}{% set month = "Jun" %}{% endif %}
+        {% if month == "07" %}{% set month = "Jul" %}{% endif %}
+        {% if month == "08" %}{% set month = "Aug" %}{% endif %}
+        {% if month == "09" %}{% set month = "Sep" %}{% endif %}
+        {% if month == "10" %}{% set month = "Oct" %}{% endif %}
+        {% if month == "11" %}{% set month = "Nov" %}{% endif %}
+        {% if month == "12" %}{% set month = "Dec" %}{% endif %}
+        {{ month }} {{ day }}, {{ year }}
         <i icon-name="chevron-right"></i>
       </a>
     {% endif %}
