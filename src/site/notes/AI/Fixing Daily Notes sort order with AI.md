@@ -1,8 +1,5 @@
 ---
-dg-path: "AI/Fixing Daily Notes sort order with AI"
-dg-permalink: "/notes/AI/Fixing Daily Notes sort order with AI"
-dg-publish: true
-created: "2025-03-20"
+{"dg-publish":true,"permalink":"/notes/AI/Fixing Daily Notes sort order with AI","tags":["note"],"dg-path":"AI/Fixing Daily Notes sort order with AI"}
 ---
 
 # Fixing Daily Notes Sorting
