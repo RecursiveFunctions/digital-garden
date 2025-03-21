@@ -9,9 +9,12 @@ On this page I'll post a handful of philosophers and influential figures I've le
 * I value the ability to humor different points of view to understand them without necessarily agreeing with all (or any) of their points.
 * Philosophy should go hand in hand with science. I think it's important to critically evaluate things from different perspectives. 
 	* consequently, diversity of thought is promoted through diversity of lived experiences. 
-	* science is not the end-all be-all of things. It's a methodology for continuously evaluating data, turning it into facts and from there, creating knowledge.
-* Everything is inherently political. ergo Science is inherently political.
+	* science is not the end-all be-all of things epistemologically. It's a methodology for continuously evaluating data, turning it into facts and from there, creating knowledge.
+## Everything is inherently political
+You cannot divorce politics from any subject.
 
-## Influential Figures
+
+# Influential Figures
 [[Philosophy/Kwame Nkrumah\|Kwame Nkrumah]]
 Vernor Vinge
+Dasniel
