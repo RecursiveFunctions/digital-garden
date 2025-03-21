@@ -1,27 +1,21 @@
 {% if page.filePathStem.includes("Daily Notes/") or page.filePathStem.includes("daily-notes") %}
   {% set currentDate = page.fileSlug %}
   {% set allNotes = collections.notes %}
-  {% set allDailyNotes = [] %}
-  
-  {% for note in allNotes %}
-    {% if note.filePathStem.includes("Daily Notes/") %}
-      {% set allDailyNotes = allDailyNotes | push(note) %}
-    {% endif %}
-  {% endfor %}
-  
   {% set prevNote = null %}
   {% set nextNote = null %}
   
-  {% for note in allDailyNotes %}
-    {% set noteDate = note.fileSlug %}
-    {% if noteDate < currentDate %}
-      {% if prevNote == null or noteDate > prevNote.fileSlug %}
-        {% set prevNote = note %}
+  {% for note in allNotes %}
+    {% if note.filePathStem.includes("Daily Notes/") %}
+      {% set noteDate = note.fileSlug %}
+      {% if noteDate < currentDate %}
+        {% if prevNote == null or noteDate > prevNote.fileSlug %}
+          {% set prevNote = note %}
+        {% endif %}
       {% endif %}
-    {% endif %}
-    {% if noteDate > currentDate %}
-      {% if nextNote == null or noteDate < nextNote.fileSlug %}
-        {% set nextNote = note %}
+      {% if noteDate > currentDate %}
+        {% if nextNote == null or noteDate < nextNote.fileSlug %}
+          {% set nextNote = note %}
+        {% endif %}
       {% endif %}
     {% endif %}
   {% endfor %}
