@@ -1,16 +1,20 @@
 {% if page.filePathStem.includes("Daily Notes/") %}
   {% set currentDate = page.fileSlug %}
-  {% set allDailyNotes = collections["Daily Notes"] | sortByDate("date") %}
+  {% set allDailyNotes = collections["Daily Notes"] %}
   
   {% set prevNote = null %}
   {% set nextNote = null %}
   
   {% for note in allDailyNotes %}
-    {% if note.data.created < currentDate and (prevNote == null or note.data.created > prevNote.data.created) %}
-      {% set prevNote = note %}
+    {% if note.data.created < currentDate %}
+      {% if prevNote == null or note.data.created > prevNote.data.created %}
+        {% set prevNote = note %}
+      {% endif %}
     {% endif %}
-    {% if note.data.created > currentDate and (nextNote == null or note.data.created < nextNote.data.created) %}
-      {% set nextNote = note %}
+    {% if note.data.created > currentDate %}
+      {% if nextNote == null or note.data.created < nextNote.data.created %}
+        {% set nextNote = note %}
+      {% endif %}
     {% endif %}
   {% endfor %}
   
