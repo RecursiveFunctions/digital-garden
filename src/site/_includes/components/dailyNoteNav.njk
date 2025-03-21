@@ -1,6 +1,13 @@
 {% if page.filePathStem.includes("Daily Notes/") or page.filePathStem.includes("daily-notes") %}
   {% set currentDate = page.fileSlug %}
-  {% set allDailyNotes = collections["Daily Notes"] %}
+  {% set allNotes = collections.notes %}
+  {% set allDailyNotes = [] %}
+  
+  {% for note in allNotes %}
+    {% if note.filePathStem.includes("Daily Notes/") %}
+      {% set allDailyNotes = allDailyNotes | push(note) %}
+    {% endif %}
+  {% endfor %}
   
   {% set prevNote = null %}
   {% set nextNote = null %}
