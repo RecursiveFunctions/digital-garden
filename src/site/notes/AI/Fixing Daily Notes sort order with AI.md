@@ -16,12 +16,13 @@ The daily notes in our digital garden weren't displaying in the correct order on
 ## The Solution
 The breakthrough came when we realized we needed to extract just the date portion from the fileSlug. Here's what we did:
 
-1. **Path Check**: We improved the check for daily notes by removing the leading slash from the path check:
+1.  ### **Path Check**:
+We improved the check for daily notes by removing the leading slash from the path check:
 ```javascript
 const isADailyNote = a.filePathStem.includes('Daily Notes/');
 ```
 
-2. **Date Extraction**: We modified the sorting to extract just the date part from the fileSlug:
+2. ### **Date Extraction**: We modified the sorting to extract just the date part from the fileSlug:
 ```javascript
 const dateA = a.fileSlug.split('/').pop();
 const dateB = b.fileSlug.split('/').pop();
