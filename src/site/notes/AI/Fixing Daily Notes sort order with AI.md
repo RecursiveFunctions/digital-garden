@@ -1,5 +1,5 @@
 ---
-{"dg-publish":true,"permalink":"/ai/fixing-daily-notes-sort-order-with-ai","tags":["note"],"dg-path":"AI/Fixing Daily Notes sort order with AI"}
+{"dg-publish":true,"permalink":"/ai/fixing-daily-notes-sort-order-with-ai/","tags":["note"],"dg-path":"AI/Fixing Daily Notes sort order with AI"}
 ---
 
 # Fixing Daily Notes Sorting
