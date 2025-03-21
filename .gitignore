@@ -14,3 +14,4 @@ _site/
 .obsidian/app.json
 .obsidian/community-plugins.json
 /.obsidian
+.cursor/
