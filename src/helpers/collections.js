@@ -24,9 +24,8 @@ function sortNotes(collection) {
     const isBDailyNote = b.filePathStem.includes('/Daily Notes/');
 
     if (isADailyNote && isBDailyNote) {
-      const dateA = getDateFromNote(a);
-      const dateB = getDateFromNote(b);
-      return dateB - dateA; // Reverse chronological order
+      // Sort by filename (which contains the date) in reverse order
+      return b.fileSlug.localeCompare(a.fileSlug);
     }
 
     // For all other notes, maintain their original order
