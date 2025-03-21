@@ -1,6 +1,6 @@
 {% if page.filePathStem.includes("Daily Notes/") %}
   {% set currentDate = page.fileSlug %}
-  {% set allDailyNotes = collections.notes | filterByTag("daily") %}
+  {% set allDailyNotes = collections["Daily Notes"] %}
   
   {% set prevNote = null %}
   {% set nextNote = null %}
