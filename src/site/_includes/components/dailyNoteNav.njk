@@ -24,43 +24,13 @@
     {% if prevNote %}
       <a href="{{ prevNote.url }}" class="prev-day">
         <i icon-name="chevron-left"></i>
-        {% set year = prevNote.fileSlug | slice(0, 4) %}
-        {% set month = prevNote.fileSlug | slice(5, 7) %}
-        {% set day = prevNote.fileSlug | slice(8, 10) %}
-        {% if month == "01" %}{% set monthName = "Jan" %}{% endif %}
-        {% if month == "02" %}{% set monthName = "Feb" %}{% endif %}
-        {% if month == "03" %}{% set monthName = "Mar" %}{% endif %}
-        {% if month == "04" %}{% set monthName = "Apr" %}{% endif %}
-        {% if month == "05" %}{% set monthName = "May" %}{% endif %}
-        {% if month == "06" %}{% set monthName = "Jun" %}{% endif %}
-        {% if month == "07" %}{% set monthName = "Jul" %}{% endif %}
-        {% if month == "08" %}{% set monthName = "Aug" %}{% endif %}
-        {% if month == "09" %}{% set monthName = "Sep" %}{% endif %}
-        {% if month == "10" %}{% set monthName = "Oct" %}{% endif %}
-        {% if month == "11" %}{% set monthName = "Nov" %}{% endif %}
-        {% if month == "12" %}{% set monthName = "Dec" %}{% endif %}
-        {{ monthName }} {{ day }}, {{ year }}
+        {{ prevNote.fileSlug | replace("2025-01-", "Jan, 2025 - ") | replace("2025-02-", "Feb, 2025 - ") | replace("2025-03-", "Mar, 2025 - ") | replace("2025-04-", "Apr, 2025 - ") | replace("2025-05-", "May, 2025 - ") | replace("2025-06-", "Jun, 2025 - ") | replace("2025-07-", "Jul, 2025 - ") | replace("2025-08-", "Aug, 2025 - ") | replace("2025-09-", "Sep, 2025 - ") | replace("2025-10-", "Oct, 2025 - ") | replace("2025-11-", "Nov, 2025 - ") | replace("2025-12-", "Dec, 2025 - ") | replace("2024-01-", "Jan, 2024 - ") | replace("2024-02-", "Feb, 2024 - ") | replace("2024-03-", "Mar, 2024 - ") | replace("2024-04-", "Apr, 2024 - ") | replace("2024-05-", "May, 2024 - ") | replace("2024-06-", "Jun, 2024 - ") | replace("2024-07-", "Jul, 2024 - ") | replace("2024-08-", "Aug, 2024 - ") | replace("2024-09-", "Sep, 2024 - ") | replace("2024-10-", "Oct, 2024 - ") | replace("2024-11-", "Nov, 2024 - ") | replace("2024-12-", "Dec, 2024 - ") | replace("2023-01-", "Jan, 2023 - ") | replace("2023-02-", "Feb, 2023 - ") | replace("2023-03-", "Mar, 2023 - ") | replace("2023-04-", "Apr, 2023 - ") | replace("2023-05-", "May, 2023 - ") | replace("2023-06-", "Jun, 2023 - ") | replace("2023-07-", "Jul, 2023 - ") | replace("2023-08-", "Aug, 2023 - ") | replace("2023-09-", "Sep, 2023 - ") | replace("2023-10-", "Oct, 2023 - ") | replace("2023-11-", "Nov, 2023 - ") | replace("2023-12-", "Dec, 2023 - ") }}
       </a>
     {% endif %}
     
     {% if nextNote %}
       <a href="{{ nextNote.url }}" class="next-day">
-        {% set year = nextNote.fileSlug | slice(0, 4) %}
-        {% set month = nextNote.fileSlug | slice(5, 7) %}
-        {% set day = nextNote.fileSlug | slice(8, 10) %}
-        {% if month == "01" %}{% set monthName = "Jan" %}{% endif %}
-        {% if month == "02" %}{% set monthName = "Feb" %}{% endif %}
-        {% if month == "03" %}{% set monthName = "Mar" %}{% endif %}
-        {% if month == "04" %}{% set monthName = "Apr" %}{% endif %}
-        {% if month == "05" %}{% set monthName = "May" %}{% endif %}
-        {% if month == "06" %}{% set monthName = "Jun" %}{% endif %}
-        {% if month == "07" %}{% set monthName = "Jul" %}{% endif %}
-        {% if month == "08" %}{% set monthName = "Aug" %}{% endif %}
-        {% if month == "09" %}{% set monthName = "Sep" %}{% endif %}
-        {% if month == "10" %}{% set monthName = "Oct" %}{% endif %}
-        {% if month == "11" %}{% set monthName = "Nov" %}{% endif %}
-        {% if month == "12" %}{% set monthName = "Dec" %}{% endif %}
-        {{ monthName }} {{ day }}, {{ year }}
+        {{ nextNote.fileSlug | replace("2025-01-", "Jan, 2025 - ") | replace("2025-02-", "Feb, 2025 - ") | replace("2025-03-", "Mar, 2025 - ") | replace("2025-04-", "Apr, 2025 - ") | replace("2025-05-", "May, 2025 - ") | replace("2025-06-", "Jun, 2025 - ") | replace("2025-07-", "Jul, 2025 - ") | replace("2025-08-", "Aug, 2025 - ") | replace("2025-09-", "Sep, 2025 - ") | replace("2025-10-", "Oct, 2025 - ") | replace("2025-11-", "Nov, 2025 - ") | replace("2025-12-", "Dec, 2025 - ") | replace("2024-01-", "Jan, 2024 - ") | replace("2024-02-", "Feb, 2024 - ") | replace("2024-03-", "Mar, 2024 - ") | replace("2024-04-", "Apr, 2024 - ") | replace("2024-05-", "May, 2024 - ") | replace("2024-06-", "Jun, 2024 - ") | replace("2024-07-", "Jul, 2024 - ") | replace("2024-08-", "Aug, 2024 - ") | replace("2024-09-", "Sep, 2024 - ") | replace("2024-10-", "Oct, 2024 - ") | replace("2024-11-", "Nov, 2024 - ") | replace("2024-12-", "Dec, 2024 - ") | replace("2023-01-", "Jan, 2023 - ") | replace("2023-02-", "Feb, 2023 - ") | replace("2023-03-", "Mar, 2023 - ") | replace("2023-04-", "Apr, 2023 - ") | replace("2023-05-", "May, 2023 - ") | replace("2023-06-", "Jun, 2023 - ") | replace("2023-07-", "Jul, 2023 - ") | replace("2023-08-", "Aug, 2023 - ") | replace("2023-09-", "Sep, 2023 - ") | replace("2023-10-", "Oct, 2023 - ") | replace("2023-11-", "Nov, 2023 - ") | replace("2023-12-", "Dec, 2023 - ") }}
         <i icon-name="chevron-right"></i>
       </a>
     {% endif %}
