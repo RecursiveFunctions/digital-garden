@@ -8,5 +8,8 @@ This is basically my 2nd brain. Collecting my thoughts and notes and structuring
 This site is created using [[Obsidian/Obsidian|Obsidian]] , the [Digital Garden Plugin](https://dg-docs.ole.dev/), and deployed with [vercel](https://vercel.com/). 
 
 ## Latest Update
-![[Daily Notes/2025-03-21.md]]
+![[test]]
+
+## Daily Note
+![[Daily Notes/2025-03-21]]
 
