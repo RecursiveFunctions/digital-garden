@@ -1,5 +1,5 @@
 ---
-{"dg-publish":true,"permalink":"/about/","pinned":"true","tags":["gardenEntry"]}
+{"dg-publish":true,"permalink":"/about/", "dg-path:about/","pinned":"true","tags":["gardenEntry"]}
 ---
 
 
@@ -7,6 +7,5 @@ This is basically my 2nd brain. Collecting my thoughts and notes and structuring
 
 This site is created using [[Obsidian]] , the [Digital Garden Plugin](https://dg-docs.ole.dev/), and deployed with [vercel](https://vercel.com/). 
 
-## Latest Update
-![[2025-03-22]]
+
 
