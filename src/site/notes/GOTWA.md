@@ -1,5 +1,5 @@
 ---
-{"dg-publish":true,"permalink":"/gotwa/"}
+{"dg-publish":true,"permalink":"/gotwa/","hide":true}
 ---
 **GOTWA** is a mnemonic that helps you remember a 5-part contingency plan that's easy to communicate to others. 
 >![info] Going
