@@ -1,5 +1,6 @@
 ---
-{"dg-publish":true,"dg-path":"Linux/disable predictable naming schemes","permalink":"/linux/disable-predictable-naming-schemes/","noteIcon":"","created":"2025-03-17T16:52:16.110-04:00","updated":"2025-03-20T01:09:01.851-04:00"}
+{"dg-publish":true,"dg-path":"Linux/disable predictable naming schemes","permalink":"/linux/disable-predictable-naming-schemes/","noteIcon":"","created":"2025-03-17T16:52:16.110-04:00","updated":"2025-03-20T01:09:01.851-04:00",
+"hide":"true"}
 ---
 
 There are 3 methods to do so:
