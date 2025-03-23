@@ -1,5 +1,7 @@
 ---
-{"dg-publish":true,"permalink":"/windows/enabling-scripts-in-powershell/"}
+dg-publish: true
+permalink: /windows/enabling-scripts-in-powershell/
+hide: true
 ---
 
 
