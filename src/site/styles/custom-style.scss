@@ -16,4 +16,9 @@ body {
         --callout-color: 0, 255, 255;
         --callout-icon: lucide-code;
     }
+
+    div[data-callout="os"] {
+        --callout-color: 0, 155, 0;
+        --callout-icon: lucide-cpu;
+    }
 }
