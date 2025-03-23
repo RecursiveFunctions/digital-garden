@@ -1,5 +1,5 @@
 ---
-{"dg-publish":true,"dg-path":"Philosophy/\"01-Personal-Views\"","permalink":"/philosophy/01-personal-views/","noteIcon":"","created":"2025-03-14T06:28:17.353-04:00","updated":"2025-03-20T00:37:42.419-04:00",
+{"dg-publish":true,"noteIcon":"","created":"2025-03-14T06:28:17.353-04:00","updated":"2025-03-20T00:37:42.419-04:00",
 "hide":"true"}
 ---
 

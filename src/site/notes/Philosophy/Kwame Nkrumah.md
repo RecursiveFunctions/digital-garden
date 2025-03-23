@@ -1,5 +1,5 @@
 ---
-{"dg-publish":true,"dg-path":"Philosophy/Kwame Nkrumah","permalink":"/philosophy/kwame-nkrumah/","noteIcon":"","created":"2025-03-14T06:28:17.353-04:00","updated":"2025-03-20T00:20:40.505-04:00",
+{"dg-publish":true,"noteIcon":"","created":"2025-03-14T06:28:17.353-04:00","updated":"2025-03-20T00:20:40.505-04:00",
 "hide":"true"}
 ---
 

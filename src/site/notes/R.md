@@ -3,8 +3,6 @@ dg-publish: true
 tags:
   - programming-language
   - stats
-permalink: /r/
-dg-path: r/
 hide: true
 ---
 R is a programming language designed primarily for statistics.
