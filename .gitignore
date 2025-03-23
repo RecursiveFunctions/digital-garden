@@ -14,5 +14,7 @@ _site/
 .obsidian/app.json
 .obsidian/community-plugins.json
 /.obsidian
+!.obsidian/snippets/
+!.obsidian/snippets/callouts.css
 .cursor/
 *.mdc

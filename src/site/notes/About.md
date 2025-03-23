@@ -7,5 +7,7 @@ This is basically my 2nd brain. Collecting my thoughts and notes and structuring
 
 This site is created using [[Obsidian\|Obsidian]] , the [Digital Garden Plugin](https://dg-docs.ole.dev/), and deployed with [vercel](https://vercel.com/). 
 
-
+>[!code] Programming Languages
+>[[Java/Java|Java]] - Object-oriented programming language
+> 
 
