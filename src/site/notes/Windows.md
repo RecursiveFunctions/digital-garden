@@ -2,8 +2,7 @@
 dg-publish: true
 tags:
   - OS
-permalink: /notes/windows
-dg-path: notes/windows
+permalink: /windows/
 ---
 Microsoft's OS 
 # Related Topics

@@ -4,7 +4,6 @@ permalink: /stats-email/
 tags:
   - R
 hide: true
-dg-path: stats-email/
 ---
 
 Came across this old email and was reminded of the bad old days when people just emailed their code. I think around this time there were a few online IDEs starting to pop up but we didn't know about them, much less stackoverflow. Email was the first thing that came to mind.

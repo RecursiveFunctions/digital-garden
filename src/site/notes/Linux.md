@@ -2,10 +2,10 @@
 dg-publish: true
 tags:
   - OS
-permalink: /notes/linux
-dg-path: notes/linux
+permalink: /linux/
+dg-path: linux/
 hide: true
 ---
 # Related Topics
-[[Installing Obsidian on Kali Linux]]
+[[Installing Obsidian on Kali Linux\|Installing Obsidian on Kali Linux]]
 [[scp\|scp]]
