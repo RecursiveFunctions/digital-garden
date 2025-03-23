@@ -1,3 +1,8 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
 # Git Commands for PowerShell
 
 ## Single Command Workflow
