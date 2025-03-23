@@ -1,6 +1,7 @@
 ---
 dg-publish: true
 permalink: /java/
+hide: true
 ---
 
 # Java

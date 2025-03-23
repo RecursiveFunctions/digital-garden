@@ -23,3 +23,6 @@ This site is created using [[Obsidian\|Obsidian]] , the [Digital Garden Plugin](
 >[!os] Operating Systems
 > [[Linux\|Linux]]
 > [[Windows\|Windows]]
+
+>[!note] Philosophy
+> [[Personal Views\|Personal Views]]

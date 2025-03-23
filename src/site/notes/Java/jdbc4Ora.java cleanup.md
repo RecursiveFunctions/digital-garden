@@ -1,5 +1,6 @@
 ---
-{"dg-publish":true,"permalink":"/java/jdbc4-ora-java-cleanup/"}
+{"dg-publish":true,"permalink":"/java/jdbc4-ora-java-cleanup/",
+"hide":"true"}
 ---
 
 // Cleans up results of running jdbc4Ora.java             

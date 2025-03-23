@@ -1,5 +1,6 @@
 ---
-{"dg-publish":true,"permalink":"/java/prepared-statement/"}
+{"dg-publish":true,"permalink":"/java/prepared-statement/",
+"hide":"true"}
 ---
 
 ```java
