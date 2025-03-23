@@ -1,8 +1,8 @@
 ---
 dg-publish: true
 permalink: /about/
-"dg-path:": about/
-pinned: "true"
+dg-path: about/
+pinned: true
 tags:
   - gardenEntry
 ---
@@ -14,6 +14,6 @@ This site is created using [[Obsidian\|Obsidian]] , the [Digital Garden Plugin](
 
 >[!code] Programming Languages
 >[[Java/Java|Java]] - Object-oriented programming language
-> [[bash/|Bash]] - Work environment and scripting shell
-> [[r/|R]] - Statistical Programming language
+>[[bash/|Bash]] - Work environment and scripting shell
+>[[r/|R]] - Statistical Programming language
 
