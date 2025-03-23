@@ -13,6 +13,6 @@ This site is created using [[Obsidian\|Obsidian]] , the [Digital Garden Plugin](
 
 >[!code] Programming Languages
 >[[Java/Java|Java]] - Object-oriented programming language
->[[Bash\|Bash]] - Work environment and scripting shell
->[[R\|R]] - Statistical Programming language
+>[[Bash|Bash]] - Work environment and scripting shell
+>[[R|R]] - Statistical Programming language
 
