@@ -1,6 +1,11 @@
 ---
-{"dg-publish":true,"noteIcon":"","created":"2025-03-14T06:28:17.353-04:00","updated":"2025-03-20T00:20:40.505-04:00",
-"hide":"true"}
+dg-publish: true
+noteIcon: 
+created: 2025-03-14T06:28:17.353-04:00
+updated: 2025-03-20T00:20:40.505-04:00
+hide: true
+permalink: /kwame-nkrumah/
+dg-path: kwame-nkrumah
 ---
 
 Kwame Nkrumah was Ghana's first prime minister and president. He developed a philosophical framework focusing on African liberation and social justice.
