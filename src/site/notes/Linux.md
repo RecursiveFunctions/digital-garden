@@ -2,8 +2,8 @@
 dg-publish: true
 tags:
   - OS
-permalink: 
-dg-path: 
+permalink: /notes/linux
+dg-path: notes/linux
 hide: true
 ---
 # Related Topics
