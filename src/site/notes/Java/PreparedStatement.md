@@ -1,12 +1,13 @@
 ---
-{"dg-publish":true,"permalink":"/java/prepared-statement/",
-"hide":"true"}
+dg-publish: true
+permalink: /java/prepared-statement/
+hide: true
 ---
 
 ```java
 
-// Illustrates the use of  PreparedStatement for a repeated update.  
-// This version just shows the syntax.  No repetition.  
+// Illustrates the use of  PreparedStatement for a repeated update.  
+// This version just shows the syntax.  No repetition.  
 
   
 

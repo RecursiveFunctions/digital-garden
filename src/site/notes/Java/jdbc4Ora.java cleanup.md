@@ -1,9 +1,10 @@
 ---
-{"dg-publish":true,"permalink":"/java/jdbc4-ora-java-cleanup/",
-"hide":"true"}
+dg-publish: true
+permalink: /java/jdbc4-ora-java-cleanup/
+hide: true
 ---
 
-// Cleans up results of running jdbc4Ora.java             
+// Cleans up results of running jdbc4Ora.java             
 
 ```java
 
@@ -70,4 +71,3 @@ public class jdbc6Ora {
   }  
 
 }
-```
