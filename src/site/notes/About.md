@@ -16,3 +16,5 @@ This site is created using [[Obsidian\|Obsidian]] , the [Digital Garden Plugin](
 >[[Bash\|Bash]] - Work environment and scripting shell
 >[[R\|R]] - Statistical Programming language
 
+>[!os] Operating Systems
+> [[linux]]
