@@ -1,6 +1,5 @@
 ---
 dg-publish: true
-dg-path: markdown
 permalink: /markdown/
 noteIcon: 
 created: 2025-03-20T01:32:28.100-04:00

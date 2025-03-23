@@ -5,7 +5,6 @@ created: 2025-03-14T06:28:17.353-04:00
 updated: 2025-03-20T00:37:42.419-04:00
 hide: true
 permalink: /personal-views/
-dg-path: personal-views
 ---
 
 On this page I'll post a handful of philosophers and influential figures I've learned about (mostly from my time as an undergrad at SDSU). Nothin' fancy, most of it's just gonna be a handful of notes, although I'll probably expand on them. No I'm not a Philosophy major. but I think Philosophy is important, if not for its own sake, then as a way to improve our (critical) thinking in other fields like Computer Science. Also, I don't necessarily agree on every (or sometimes even any) viewpoints of anyone featured here. 

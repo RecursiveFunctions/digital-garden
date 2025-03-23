@@ -1,12 +1,12 @@
 ---
 dg-publish: true
-dg-path: Networking/OSI Model
 permalink: /networking/osi-model/
 noteIcon: ""
 created: 2025-03-20T01:17:18.347-04:00
 updated: 2025-03-20T01:21:44.227-04:00
 tags:
   - networking
+hide: true
 ---
 
 |\# |  layer name | protocol data unit (PDU) |

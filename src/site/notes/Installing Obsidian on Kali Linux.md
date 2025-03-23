@@ -1,6 +1,5 @@
 ---
 dg-publish: true
-dg-path: Linux/Installing Obsidian on Kali Linux
 permalink: /linux/installing-obsidian-on-kali-linux/
 noteIcon: 
 created: 2025-03-20T01:32:27.995-04:00

@@ -3,7 +3,6 @@ dg-publish: true
 tags:
   - OS
 permalink: /linux/
-dg-path: linux/
 hide: true
 ---
 # Related Topics

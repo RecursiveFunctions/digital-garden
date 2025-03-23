@@ -1,6 +1,5 @@
 ---
 dg-publish: true
-dg-path: Linux/scp
 permalink: /linux/scp/
 noteIcon: ""
 created: 2025-03-17T16:52:16.167-04:00
@@ -10,7 +9,7 @@ tags:
 hide: true
 ---
 
-The syntax for **scp** is very similar to the _cp_ command, except the location of the file will contain _User_@_host_:_remote-file-path_
+The syntax for **scp** is very similar to the _cp_ command, except the location of the file will contain _User_@_host_:_remote-file-path_
 ```bash
 scp <user>@<ip>:<filepath> <destination filepath>
 #or to upload
