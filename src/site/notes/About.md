@@ -25,4 +25,4 @@ This site is created using [[Obsidian\|Obsidian]] , the [Digital Garden Plugin](
 > [[Windows\|Windows]]
 
 >[!note] Philosophy
-> [[Philosophy\Personal Views.md|Personal Views]]
+> [[Philosophy/Personal Views/|Personal Views]]
