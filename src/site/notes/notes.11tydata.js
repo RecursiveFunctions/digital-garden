@@ -15,7 +15,12 @@ module.exports = {
       if (data.tags.indexOf("gardenEntry") != -1) {
         return "/";
       }
-      return data.permalink || undefined;
+      // If a permalink is explicitly set in the frontmatter, use it
+      if (data.permalink) {
+        return data.permalink;
+      }
+      // Otherwise, generate a permalink from the file path
+      return `/notes/${data.filePathStem}`;
     },
     settings: (data) => {
       const noteSettings = {};
