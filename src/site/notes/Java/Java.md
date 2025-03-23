@@ -1,6 +1,8 @@
 ---
 dg-publish: true
 hide: true
+permalink: /java/
+dg-path: java/
 ---
 
 # Java

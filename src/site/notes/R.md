@@ -4,6 +4,8 @@ tags:
   - programming-language
   - stats
 hide: true
+permalink: /r/
+dg-path: r/
 ---
 R is a programming language designed primarily for statistics.
 
