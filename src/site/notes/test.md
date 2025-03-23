@@ -2,6 +2,7 @@
 dg-publish: true
 permalink: /test/
 dg-hidden: "true"
+hide: true
 ---
 
 This is a simple test note for transclusion.

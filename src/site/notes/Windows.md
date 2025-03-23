@@ -3,6 +3,7 @@ dg-publish: true
 tags:
   - OS
 permalink: /windows/
+hide: true
 ---
 Microsoft's OS 
 # Related Topics

@@ -5,7 +5,7 @@ tags:
   - stats
 permalink: /r/
 dg-path: r/
-hide: false
+hide: true
 ---
 R is a programming language designed primarily for statistics.
 
