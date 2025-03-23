@@ -10,4 +10,10 @@ body {
     //  h1 {
     //   color: black;
     //  }
+
+    /* Custom Callouts */
+    .callout[data-callout="code"] {
+        --callout-color: 0, 255, 255;
+        --callout-icon: lucide-square-code;
+    }
 }
