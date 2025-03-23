@@ -1,5 +1,12 @@
 ---
-{"dg-publish":true,"dg-path":"Linux/scp","permalink":"/linux/scp/","noteIcon":"","created":"2025-03-17T16:52:16.167-04:00","updated":"2025-03-20T01:48:40.753-04:00"}
+dg-publish: true
+dg-path: Linux/scp
+permalink: /linux/scp/
+noteIcon: ""
+created: 2025-03-17T16:52:16.167-04:00
+updated: 2025-03-20T01:48:40.753-04:00
+tags:
+  - linux
 ---
 
 The syntax for **scp** is very similar to the _cp_ command, except the location of the file will contain _User_@_host_:_remote-file-path_

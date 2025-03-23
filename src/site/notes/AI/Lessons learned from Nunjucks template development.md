@@ -5,6 +5,8 @@ permalink: /ai/lessons-learned-from-nunjucks-template-development/
 aliases:
   - messing around with filters in Nunjucks
   - Nunjucks template
+tags:
+  - AI
 ---
 # Lessons Learned from Nunjucks Template Development
 

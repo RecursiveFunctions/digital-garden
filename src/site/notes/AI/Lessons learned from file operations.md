@@ -7,6 +7,8 @@ created: 2024-03-21T02:30:00.000-04:00
 updated: 2024-03-21T02:30:00.000-04:00
 aliases:
   - update its rules
+tags:
+  - AI
 ---
 
 # Lessons Learned from File Operations
