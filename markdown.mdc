@@ -1,1 +1,81 @@
- 
+# Markdown Rules for Digital Garden
+
+## Image Links
+```markdown
+# ✅ Correct Image Format
+![alt text](/img/user/raw_notes/Images/image-name.png)
+
+# ❌ Wrong Formats
+![alt text](img\user\raw_notes\Images\image-name.png)    # No backslashes
+![alt text](img/user/raw_notes/Images/image-name.png)    # Missing leading slash
+![[image-name.png]]                                      # No wiki-style for images
+```
+
+## Important Image Rules
+- Always use forward slashes (`/`)
+- Always start paths with `/` (absolute paths)
+- Use standard markdown `![alt](url)` format for images
+- URL encode spaces with `%20`
+- Images go in `/img/user/raw_notes/Images/`
+- Don't use wiki-style links for images
+
+## Note Links and Transclusions
+```markdown
+# ✅ Correct Internal Link Format
+[[Daily Notes/2025-03-21|Title]]     # Internal navigation
+[[About|About Page]]                  # Link to note
+
+# ✅ Correct Transclusion Format
+![[Daily Notes/2025-03-21]]          # Full note transclusion
+![[Daily Notes/2025-03-21#Section]]  # Section transclusion
+
+# ❌ Wrong Formats
+[[src/site/notes/About|About]]       # Don't include src/site/notes
+![[notes/About.md]]                  # Don't include .md extension
+{{Daily Notes/2025-03-21}}          # Don't use curly braces
+```
+
+## Important Note Rules
+- Don't include `src/site/notes/` in internal links
+- Keep the folder structure in links (e.g., `Daily Notes/note-name`)
+- Use wiki-style `[[]]` for note links and transclusions
+- Remove file extensions (`.md`) from note links
+- Use `#` for section transclusions
+- Don't use curly braces `{{}}` for transclusions
+
+## Frontmatter Requirements
+```yaml
+---
+{
+  "dg-publish": true,
+  "dg-path": "path/to/note",
+  "permalink": "/path/to/note/"
+}
+---
+```
+
+## Common Patterns
+- Images: Standard markdown with absolute paths
+- Notes: Wiki-style links with relative paths
+- Transclusions: Wiki-style with optional section headers
+- Always preview in Obsidian before publishing
+
+## Troubleshooting
+1. If images don't show:
+   - Check for leading slash
+   - Use forward slashes
+   - URL encode spaces with `%20`
+   - Use standard markdown format
+
+2. If transclusions don't work:
+   - Remove `src/site/notes/` from path
+   - Use wiki-style `![[]]` syntax
+   - Remove `.md` extension
+   - Check that target note exists
+   - Verify folder structure matches exactly
+
+3. If links don't work:
+   - Use wiki-style `[[]]` syntax
+   - Keep folder structure
+   - Remove `src/site/notes/`
+   - Check case sensitivity 
