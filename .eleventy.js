@@ -15,8 +15,6 @@ const {
 } = require("./src/helpers/userSetup");
 
 const Image = require("@11ty/eleventy-img");
-const { sortNotes } = require("./src/helpers/collections");
-
 function transformImage(src, cls, alt, sizes, widths = ["500", "700", "auto"]) {
   let options = {
     widths: widths,
@@ -25,7 +23,7 @@ function transformImage(src, cls, alt, sizes, widths = ["500", "700", "auto"]) {
     urlPath: "/img/optimized",
   };
 
-  // generate images, while this is async we don't wait
+  // generate images, while this is async we don’t wait
   Image(src, options);
   let metadata = Image.statsSync(src, options);
   return metadata;
@@ -560,9 +558,6 @@ module.exports = function (eleventyConfig) {
       singleTags: ["link"],
     },
   });
-
-  // Add sorted notes collection
-  eleventyConfig.addCollection("notes", sortNotes);
 
   userEleventySetup(eleventyConfig);
 
