@@ -12,8 +12,8 @@ body {
     //  }
 
     /* Custom Callouts */
-    .callout[data-callout="code"] {
-        --callout-color: 0, 255, 255;
-        --callout-icon: lucide-square-code;
+    div[data-callout="code"] {
+        --callout-color: rgb(0, 255, 255);
+        --callout-icon: lucide-code;
     }
 }
