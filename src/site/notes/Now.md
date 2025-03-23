@@ -1,5 +1,6 @@
 ---
-{"dg-publish":true,"permalink":"/site/now/"}
+dg-publish: true
+permalink: /now/
 ---
 
  
@@ -9,3 +10,6 @@
 # Currently Learning
 How to use transclusions on my site
 [[Daily Notes/2025-03-22|2025-03-22]]
+Zettelkasten
+[[2025-03-23]]
+
