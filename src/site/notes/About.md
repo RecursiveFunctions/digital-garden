@@ -2,6 +2,8 @@
 dg-publish: true
 permalink: /about/
 pinned: true
+dgShowFileTree: true
+dgFilterDailyNotes: true
 tags:
   - gardenEntry
 ---
