@@ -7,4 +7,4 @@ hide: true
 
 This is a simple test note for transclusion.
 
-Hello world! 
+Hello world!!
