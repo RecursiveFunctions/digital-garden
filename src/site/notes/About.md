@@ -13,6 +13,13 @@ This is basically my 2nd brain. Collecting my thoughts and notes and structuring
 
 This site is created using [[Obsidian\|Obsidian]] , the [Digital Garden Plugin](https://dg-docs.ole.dev/), and deployed with [vercel](https://vercel.com/). 
 
+>[!recent] Latest Update
+>{% set dailyNotes = collections.notes | filterBy("filePathStem", "includes", "Daily Notes/") %}
+>{% set latestNote = dailyNotes | first %}
+>{% if latestNote %}
+>[[{{latestNote.filePathStem}}|{{latestNote.fileSlug | split("/") | last | replace("2025-", "") | replace("2024-", "") | replace("2023-", "") | replace("-", " ")}}]]
+>{% endif %}
+
 >[!Question] If you're interested in what I'm doing **[[Now\|now]]**
 
 >[!code] Programming Languages
