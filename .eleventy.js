@@ -49,7 +49,6 @@ function getAnchorAttributes(filePath, linkTitle) {
   const title = linkTitle ? linkTitle : fileName;
   let permalink = `/notes/${slugify(filePath)}`;
   let deadLink = false;
-
   try {
     const startPath = "./src/site/notes/";
     const fullPath = fileName.endsWith(".md")
@@ -70,10 +69,19 @@ function getAnchorAttributes(filePath, linkTitle) {
       noteIcon = frontMatter.data.noteIcon;
     }
   } catch {
-    // Instead of marking as dead link, just use the generated permalink
-    deadLink = false;
+    deadLink = true;
   }
 
+  if (deadLink) {
+    return {
+      attributes: {
+        "class": "internal-link is-unresolved",
+        "href": "/404",
+        "target": "",
+      },
+      innerHTML: title,
+    }
+  }
   return {
     attributes: {
       "class": "internal-link",
@@ -276,7 +284,7 @@ module.exports = function (eleventyConfig) {
         if (fileLink.indexOf("],[") > -1 || fileLink.indexOf('"$"') > -1) {
           return match;
         }
-        return getAnchorLink(fileLink, linkTitle);
+        return getAnchorLink(fileLink, linkTitle || fileLink);
       })
     );
   });
