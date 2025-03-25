@@ -8,15 +8,9 @@ created: "2025-03-25"
 
 # Daily Notes Archive
 
-This page contains links to all daily notes, sorted by date (newest first). This index is automatically generated during site build.
+This page contains links to all daily notes, sorted by date (newest first). 
 
-{% for group in dailyNotesIndex.groups %}
-## {{ group.name }}
-{% for file in group.files %}
-- [[{{ file.path }}|{{ file.displayDate }}]]{% if file.title %} - {{ file.title }}{% endif %}
-{% endfor %}
-{% endfor %}
+This page is automatically generated during build.
 
-<div class="note-footer">
-  <div class="note-updated">Last updated: {{ "now" | date: "%d %b %Y" }}</div>
-</div> 
+> [!note] If you're seeing this message
+> The automatic generator hasn't run yet. This will be replaced with actual daily note links after building the site. 
