@@ -6,6 +6,7 @@ tags:
 dg-path: AI/Fixing Daily Notes sort order with AI
 aliases:
   - Changed the sort order of my daily notes
+  - programmatically sorted and displayed from newest to oldest
 ---
 
 # Fixing Daily Notes Sorting
