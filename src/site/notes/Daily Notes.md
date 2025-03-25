@@ -4,7 +4,7 @@ permalink: /daily-notes-index/
 dg-path: Daily Notes
 noteIcon: calendar
 created: 2025-03-25
-dg-show-inline-title: "false"
+dgShowInlineTitle: false
 ---
 
 # Daily Notes Archive
