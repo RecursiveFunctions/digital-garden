@@ -564,6 +564,16 @@ module.exports = function (eleventyConfig) {
   // Add sorted notes collection
   eleventyConfig.addCollection("notes", sortNotes);
 
+  // Add global data for daily notes index
+  eleventyConfig.addGlobalData("dailyNotesIndex", () => {
+    try {
+      return require("./src/site/_data/dailyNotesIndex.js")();
+    } catch (error) {
+      console.error("Error generating daily notes index:", error);
+      return { groups: [] };
+    }
+  });
+
   userEleventySetup(eleventyConfig);
 
   return {
