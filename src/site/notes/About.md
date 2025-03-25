@@ -2,7 +2,7 @@
 dg-publish: true
 permalink: /about/
 pinned: true
-dgShowFileTree: true
+dgShowFileTree: false
 dgFilterDailyNotes: true
 tags:
   - gardenEntry
@@ -28,3 +28,4 @@ This site is created using [[Obsidian\|Obsidian]] , the [Digital Garden Plugin](
 
 >[!note] Philosophy
 > [[Philosophy/Personal Views|Personal Views]]
+
