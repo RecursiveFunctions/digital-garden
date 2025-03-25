@@ -13,9 +13,9 @@ This is basically my 2nd brain. Collecting my thoughts and notes and structuring
 
 This site is created using [[Obsidian\|Obsidian]] , the [Digital Garden Plugin](https://dg-docs.ole.dev/), and deployed with [vercel](https://vercel.com/). 
 
-**Latest Update**
->[!info]
-> [[Daily Notes]]
+
+>[!note]
+> [[Daily Notes\|Daily Notes]]
 
 >[!Question] If you're interested in what I'm doing **[[Now\|now]]**
 
