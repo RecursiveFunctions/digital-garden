@@ -1,19 +1,19 @@
 {% if page.filePathStem.includes("Daily Notes/") or page.filePathStem.includes("daily-notes") %}
-  {% set currentDate = page.fileSlug %}
+  {% set currentDate = page.fileSlug | split("/") | last %}
   {% set allNotes = collections.notes %}
   {% set prevNote = null %}
   {% set nextNote = null %}
   
   {% for note in allNotes %}
     {% if note.filePathStem.includes("Daily Notes/") %}
-      {% set noteDate = note.fileSlug %}
-      {% if noteDate < currentDate %}
-        {% if prevNote == null or noteDate > prevNote.fileSlug %}
+      {% set noteSlug = note.fileSlug | split("/") | last %}
+      {% if noteSlug < currentDate %}
+        {% if prevNote == null or noteSlug > prevNote.fileSlug | split("/") | last %}
           {% set prevNote = note %}
         {% endif %}
       {% endif %}
-      {% if noteDate > currentDate %}
-        {% if nextNote == null or noteDate < nextNote.fileSlug %}
+      {% if noteSlug > currentDate %}
+        {% if nextNote == null or noteSlug < nextNote.fileSlug | split("/") | last %}
           {% set nextNote = note %}
         {% endif %}
       {% endif %}
@@ -24,13 +24,13 @@
     {% if prevNote %}
       <a href="{{ prevNote.url }}" class="prev-day internal-link" target="">
         <i icon-name="chevron-left"></i>
-        {{ prevNote.fileSlug | replace("2025-01-", "Jan ") | replace("2025-02-", "Feb ") | replace("2025-03-", "Mar ") | replace("2025-04-", "Apr ") | replace("2025-05-", "May ") | replace("2025-06-", "Jun ") | replace("2025-07-", "Jul ") | replace("2025-08-", "Aug ") | replace("2025-09-", "Sep ") | replace("2025-10-", "Oct ") | replace("2025-11-", "Nov ") | replace("2025-12-", "Dec ") | replace("2024-01-", "Jan ") | replace("2024-02-", "Feb ") | replace("2024-03-", "Mar ") | replace("2024-04-", "Apr ") | replace("2024-05-", "May ") | replace("2024-06-", "Jun ") | replace("2024-07-", "Jul ") | replace("2024-08-", "Aug ") | replace("2024-09-", "Sep ") | replace("2024-10-", "Oct ") | replace("2024-11-", "Nov ") | replace("2024-12-", "Dec ") | replace("2023-01-", "Jan ") | replace("2023-02-", "Feb ") | replace("2023-03-", "Mar ") | replace("2023-04-", "Apr ") | replace("2023-05-", "May ") | replace("2023-06-", "Jun ") | replace("2023-07-", "Jul ") | replace("2023-08-", "Aug ") | replace("2023-09-", "Sep ") | replace("2023-10-", "Oct ") | replace("2023-11-", "Nov ") | replace("2023-12-", "Dec ") | replace("-", " ") }}
+        {{ prevNote.fileSlug | split("/") | last | replace("2025-01-", "Jan ") | replace("2025-02-", "Feb ") | replace("2025-03-", "Mar ") | replace("2025-04-", "Apr ") | replace("2025-05-", "May ") | replace("2025-06-", "Jun ") | replace("2025-07-", "Jul ") | replace("2025-08-", "Aug ") | replace("2025-09-", "Sep ") | replace("2025-10-", "Oct ") | replace("2025-11-", "Nov ") | replace("2025-12-", "Dec ") | replace("2024-01-", "Jan ") | replace("2024-02-", "Feb ") | replace("2024-03-", "Mar ") | replace("2024-04-", "Apr ") | replace("2024-05-", "May ") | replace("2024-06-", "Jun ") | replace("2024-07-", "Jul ") | replace("2024-08-", "Aug ") | replace("2024-09-", "Sep ") | replace("2024-10-", "Oct ") | replace("2024-11-", "Nov ") | replace("2024-12-", "Dec ") | replace("2023-01-", "Jan ") | replace("2023-02-", "Feb ") | replace("2023-03-", "Mar ") | replace("2023-04-", "Apr ") | replace("2023-05-", "May ") | replace("2023-06-", "Jun ") | replace("2023-07-", "Jul ") | replace("2023-08-", "Aug ") | replace("2023-09-", "Sep ") | replace("2023-10-", "Oct ") | replace("2023-11-", "Nov ") | replace("2023-12-", "Dec ") | replace("-", " ") }}
       </a>
     {% endif %}
     
     {% if nextNote %}
       <a href="{{ nextNote.url }}" class="next-day internal-link" target="">
-        {{ nextNote.fileSlug | replace("2025-01-", "Jan ") | replace("2025-02-", "Feb ") | replace("2025-03-", "Mar ") | replace("2025-04-", "Apr ") | replace("2025-05-", "May ") | replace("2025-06-", "Jun ") | replace("2025-07-", "Jul ") | replace("2025-08-", "Aug ") | replace("2025-09-", "Sep ") | replace("2025-10-", "Oct ") | replace("2025-11-", "Nov ") | replace("2025-12-", "Dec ") | replace("2024-01-", "Jan ") | replace("2024-02-", "Feb ") | replace("2024-03-", "Mar ") | replace("2024-04-", "Apr ") | replace("2024-05-", "May ") | replace("2024-06-", "Jun ") | replace("2024-07-", "Jul ") | replace("2024-08-", "Aug ") | replace("2024-09-", "Sep ") | replace("2024-10-", "Oct ") | replace("2024-11-", "Nov ") | replace("2024-12-", "Dec ") | replace("2023-01-", "Jan ") | replace("2023-02-", "Feb ") | replace("2023-03-", "Mar ") | replace("2023-04-", "Apr ") | replace("2023-05-", "May ") | replace("2023-06-", "Jun ") | replace("2023-07-", "Jul ") | replace("2023-08-", "Aug ") | replace("2023-09-", "Sep ") | replace("2023-10-", "Oct ") | replace("2023-11-", "Nov ") | replace("2023-12-", "Dec ") | replace("-", " ") }}
+        {{ nextNote.fileSlug | split("/") | last | replace("2025-01-", "Jan ") | replace("2025-02-", "Feb ") | replace("2025-03-", "Mar ") | replace("2025-04-", "Apr ") | replace("2025-05-", "May ") | replace("2025-06-", "Jun ") | replace("2025-07-", "Jul ") | replace("2025-08-", "Aug ") | replace("2025-09-", "Sep ") | replace("2025-10-", "Oct ") | replace("2025-11-", "Nov ") | replace("2025-12-", "Dec ") | replace("2024-01-", "Jan ") | replace("2024-02-", "Feb ") | replace("2024-03-", "Mar ") | replace("2024-04-", "Apr ") | replace("2024-05-", "May ") | replace("2024-06-", "Jun ") | replace("2024-07-", "Jul ") | replace("2024-08-", "Aug ") | replace("2024-09-", "Sep ") | replace("2024-10-", "Oct ") | replace("2024-11-", "Nov ") | replace("2024-12-", "Dec ") | replace("2023-01-", "Jan ") | replace("2023-02-", "Feb ") | replace("2023-03-", "Mar ") | replace("2023-04-", "Apr ") | replace("2023-05-", "May ") | replace("2023-06-", "Jun ") | replace("2023-07-", "Jul ") | replace("2023-08-", "Aug ") | replace("2023-09-", "Sep ") | replace("2023-10-", "Oct ") | replace("2023-11-", "Nov ") | replace("2023-12-", "Dec ") | replace("-", " ") }}
         <i icon-name="chevron-right"></i>
       </a>
     {% endif %}
