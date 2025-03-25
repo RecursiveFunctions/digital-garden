@@ -49,6 +49,7 @@ function getAnchorAttributes(filePath, linkTitle) {
   const title = linkTitle ? linkTitle : fileName;
   let permalink = `/notes/${slugify(filePath)}`;
   let deadLink = false;
+
   try {
     const startPath = "./src/site/notes/";
     const fullPath = fileName.endsWith(".md")
@@ -69,19 +70,10 @@ function getAnchorAttributes(filePath, linkTitle) {
       noteIcon = frontMatter.data.noteIcon;
     }
   } catch {
-    deadLink = true;
+    // Instead of marking as dead link, just use the generated permalink
+    deadLink = false;
   }
 
-  if (deadLink) {
-    return {
-      attributes: {
-        "class": "internal-link is-unresolved",
-        "href": "/404",
-        "target": "",
-      },
-      innerHTML: title,
-    }
-  }
   return {
     attributes: {
       "class": "internal-link",
@@ -279,13 +271,11 @@ module.exports = function (eleventyConfig) {
   eleventyConfig.addFilter("link", function (str) {
     return (
       str &&
-      str.replace(/\[\[(.*?\|.*?)\]\]/g, function (match, p1) {
+      str.replace(/\[\[(.*?)(?:\|(.*?))?\]\]/g, function (match, fileLink, linkTitle) {
         //Check if it is an embedded excalidraw drawing or mathjax javascript
-        if (p1.indexOf("],[") > -1 || p1.indexOf('"$"') > -1) {
+        if (fileLink.indexOf("],[") > -1 || fileLink.indexOf('"$"') > -1) {
           return match;
         }
-        const [fileLink, linkTitle] = p1.split("|");
-
         return getAnchorLink(fileLink, linkTitle);
       })
     );
