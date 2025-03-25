@@ -1,9 +1,10 @@
 ---
 dg-publish: true
 permalink: /daily-notes-index/
-dg-path: "Daily Notes"
-noteIcon: "calendar"
-created: "2025-03-25"
+dg-path: Daily Notes
+noteIcon: calendar
+created: 2025-03-25
+dg-show-inline-title: "false"
 ---
 
 # Daily Notes Archive
