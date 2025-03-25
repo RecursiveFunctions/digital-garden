@@ -47,28 +47,35 @@ function getAnchorAttributes(filePath, linkTitle) {
 
   let noteIcon = process.env.NOTE_ICON_DEFAULT;
   const title = linkTitle ? linkTitle : fileName;
-  let permalink = `/notes/${slugify(filePath)}`;
+  let permalink = `/notes/${slugify(fileName)}`;
   let deadLink = false;
   try {
     const startPath = "./src/site/notes/";
-    const fullPath = fileName.endsWith(".md")
-      ? `${startPath}${fileName}`
-      : `${startPath}${fileName}.md`;
+    // Handle both full paths and just filenames
+    const relativePath = fileName.includes('/') ? fileName : fileName;
+    const fullPath = relativePath.endsWith(".md")
+      ? `${startPath}${relativePath}`
+      : `${startPath}${relativePath}.md`;
+    
     const file = fs.readFileSync(fullPath, "utf8");
     const frontMatter = matter(file);
+    
+    // Use permalink from frontmatter if available
     if (frontMatter.data.permalink) {
       permalink = frontMatter.data.permalink;
+    } else if (frontMatter.data["dg-path"]) {
+      // Use dg-path if available as a fallback
+      permalink = `/${frontMatter.data["dg-path"].toLowerCase().replace(/\s+/g, "-")}/`;
     }
-    if (
-      frontMatter.data.tags &&
-      frontMatter.data.tags.indexOf("gardenEntry") != -1
-    ) {
+    
+    if (frontMatter.data.tags && frontMatter.data.tags.indexOf("gardenEntry") != -1) {
       permalink = "/";
     }
     if (frontMatter.data.noteIcon) {
       noteIcon = frontMatter.data.noteIcon;
     }
-  } catch {
+  } catch (e) {
+    console.warn(`Error resolving link for ${fileName}:`, e);
     deadLink = true;
   }
 
@@ -285,6 +292,22 @@ module.exports = function (eleventyConfig) {
         //Check if it is an embedded excalidraw drawing or mathjax javascript
         if (fileLink.indexOf("],[") > -1 || fileLink.indexOf('"$"') > -1) {
           return match;
+        }
+        // Try to find the file by alias first
+        const startPath = "./src/site/notes/";
+        const files = fs.readdirSync(startPath, { recursive: true });
+        for (const file of files) {
+          if (!file.endsWith('.md')) continue;
+          try {
+            const content = fs.readFileSync(`${startPath}${file}`, 'utf8');
+            const frontMatter = matter(content);
+            if (frontMatter.data.aliases && frontMatter.data.aliases.includes(fileLink)) {
+              fileLink = file.replace(/\.md$/, '');
+              break;
+            }
+          } catch (e) {
+            console.warn(`Error reading file ${file}:`, e);
+          }
         }
         return getAnchorLink(fileLink, linkTitle || fileLink);
       })
