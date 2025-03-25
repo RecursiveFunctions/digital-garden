@@ -1,0 +1,184 @@
+Markdown Rules for Digital Garden
+
+## Image Links
+```markdown
+# ✅ Correct Image Format
+![alt text](/img/user/raw_notes/Images/image-name.png)
+
+# ❌ Wrong Formats
+![alt text](img\user\raw_notes\Images\image-name.png)    # No backslashes
+![alt text](img/user/raw_notes/Images/image-name.png)    # Missing leading slash
+![[image-name.png]]                                      # No wiki-style for images
+```
+
+## Important Image Rules
+- Always use forward slashes (`/`)
+- Always start paths with `/` (absolute paths)
+- Use standard markdown `![alt](url)` format for images
+- URL encode spaces with `%20`
+- Images go in `/img/user/raw_notes/Images/`
+- Don't use wiki-style links for images
+
+## Note Links and Transclusions
+```markdown
+# ✅ Correct Internal Link Format
+[[Daily Notes/2025-03-21|Title]]     # Internal navigation
+[[About|About Page]]                  # Link to note
+
+# ✅ Correct Transclusion Format
+![[Daily Notes/2025-03-21]]          # Full note transclusion
+![[Daily Notes/2025-03-21#Section]]  # Section transclusion
+
+# ❌ Wrong Formats
+[[src/site/notes/About|About]]       # Don't include src/site/notes
+![[notes/About.md]]                  # Don't include .md extension
+{{Daily Notes/2025-03-21}}          # Don't use curly braces
+```
+
+## Important Note Rules
+- Don't include `src/site/notes/` in internal links
+- Keep the folder structure in links (e.g., `Daily Notes/note-name`)
+- Use wiki-style `[[]]` for note links and transclusions
+- Remove file extensions (`.md`) from note links
+- Use `#` for section transclusions
+- Don't use curly braces `{{}}` for transclusions
+
+## Callouts
+```markdown
+# ✅ Correct Callout Format
+> [!info] Title
+> Content of the callout
+
+> [!warning] Warning Title
+> Warning content
+
+# ❌ Wrong Formats
+> ![info] Title       # Don't use image syntax inside brackets
+> [info] Title        # Missing exclamation mark
+```
+
+### Available Callout Types
+- `[!info]` - Information callouts
+- `[!note]` - Note callouts
+- `[!abstract]` or `[!summary]` or `[!tldr]`
+- `[!tip]` or `[!hint]` or `[!important]`
+- `[!success]` or `[!check]` or `[!done]`
+- `[!question]` or `[!help]` or `[!faq]`
+- `[!warning]` or `[!caution]` or `[!attention]`
+- `[!failure]` or `[!fail]` or `[!missing]`
+- `[!danger]` or `[!error]`
+- `[!bug]`
+- `[!example]`
+- `[!quote]` or `[!cite]`
+
+### Collapsible Callouts
+```markdown
+> [!info]+ Expanded by default
+> Content
+
+> [!info]- Collapsed by default
+> Content
+```
+
+## Frontmatter Requirements
+```yaml
+---
+dg-publish: true
+permalink: /path/to/page/
+dg-path: "Path/To/File"
+noteIcon: ""
+created: "YYYY-MM-DD"
+---
+```
+
+### Common Issues to Avoid in Frontmatter
+1. Do not include trailing commas after property values
+2. Each property should be on its own line
+3. Use consistent indentation
+4. For values with spaces, wrap them in quotes
+5. Don't use JSON format (with colons and commas) inside YAML frontmatter
+
+### Required Properties
+For proper site deployment, the following properties are required:
+- `dg-publish: true` - Enables publishing of the note
+- `permalink` - The URL path for the published note
+
+### Example of Proper Frontmatter
+```yaml
+---
+dg-publish: true
+permalink: /daily-notes/2025-03-23/
+dg-path: "Daily Notes/2025-03-23"
+noteIcon: ""
+created: "2025-03-23"
+---
+```
+
+## Common Patterns
+- Images: Standard markdown with absolute paths
+- Notes: Wiki-style links with relative paths
+- Transclusions: Wiki-style with optional section headers
+- Callouts: Blockquote with `[!type]` syntax
+- Always preview in Obsidian before publishing
+
+## Troubleshooting
+1. If images don't show:
+   - Check for leading slash
+   - Use forward slashes
+   - URL encode spaces with `%20`
+   - Use standard markdown format
+
+2. If transclusions don't work:
+   - Remove `src/site/notes/` from path
+   - Use wiki-style `![[]]` syntax
+   - Remove `.md` extension
+   - Check that target note exists
+   - Verify folder structure matches exactly
+
+3. If links don't work:
+   - Use wiki-style `[[]]` syntax
+   - Keep folder structure
+   - Remove `src/site/notes/`
+   - Check case sensitivity 
+
+4. If callouts don't render properly:
+   - Use `> [!type]` syntax (not `> ![type]`)
+   - Make sure there's a space after the `>`
+   - Check that the callout type is supported
+   - Ensure content is on a new line after the title 
+
+# Wikilink Behavior in Digital Garden
+
+## Link Resolution Requirements
+For wikilinks to work properly in the digital garden, a note MUST have at least one of:
+- `permalink` in frontmatter (e.g., `permalink: /mindfulness/`)
+- `dg-path` in frontmatter (e.g., `dg-path: Daily Notes/2025-03-25`)
+
+Having neither will result in 404 errors, even if the file:
+- Has aliases defined
+- Is properly published (dg-publish: true)
+- Is correctly linked to with wikilink syntax
+
+## Link Resolution Order
+The system tries to resolve links in this order:
+1. Uses permalink if defined in frontmatter
+2. Falls back to dg-path if available
+3. Attempts to use `/notes/${slugify(fileName)}` as last resort (but this doesn't work reliably)
+
+## Examples
+Working link example:
+```markdown
+[[202503250814|Mindfulness]]  # Works because target has permalink: /mindfulness/
+```
+
+Non-working link example:
+```markdown
+[[202503250814|Mindfulness]]  # 404s if target has neither permalink nor dg-path
+```
+
+## Best Practices
+1. Always include at least one of:
+   - `permalink` for standalone notes
+   - `dg-path` for notes that are part of a folder structure
+2. Use aliases in frontmatter to allow linking by different names
+3. Keep URLs consistent by using either permalink or dg-path within similar note types 
