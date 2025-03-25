@@ -14,7 +14,12 @@ This is basically my 2nd brain. Collecting my thoughts and notes and structuring
 This site is created using [[Obsidian\|Obsidian]] , the [Digital Garden Plugin](https://dg-docs.ole.dev/), and deployed with [vercel](https://vercel.com/). 
 
 **Latest Update**
-{% include "components/latestNote.njk" %}
+```dataview
+LIST WITHOUT ID link(file.path, dateformat(file.cday, "dd-MMM-yyyy"))
+FROM "src/site/notes/Daily Notes"
+SORT file.cday DESC
+LIMIT 1
+```
 
 >[!Question] If you're interested in what I'm doing **[[Now\|now]]**
 
