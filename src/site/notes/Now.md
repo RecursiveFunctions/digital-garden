@@ -11,5 +11,6 @@ permalink: /now/
 How to use transclusions on my site
 [[Daily Notes/2025-03-22|2025-03-22]]
 Zettelkasten
-[[Daily Notes/2025-03-23|2025-03-23]]
 
+
+![[202503252330|graph customization]]

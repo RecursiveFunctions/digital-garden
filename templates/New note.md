@@ -3,6 +3,9 @@ dg-publish: false
 tags: 
 permalink: /file/
 hide: true
-aliases:
+aliases: 
+dg-graph-title: 
+dg-graph-exclude: "false"
+dgShowInlineTitle:
 ---
 # Title
