@@ -26,7 +26,7 @@ This site is created using [[Obsidian]] , the [Digital Garden Plugin](https://dg
 
 >[!code] Programming Languages
 >[[Bash]] - Work environment and scripting shell
->[[java/|Java Programming]] - Object-oriented programming language
+>[[202503261845|java]] - Object-oriented programming language
 >[[Powershell]] -  task-based command-line shell and scripting language built on .NET
 >[[R]] - Statistical Programming language
 
