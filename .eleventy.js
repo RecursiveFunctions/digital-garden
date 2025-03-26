@@ -79,9 +79,13 @@ function getAnchorAttributes(filePath, linkTitle) {
       fileName = fileName.replace('src/site/notes/', '');
     }
     
-    // If the path already contains a directory structure, treat it differently
-    if (fileName.includes('/')) {
-      // Don't attempt to create stub files, just construct the path
+    // Check for exact file match in the root directory first
+    const rootFilePath = `${startPath}${fileName}${fileName.endsWith('.md') ? '' : '.md'}`;
+    if (fs.existsSync(rootFilePath)) {
+      // Direct match in root directory
+      fullPath = rootFilePath;
+    } else if (fileName.includes('/')) {
+      // If the path already contains a directory structure, treat it differently
       fullPath = fileName.endsWith(".md") 
         ? `${startPath}${fileName}` 
         : `${startPath}${fileName}.md`;
