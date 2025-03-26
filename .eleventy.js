@@ -385,30 +385,42 @@ module.exports = function (eleventyConfig) {
         let foundFilePath = null;
         
         try {
-          const files = fs.readdirSync(startPath, { recursive: true });
-          
-          // First try to find a direct match by filename
-          const exactMatch = files.find(file => {
-            return file.toLowerCase() === `${fileLink.toLowerCase()}.md` || 
-                   file.toLowerCase() === fileLink.toLowerCase();
-          });
-          
-          if (exactMatch) {
-            foundFilePath = exactMatch.replace(/\.md$/, '');
+          // First, check for exact file match in root directory
+          const rootFilePath = fileLink.endsWith('.md') 
+            ? `${startPath}${fileLink}` 
+            : `${startPath}${fileLink}.md`;
+            
+          if (fs.existsSync(rootFilePath)) {
+            // Direct match in root directory, keep file name as is
+            foundFilePath = fileLink;
           } else {
-            // Try to find by alias if no exact match
-            for (const file of files) {
-              if (!file.endsWith('.md')) continue;
-              try {
-                const content = fs.readFileSync(`${startPath}${file}`, 'utf8');
-                const frontMatter = matter(content);
-                if (frontMatter.data.aliases && Array.isArray(frontMatter.data.aliases) && 
-                    frontMatter.data.aliases.some(alias => alias === fileLink)) {
-                  foundFilePath = file.replace(/\.md$/, '');
-                  break;
+            // If not found in root, search recursively
+            const files = fs.readdirSync(startPath, { recursive: true });
+            
+            // Try to find a direct match by filename
+            const exactMatch = files.find(file => {
+              if (!file.includes('/')) return false; // Skip root files (already checked)
+              return file.toLowerCase() === `${fileLink.toLowerCase()}.md` || 
+                    file.toLowerCase() === fileLink.toLowerCase();
+            });
+            
+            if (exactMatch) {
+              foundFilePath = exactMatch.replace(/\.md$/, '');
+            } else {
+              // Try to find by alias if no exact match
+              for (const file of files) {
+                if (!file.endsWith('.md')) continue;
+                try {
+                  const content = fs.readFileSync(`${startPath}${file}`, 'utf8');
+                  const frontMatter = matter(content);
+                  if (frontMatter.data.aliases && Array.isArray(frontMatter.data.aliases) && 
+                      frontMatter.data.aliases.some(alias => alias === fileLink)) {
+                    foundFilePath = file.replace(/\.md$/, '');
+                    break;
+                  }
+                } catch (e) {
+                  console.warn(`Error reading file ${file} while searching for alias:`, e);
                 }
-              } catch (e) {
-                console.warn(`Error reading file ${file} while searching for alias:`, e);
               }
             }
           }
