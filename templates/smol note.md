@@ -3,6 +3,8 @@ dg-publish: false
 tags: 
 permalink: /file/
 hide: true
-aliases:
+dg-home-link: "false"
+dg-show-local-graph: "false"
 ---
+
 # Title
