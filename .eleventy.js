@@ -40,6 +40,26 @@ function getAnchorAttributes(filePath, linkTitle) {
   let fileName = filePath.replaceAll("&amp;", "&");
   let header = "";
   let headerLinkPath = "";
+  
+  // Handle permalinks in wiki-links
+  if (filePath.startsWith('/') && filePath.endsWith('/')) {
+    // This is a permalink-style link, extract without the slashes
+    const permalinkPath = filePath.slice(1, -1);
+    let noteIcon = process.env.NOTE_ICON_DEFAULT;
+    const title = linkTitle ? linkTitle : permalinkPath;
+    
+    // Simply use the permalink directly
+    return {
+      attributes: {
+        "class": "internal-link",
+        "target": "",
+        "data-note-icon": noteIcon,
+        "href": `${filePath}`,
+      },
+      innerHTML: title,
+    }
+  }
+  
   if (filePath.includes("#")) {
     [fileName, header] = filePath.split("#");
     headerLinkPath = `#${headerToId(header)}`;
@@ -54,16 +74,17 @@ function getAnchorAttributes(filePath, linkTitle) {
     // Handle both full paths, paths with directories, and just filenames
     let fullPath;
     
+    // Make sure we don't duplicate the base path
+    if (fileName.startsWith('src/site/notes/')) {
+      fileName = fileName.replace('src/site/notes/', '');
+    }
+    
     // If the path already contains a directory structure, treat it differently
     if (fileName.includes('/')) {
-      // Try to get or create the file if it doesn't exist
-      try {
-        fullPath = getOrCreateNoteStub(fileName);
-      } catch (e) {
-        fullPath = fileName.endsWith(".md") 
-          ? `${startPath}${fileName}` 
-          : `${startPath}${fileName}.md`;
-      }
+      // Don't attempt to create stub files, just construct the path
+      fullPath = fileName.endsWith(".md") 
+        ? `${startPath}${fileName}` 
+        : `${startPath}${fileName}.md`;
     } else {
       // For simple filenames, search recursively through directories
       const files = fs.readdirSync(startPath, { recursive: true });
@@ -75,33 +96,35 @@ function getAnchorAttributes(filePath, linkTitle) {
       if (matchingFile) {
         fullPath = `${startPath}${matchingFile}`;
       } else {
-        // Try to create a stub if file not found
-        try {
-          fullPath = getOrCreateNoteStub(fileName);
-        } catch (e) {
-          fullPath = fileName.endsWith(".md") 
-            ? `${startPath}${fileName}` 
-            : `${startPath}${fileName}.md`;
-        }
+        // Don't attempt to create stub files, just construct a best-guess path
+        fullPath = fileName.endsWith(".md") 
+          ? `${startPath}${fileName}` 
+          : `${startPath}${fileName}.md`;
       }
     }
     
-    const file = fs.readFileSync(fullPath, "utf8");
-    const frontMatter = matter(file);
-    
-    // Use permalink from frontmatter if available
-    if (frontMatter.data.permalink) {
-      permalink = frontMatter.data.permalink;
-    } else if (frontMatter.data["dg-path"]) {
-      // Use dg-path if available as a fallback
-      permalink = `/${frontMatter.data["dg-path"].toLowerCase().replace(/\s+/g, "-")}/`;
-    }
-    
-    if (frontMatter.data.tags && frontMatter.data.tags.indexOf("gardenEntry") != -1) {
-      permalink = "/";
-    }
-    if (frontMatter.data.noteIcon) {
-      noteIcon = frontMatter.data.noteIcon;
+    // Only try to read the file if it exists
+    if (fs.existsSync(fullPath)) {
+      const file = fs.readFileSync(fullPath, "utf8");
+      const frontMatter = matter(file);
+      
+      // Use permalink from frontmatter if available
+      if (frontMatter.data.permalink) {
+        permalink = frontMatter.data.permalink;
+      } else if (frontMatter.data["dg-path"]) {
+        // Use dg-path if available as a fallback
+        permalink = `/${frontMatter.data["dg-path"].toLowerCase().replace(/\s+/g, "-")}/`;
+      }
+      
+      if (frontMatter.data.tags && frontMatter.data.tags.indexOf("gardenEntry") != -1) {
+        permalink = "/";
+      }
+      if (frontMatter.data.noteIcon) {
+        noteIcon = frontMatter.data.noteIcon;
+      }
+    } else {
+      console.warn(`File not found: ${fullPath}`);
+      deadLink = true;
     }
   } catch (e) {
     console.warn(`Error resolving link for ${fileName}:`, e);
