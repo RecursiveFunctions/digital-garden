@@ -60,8 +60,6 @@ module.exports = function() {
     // Generate the Markdown content
     let content = `---
 dg-publish: true
-permalink: /daily-notes/
-dg-path: "Daily Notes"
 noteIcon: "calendar"
 created: "2025-03-25"
 ---
