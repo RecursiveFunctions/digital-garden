@@ -1,7 +1,6 @@
 ---
 dg-publish: true
 permalink: /daily-notes/
-dg-path: Daily Notes
 noteIcon: calendar
 created: 2025-03-25
 dgShowInlineTitle: false
