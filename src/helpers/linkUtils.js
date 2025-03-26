@@ -36,6 +36,10 @@ function getGraph(data) {
   let stemURLs = {};
   let homeAlias = "/";
   (data.collections.note || []).forEach((v, idx) => {
+    if (v.data["dg-graph-exclude"] === true) {
+      return;
+    }
+    
     let fpath = v.filePathStem.replace("/notes/", "");
     let parts = fpath.split("/");
     let group = "none";
@@ -69,7 +73,9 @@ function getGraph(data) {
     let outBound = new Set();
     node.outBound.forEach((olink) => {
       let link = (stemURLs[olink] || olink).split("#")[0];
-      outBound.add(link);
+      if (nodes[link]) {
+        outBound.add(link);
+      }
     });
     node.outBound = Array.from(outBound);
     node.outBound.forEach((link) => {
