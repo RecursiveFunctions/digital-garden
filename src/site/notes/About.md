@@ -16,6 +16,11 @@ This site is created using [[Obsidian\|Obsidian]] , the [Digital Garden Plugin](
 
 >[!note] [[Daily Notes\|Daily Notes]]
 
+> [!ai] Artificial Intelligence
+> [[ai/Fixing Daily Notes sort order with AI| Using Cursor IDE to change sort order]]
+>[[ai/Lessons learned from file operations]]
+>[[ai/Lessons learned from Nunjucks template development]]
+>[[ai/Types of clustering]]
 
 >[!Question] If you're interested in what I'm doing **[[Now\|now]]**
 
@@ -24,7 +29,6 @@ This site is created using [[Obsidian\|Obsidian]] , the [Digital Garden Plugin](
 >[[Java|Java]] - Object-oriented programming language
 >[[Powershell\|Powershell]] -  task-based command-line shell and scripting language built on .NET
 >[[R\|R]] - Statistical Programming language
->
 
 >[!os] Operating Systems
 > [[Linux\|Linux]]
