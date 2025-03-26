@@ -14,13 +14,13 @@ This is basically my 2nd brain. Collecting my thoughts and notes and structuring
 This site is created using [[Obsidian\|Obsidian]] , the [Digital Garden Plugin](https://dg-docs.ole.dev/), and deployed with [vercel](https://vercel.com/). 
 
 
->[!note] [[Daily Notes\|Daily Notes]]
+>[!note] [[/daily-notes/|Daily Notes]]
 
 > [!ai] Artificial Intelligence
-> [[ai/Fixing Daily Notes sort order with AI| Using Cursor IDE to change sort order]]
->[[ai/Lessons learned from file operations]]
->[[ai/Lessons learned from Nunjucks template development]]
->[[ai/Types of clustering]]
+> [[/ai/fixing-daily-notes-sort-order-with-ai/| Using Cursor IDE to change sort order]]
+>[[/ai/lessons-learned-from-file-operations/| AI documented changes on file operations]]
+>[[/ai/lessons-learned-from-nunjucks-template-development/|AI documented changes on Nunjucks template modifications]]
+>[[Types of clustering]]
 
 >[!Question] If you're interested in what I'm doing **[[Now\|now]]**
 

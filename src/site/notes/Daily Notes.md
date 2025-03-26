@@ -1,6 +1,6 @@
 ---
 dg-publish: true
-permalink: /daily-notes-index/
+permalink: /daily-notes/
 dg-path: Daily Notes
 noteIcon: calendar
 created: 2025-03-25
