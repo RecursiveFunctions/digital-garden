@@ -4,6 +4,7 @@ tags:
   - OS
 permalink: /linux/
 hide: true
+noteIcon: "2"
 ---
 Linux is a [[202503252114|free and open source]] operating system. Typically interfaced with a [[202503252117|command line interface]]
 
