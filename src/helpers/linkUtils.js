@@ -38,7 +38,7 @@ function getGraph(data) {
   let excludedNodes = new Set();
   
   (data.collections.note || []).forEach((v, idx) => {
-    if (v.data["dg-graph-exclude"] === true) {
+    if (v.data["dg-graph-exclude"] === true || v.data["dg-graph-exclude"] === "true") {
       excludedNodes.add(v.url);
       return;
     }
