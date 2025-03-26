@@ -62,6 +62,7 @@ module.exports = function() {
 dg-publish: true
 noteIcon: "calendar"
 created: "2025-03-25"
+permalink: /daily-notes/
 ---
 
 # Daily Notes Archive

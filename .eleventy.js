@@ -143,35 +143,10 @@ function getOrCreateNoteStub(filePath) {
     fs.readFileSync(fullPath, "utf8");
     return fullPath; // Return the path if it exists
   } catch (e) {
-    // File doesn't exist, try to create a stub
-    try {
-      const fileName = filePath.split("/").pop();
-      const dirPath = fullPath.substring(0, fullPath.lastIndexOf("/"));
-      
-      // Create directory if it doesn't exist
-      if (!fs.existsSync(dirPath)) {
-        fs.mkdirSync(dirPath, { recursive: true });
-      }
-      
-      // Create a minimal stub file
-      const stubContent = `---
-dg-publish: true
-permalink: /${slugify(fileName)}/
----
-# ${fileName}
-
-This is a stub page. Content will be added later.
-`;
-      // Only write the file if it doesn't exist
-      if (!fs.existsSync(fullPath)) {
-        fs.writeFileSync(fullPath, stubContent);
-        console.log(`Created stub file: ${fullPath}`);
-      }
-      return fullPath;
-    } catch (stubError) {
-      console.warn(`Error creating stub file: ${stubError.message}`);
-      throw e; // Re-throw the original error
-    }
+    // File doesn't exist, but don't create a stub - just return the path
+    // This disables the automatic stub file creation
+    console.warn(`File not found: ${fullPath}`);
+    return fullPath;
   }
 }
 
