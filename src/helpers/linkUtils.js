@@ -35,8 +35,11 @@ function getGraph(data) {
   let links = [];
   let stemURLs = {};
   let homeAlias = "/";
+  let excludedNodes = new Set();
+  
   (data.collections.note || []).forEach((v, idx) => {
     if (v.data["dg-graph-exclude"] === true) {
+      excludedNodes.add(v.url);
       return;
     }
     
@@ -55,7 +58,7 @@ function getGraph(data) {
         v.data["dg-home"] ||
         (v.data.tags && v.data.tags.indexOf("gardenEntry") > -1) ||
         false,
-      outBound: extractLinks(v.template.frontMatter.content),
+      outBound: extractLinks(v.template.frontMatter.content).filter(link => !excludedNodes.has(link)),
       neighbors: new Set(),
       backLinks: new Set(),
       noteIcon: v.data.noteIcon || process.env.NOTE_ICON_DEFAULT,
@@ -73,14 +76,14 @@ function getGraph(data) {
     let outBound = new Set();
     node.outBound.forEach((olink) => {
       let link = (stemURLs[olink] || olink).split("#")[0];
-      if (nodes[link]) {
+      if (nodes[link] && !excludedNodes.has(link)) {
         outBound.add(link);
       }
     });
     node.outBound = Array.from(outBound);
     node.outBound.forEach((link) => {
       let n = nodes[link];
-      if (n) {
+      if (n && !excludedNodes.has(n.url)) {
         n.neighbors.add(node.url);
         n.backLinks.add(node.url);
         node.neighbors.add(n.url);
