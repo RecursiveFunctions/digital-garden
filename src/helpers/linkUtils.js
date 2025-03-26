@@ -44,7 +44,7 @@ function getGraph(data) {
     }
     nodes[v.url] = {
       id: idx,
-      title: v.data.title || v.fileSlug,
+      title: v.data["dg-graph-title"] || v.data.title || v.fileSlug,
       url: v.url,
       group,
       home:
