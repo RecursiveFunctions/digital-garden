@@ -361,11 +361,136 @@ module.exports = function (eleventyConfig) {
   });
 
   eleventyConfig.addFilter("link", function (str) {
-    return str && str.replace(/!\[\[(.*?)(?:\|(.*?))?\]\]/g, function(match, fileName, linkTitle) {
-      // ... transclusion handling logic ...
-    }).replace(/\[\[(.*?)(?:\|(.*?))?\]\]/g, function(match, fileLink, linkTitle) {
-      // ... regular link handling logic ...
-    });
+    return (
+      str &&
+      str.replace(/\[\[(.*?)(?:\|(.*?))?\]\]/g, function (match, fileLink, linkTitle) {
+        // Check for transclusion links first
+        if (fileLink.startsWith("![[")) {
+          const fileName = fileLink.slice(3, -2);
+          
+          // Try to find the file to transclude
+          const startPath = "./src/site/notes/";
+          let foundFilePath = null;
+          
+          try {
+            // First, check for exact file match in root directory
+            const rootFilePath = fileName.endsWith('.md') 
+              ? `${startPath}${fileName}` 
+              : `${startPath}${fileName}.md`;
+            
+            if (fs.existsSync(rootFilePath)) {
+              // Direct match in root directory, keep file name as is
+              foundFilePath = fileName;
+            } else {
+              // If not found in root, search recursively
+              const files = fs.readdirSync(startPath, { recursive: true });
+              
+              // Try to find a direct match by filename
+              const exactMatch = files.find(file => {
+                if (!file.includes('/')) return false; // Skip root files (already checked)
+                return file.toLowerCase() === `${fileName.toLowerCase()}.md` || 
+                      file.toLowerCase() === fileName.toLowerCase();
+              });
+              
+              if (exactMatch) {
+                foundFilePath = exactMatch.replace(/\.md$/, '');
+              } else {
+                // Try to find by alias if no exact match
+                for (const file of files) {
+                  if (!file.endsWith('.md')) continue;
+                  try {
+                    const content = fs.readFileSync(`${startPath}${file}`, 'utf8');
+                    const frontMatter = matter(content);
+                    if (frontMatter.data.aliases && Array.isArray(frontMatter.data.aliases) && 
+                        frontMatter.data.aliases.some(alias => alias === fileName)) {
+                      foundFilePath = file.replace(/\.md$/, '');
+                      break;
+                    }
+                  } catch (e) {
+                    // Ignore errors, continue searching
+                  }
+                }
+              }
+            }
+          } catch (e) {
+            // Ignore errors, will fallback to default link
+          }
+          
+          if (foundFilePath) {
+            // If file found, generate transclusion link
+            return `<div class="transclusion">${getAnchorLink(foundFilePath, linkTitle || fileName)}</div>`;
+          } else {
+            // If file not found, fallback to default link
+            return getAnchorLink(fileName, linkTitle || fileName);
+          }
+        }
+        
+        // If it's a regular internal link (not a transclusion)
+        if (!fileLink.startsWith("![[")) {
+          // If it's an image link, convert it to markdown image format
+          if (fileLink.match(/\.(png|jpg|jpeg|gif|svg|webp)$/i)) {
+            const imagePath = `/img/user/raw_notes/Images/${fileLink}`;
+            return `![${fileLink}](${imagePath})`;
+          }
+          
+          // If the link already has a path structure, try to use it directly
+          if (fileLink.includes('/')) {
+            return getAnchorLink(fileLink, linkTitle || fileLink);
+          }
+          
+          // Try to find the file by alias or by searching through the file structure
+          const startPath = "./src/site/notes/";
+          let foundFilePath = null;
+          
+          try {
+            // First, check for exact file match in root directory
+            const rootFilePath = fileLink.endsWith('.md') 
+              ? `${startPath}${fileLink}` 
+              : `${startPath}${fileLink}.md`;
+            
+            if (fs.existsSync(rootFilePath)) {
+              // Direct match in root directory, keep file name as is
+              foundFilePath = fileLink;
+            } else {
+              // If not found in root, search recursively
+              const files = fs.readdirSync(startPath, { recursive: true });
+              
+              // Try to find a direct match by filename
+              const exactMatch = files.find(file => {
+                if (!file.includes('/')) return false; // Skip root files (already checked)
+                return file.toLowerCase() === `${fileLink.toLowerCase()}.md` || 
+                      file.toLowerCase() === fileLink.toLowerCase();
+              });
+              
+              if (exactMatch) {
+                foundFilePath = exactMatch.replace(/\.md$/, '');
+              } else {
+                // Try to find by alias if no exact match
+                for (const file of files) {
+                  if (!file.endsWith('.md')) continue;
+                  try {
+                    const content = fs.readFileSync(`${startPath}${file}`, 'utf8');
+                    const frontMatter = matter(content);
+                    if (frontMatter.data.aliases && Array.isArray(frontMatter.data.aliases) && 
+                        frontMatter.data.aliases.some(alias => alias === fileLink)) {
+                      foundFilePath = file.replace(/\.md$/, '');
+                      break;
+                    }
+                  } catch (e) {
+                    console.warn(`Error reading file ${file} while searching for alias:`, e);
+                  }
+                }
+              }
+            }
+          } catch (e) {
+            console.warn(`Error during file search:`, e);
+          }
+          
+          // Use the found path or fall back to the original fileLink
+          return getAnchorLink(foundFilePath || fileLink, linkTitle || fileLink);
+        }
+      })
+    );
   });
 
   eleventyConfig.addFilter("taggify", function (str) {
