@@ -361,6 +361,22 @@ module.exports = function (eleventyConfig) {
     return date && date.toISOString();
   });
 
+  eleventyConfig.addTransform("transclusion", function (content, outputPath) {
+    return content.replace(/!\[\[(.*?)\]\]/g, (match, filename) => {
+      // Attempt to find the file to transclude
+      const filePath = findFile(filename);
+      
+      if (filePath) {
+        // If file found, generate transclusion HTML
+        const fileContent = fs.readFileSync(filePath, 'utf8');
+        return `<div class="transclusion">${this.markdown(fileContent)}</div>`;
+      } else {
+        // If file not found, show an error message
+        return `<div class="transclusion-error">Transclusion error: File "${filename}" not found.</div>`;
+      }
+    });
+  });
+
   eleventyConfig.addFilter("link", function (str) {
     return (
       str &&
@@ -817,22 +833,6 @@ module.exports = function (eleventyConfig) {
 
     return parsed.innerHTML;
   }
-
-  eleventyConfig.addTransform("transclusion", function (content, outputPath) {
-    return content.replace(/!\[\[(.*?)\]\]/g, (match, filename) => {
-      // Attempt to find the file to transclude
-      const filePath = findFile(filename);
-      
-      if (filePath) {
-        // If file found, generate transclusion HTML
-        const fileContent = fs.readFileSync(filePath, 'utf8');
-        return `<div class="transclusion">${this.markdown(fileContent)}</div>`;
-      } else {
-        // If file not found, show an error message
-        return `<div class="transclusion-error">Transclusion error: File "${filename}" not found.</div>`;
-      }
-    });
-  });
 
   function findFile(filename) {
     // Possible file extensions to look for
