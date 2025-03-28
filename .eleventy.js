@@ -363,10 +363,10 @@ module.exports = function (eleventyConfig) {
   eleventyConfig.addFilter("link", function (str) {
     return (
       str &&
-      str.replace(/!\[\[(.*?)(?:\|(.*?))?\]\]/g, function (match, fileLink, linkTitle) {
+      str.replace(/\[\[(.*?)(?:\|(.*?))?\]\]/g, function (match, fileLink, linkTitle) {
         // Check for transclusion links first
-        if (fileLink.startsWith("[[")) {
-          const fileName = fileLink.slice(2, -2);
+        if (fileLink.startsWith("![[")) {
+          const fileName = fileLink.slice(3, -2);
           
           // Try to find the file to transclude
           const startPath = "./src/site/notes/";
