@@ -778,14 +778,6 @@ module.exports = function (eleventyConfig) {
 
   userEleventySetup(eleventyConfig);
 
-  eleventyConfig.addTransform("obsidian-image-embeds", function (str) {
-    // Handle ![[image.png]] format which is common in Obsidian
-    return str.replace(/!\[\[([^[\]]*\.(?:png|jpg|jpeg|gif|svg|webp))\]\]/gi, function (match, imageName) {
-      const imagePath = `/img/user/raw_notes/Images/${imageName}`;
-      return `![${imageName}](${imagePath})`;
-    });
-  });
-  
   // Place this right before the module.exports
   function customImageTransform(content) {
     const parsed = parse(content);
