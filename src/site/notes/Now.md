@@ -12,4 +12,4 @@ permalink: /now/
 
 
 
-![[202503252330|graph customization]]
+![[202503252330]]
