@@ -7,6 +7,7 @@ const tocPlugin = require("eleventy-plugin-nesting-toc");
 const { parse } = require("node-html-parser");
 const htmlMinifier = require("html-minifier-terser");
 const pluginRss = require("@11ty/eleventy-plugin-rss");
+const path = require('path');
 
 const { headerToId, namedHeadingsFilter } = require("./src/helpers/utils");
 const {
@@ -815,6 +816,46 @@ module.exports = function (eleventyConfig) {
     transformCalloutBlocks(parsed.querySelectorAll("blockquote"));
 
     return parsed.innerHTML;
+  }
+
+  eleventyConfig.addTransform("transclusion", function (content, outputPath) {
+    return content.replace(/!\[\[(.*?)\]\]/g, (match, filename) => {
+      // Attempt to find the file to transclude
+      const filePath = findFile(filename);
+      
+      if (filePath) {
+        // If file found, generate transclusion HTML
+        const fileContent = fs.readFileSync(filePath, 'utf8');
+        return `<div class="transclusion">${this.markdown(fileContent)}</div>`;
+      } else {
+        // If file not found, show an error message
+        return `<div class="transclusion-error">Transclusion error: File "${filename}" not found.</div>`;
+      }
+    });
+  });
+
+  function findFile(filename) {
+    // Possible file extensions to look for
+    const extensions = ['md', 'markdown', 'html'];
+    
+    // Possible directories to search in
+    const directories = [
+      path.join(__dirname, 'src', 'site', 'notes'),
+      path.join(__dirname, 'src', 'site', 'posts'),
+    ];
+    
+    // Search for the file in each directory and with each extension
+    for (const dir of directories) {
+      for (const ext of extensions) {
+        const filePath = path.join(dir, `${filename}.${ext}`);
+        if (fs.existsSync(filePath)) {
+          return filePath;
+        }
+      }
+    }
+    
+    // If file not found, return null
+    return null;
   }
 
   return {
