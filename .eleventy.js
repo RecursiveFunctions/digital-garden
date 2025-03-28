@@ -361,85 +361,33 @@ module.exports = function (eleventyConfig) {
     return date && date.toISOString();
   });
 
-  eleventyConfig.addTransform("transclusion", function (content, outputPath) {
-    return content.replace(/!\[\[(.*?)\]\]/g, (match, filename) => {
-      // Attempt to find the file to transclude
-      const filePath = findFile(filename);
-      
-      if (filePath) {
-        // If file found, generate transclusion HTML
-        const fileContent = fs.readFileSync(filePath, 'utf8');
-        return `<div class="transclusion">${this.markdown(fileContent)}</div>`;
-      } else {
-        // If file not found, show an error message
-        return `<div class="transclusion-error">Transclusion error: File "${filename}" not found.</div>`;
-      }
-    });
+  // Add a transclusion filter (not transform) that runs before the link filter
+  eleventyConfig.addFilter("transclusion", function (str) {
+    return (
+      str &&
+      str.replace(/!\[\[(.*?)\]\]/g, (match, filename) => {
+        // Attempt to find the file to transclude
+        const filePath = findFile(filename);
+        
+        if (filePath) {
+          // If file found, generate transclusion HTML
+          const fileContent = fs.readFileSync(filePath, 'utf8');
+          return `<div class="transclusion">${markdownLib.render(fileContent)}</div>`;
+        } else {
+          // If file not found, show an error message
+          return `<div class="transclusion-error">Transclusion error: File "${filename}" not found.</div>`;
+        }
+      })
+    );
   });
 
   eleventyConfig.addFilter("link", function (str) {
     return (
       str &&
       str.replace(/\[\[(.*?)(?:\|(.*?))?\]\]/g, function (match, fileLink, linkTitle) {
-        // Check for transclusion links first
+        // Skip transclusion links since they are now handled by the transclusion filter
         if (fileLink.startsWith("![[")) {
-          const fileName = fileLink.slice(3, -2);
-          
-          // Try to find the file to transclude
-          const startPath = "./src/site/notes/";
-          let foundFilePath = null;
-          
-          try {
-            // First, check for exact file match in root directory
-            const rootFilePath = fileName.endsWith('.md') 
-              ? `${startPath}${fileName}` 
-              : `${startPath}${fileName}.md`;
-            
-            if (fs.existsSync(rootFilePath)) {
-              // Direct match in root directory, keep file name as is
-              foundFilePath = fileName;
-            } else {
-              // If not found in root, search recursively
-              const files = fs.readdirSync(startPath, { recursive: true });
-              
-              // Try to find a direct match by filename
-              const exactMatch = files.find(file => {
-                if (!file.includes('/')) return false; // Skip root files (already checked)
-                return file.toLowerCase() === `${fileName.toLowerCase()}.md` || 
-                      file.toLowerCase() === fileName.toLowerCase();
-              });
-              
-              if (exactMatch) {
-                foundFilePath = exactMatch.replace(/\.md$/, '');
-              } else {
-                // Try to find by alias if no exact match
-                for (const file of files) {
-                  if (!file.endsWith('.md')) continue;
-                  try {
-                    const content = fs.readFileSync(`${startPath}${file}`, 'utf8');
-                    const frontMatter = matter(content);
-                    if (frontMatter.data.aliases && Array.isArray(frontMatter.data.aliases) && 
-                        frontMatter.data.aliases.some(alias => alias === fileName)) {
-                      foundFilePath = file.replace(/\.md$/, '');
-                      break;
-                    }
-                  } catch (e) {
-                    // Ignore errors, continue searching
-                  }
-                }
-              }
-            }
-          } catch (e) {
-            // Ignore errors, will fallback to default link
-          }
-          
-          if (foundFilePath) {
-            // If file found, generate transclusion link
-            return `<div class="transclusion">${getAnchorLink(foundFilePath, linkTitle || fileName)}</div>`;
-          } else {
-            // If file not found, fallback to default link
-            return getAnchorLink(fileName, linkTitle || fileName);
-          }
+          return match; // Return unchanged, already processed by transclusion filter
         }
         
         // Check if it is an embedded excalidraw drawing or mathjax javascript
