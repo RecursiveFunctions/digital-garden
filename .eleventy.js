@@ -372,7 +372,12 @@ module.exports = function (eleventyConfig) {
         if (filePath) {
           // If file found, generate transclusion HTML
           const fileContent = fs.readFileSync(filePath, 'utf8');
-          return `<div class="transclusion">${markdownLib.render(fileContent)}</div>`;
+          
+          // Parse the frontmatter and content
+          const parsed = matter(fileContent);
+          
+          // Render only the content part (excluding frontmatter)
+          return `<div class="transclusion">${markdownLib.render(parsed.content)}</div>`;
         } else {
           // If file not found, show an error message
           return `<div class="transclusion-error">Transclusion error: File "${filename}" not found.</div>`;
