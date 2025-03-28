@@ -425,72 +425,70 @@ module.exports = function (eleventyConfig) {
           }
         }
         
-        // Check if it is an embedded excalidraw drawing or mathjax javascript
-        if (fileLink.indexOf("],[") > -1 || fileLink.indexOf('"$"') > -1) {
-          return match;
-        }
-        
-        // If it's an image link, convert it to markdown image format
-        if (fileLink.match(/\.(png|jpg|jpeg|gif|svg|webp)$/i)) {
-          const imagePath = `/img/user/raw_notes/Images/${fileLink}`;
-          return `![${fileLink}](${imagePath})`;
-        }
-        
-        // If the link already has a path structure, try to use it directly
-        if (fileLink.includes('/')) {
-          return getAnchorLink(fileLink, linkTitle || fileLink);
-        }
-        
-        // Try to find the file by alias or by searching through the file structure
-        const startPath = "./src/site/notes/";
-        let foundFilePath = null;
-        
-        try {
-          // First, check for exact file match in root directory
-          const rootFilePath = fileLink.endsWith('.md') 
-            ? `${startPath}${fileLink}` 
-            : `${startPath}${fileLink}.md`;
+        // If it's a regular internal link (not a transclusion)
+        if (!fileLink.startsWith("![[")) {
+          // If it's an image link, convert it to markdown image format
+          if (fileLink.match(/\.(png|jpg|jpeg|gif|svg|webp)$/i)) {
+            const imagePath = `/img/user/raw_notes/Images/${fileLink}`;
+            return `![${fileLink}](${imagePath})`;
+          }
+          
+          // If the link already has a path structure, try to use it directly
+          if (fileLink.includes('/')) {
+            return getAnchorLink(fileLink, linkTitle || fileLink);
+          }
+          
+          // Try to find the file by alias or by searching through the file structure
+          const startPath = "./src/site/notes/";
+          let foundFilePath = null;
+          
+          try {
+            // First, check for exact file match in root directory
+            const rootFilePath = fileLink.endsWith('.md') 
+              ? `${startPath}${fileLink}` 
+              : `${startPath}${fileLink}.md`;
             
-          if (fs.existsSync(rootFilePath)) {
-            // Direct match in root directory, keep file name as is
-            foundFilePath = fileLink;
-          } else {
-            // If not found in root, search recursively
-            const files = fs.readdirSync(startPath, { recursive: true });
-            
-            // Try to find a direct match by filename
-            const exactMatch = files.find(file => {
-              if (!file.includes('/')) return false; // Skip root files (already checked)
-              return file.toLowerCase() === `${fileLink.toLowerCase()}.md` || 
-                    file.toLowerCase() === fileLink.toLowerCase();
-            });
-            
-            if (exactMatch) {
-              foundFilePath = exactMatch.replace(/\.md$/, '');
+            if (fs.existsSync(rootFilePath)) {
+              // Direct match in root directory, keep file name as is
+              foundFilePath = fileLink;
             } else {
-              // Try to find by alias if no exact match
-              for (const file of files) {
-                if (!file.endsWith('.md')) continue;
-                try {
-                  const content = fs.readFileSync(`${startPath}${file}`, 'utf8');
-                  const frontMatter = matter(content);
-                  if (frontMatter.data.aliases && Array.isArray(frontMatter.data.aliases) && 
-                      frontMatter.data.aliases.some(alias => alias === fileLink)) {
-                    foundFilePath = file.replace(/\.md$/, '');
-                    break;
+              // If not found in root, search recursively
+              const files = fs.readdirSync(startPath, { recursive: true });
+              
+              // Try to find a direct match by filename
+              const exactMatch = files.find(file => {
+                if (!file.includes('/')) return false; // Skip root files (already checked)
+                return file.toLowerCase() === `${fileLink.toLowerCase()}.md` || 
+                      file.toLowerCase() === fileLink.toLowerCase();
+              });
+              
+              if (exactMatch) {
+                foundFilePath = exactMatch.replace(/\.md$/, '');
+              } else {
+                // Try to find by alias if no exact match
+                for (const file of files) {
+                  if (!file.endsWith('.md')) continue;
+                  try {
+                    const content = fs.readFileSync(`${startPath}${file}`, 'utf8');
+                    const frontMatter = matter(content);
+                    if (frontMatter.data.aliases && Array.isArray(frontMatter.data.aliases) && 
+                        frontMatter.data.aliases.some(alias => alias === fileLink)) {
+                      foundFilePath = file.replace(/\.md$/, '');
+                      break;
+                    }
+                  } catch (e) {
+                    console.warn(`Error reading file ${file} while searching for alias:`, e);
                   }
-                } catch (e) {
-                  console.warn(`Error reading file ${file} while searching for alias:`, e);
                 }
               }
             }
+          } catch (e) {
+            console.warn(`Error during file search:`, e);
           }
-        } catch (e) {
-          console.warn(`Error during file search:`, e);
+          
+          // Use the found path or fall back to the original fileLink
+          return getAnchorLink(foundFilePath || fileLink, linkTitle || fileLink);
         }
-        
-        // Use the found path or fall back to the original fileLink
-        return getAnchorLink(foundFilePath || fileLink, linkTitle || fileLink);
       })
     );
   });
@@ -777,45 +775,6 @@ module.exports = function (eleventyConfig) {
   });
 
   userEleventySetup(eleventyConfig);
-
-  eleventyConfig.addTransform("obsidian-image-embeds", function (str) {
-    // Handle ![[image.png]] format which is common in Obsidian
-    return str.replace(/!\[\[([^[\]]*\.(?:png|jpg|jpeg|gif|svg|webp))\]\]/gi, function (match, imageName) {
-      const imagePath = `/img/user/raw_notes/Images/${imageName}`;
-      return `![${imageName}](${imagePath})`;
-    });
-  });
-  
-  // Place this right before the module.exports
-  function customImageTransform(content) {
-    const parsed = parse(content);
-    if(process.env.USE_FULL_RESOLUTION_IMAGES === "true"){
-      //This section handles markdown image with the format ![alt](src|width|class)
-      for (const imageTag of parsed.querySelectorAll(".cm-s-obsidian img")) {
-        const src = imageTag.getAttribute("src");
-        if (!src || !src.startsWith("/")) continue;
-        const cls = imageTag.classList.value;
-        const alt = imageTag.getAttribute("alt");
-        const width = imageTag.getAttribute("width") || '';
-        try {
-          const meta = transformImage(
-          "./src/site" + decodeURI(imageTag.getAttribute("src")),
-          cls,
-          alt,
-          width
-          );
-          fillPictureSourceSets(src, cls, alt, meta, width, imageTag);
-        } catch (e) {
-          console.log("Image transform error:", e);
-        }
-      }
-    }
-
-    // Apply additional callout and image transforms
-    transformCalloutBlocks(parsed.querySelectorAll("blockquote"));
-
-    return parsed.innerHTML;
-  }
 
   return {
     dir: {
