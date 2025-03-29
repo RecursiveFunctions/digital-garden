@@ -17,7 +17,7 @@ const Graph = ({ nodes, edges }) => {
     // Set up force simulation
     const simulation = d3.forceSimulation(nodes)
       .force("link", d3.forceLink(edges).id(d => d.id))
-      .force("charge", d3.forceManyBody())
+      .force("charge", d3.forceManyBody().strength(-400))
       .force("center", d3.forceCenter(400, 250));
 
     // Create edges
@@ -25,15 +25,18 @@ const Graph = ({ nodes, edges }) => {
       .selectAll("line")
       .data(edges)
       .join("line")
-      .attr("stroke", "#999")
-      .attr("stroke-opacity", 0.6);
+        .attr("stroke", "#999")
+        .attr("stroke-opacity", 0.6);
 
     // Create nodes 
     const node = svg.append("g")
       .selectAll("circle")
       .data(nodes)
       .join("circle")
-        .attr("r", 5)
+        .attr("r", d => {
+          const numberOfNeighbors = (d.neighbors && d.neighbors.length) || 2;
+          return Math.min(7, Math.max(numberOfNeighbors / 2, 2));
+        })
         .attr("fill", "#69b3a2")
         .attr("data-testid", "graph-node")
         .call(drag(simulation));
@@ -44,8 +47,9 @@ const Graph = ({ nodes, edges }) => {
       .data(nodes)
       .join("text")
         .text(d => d.title || d.id)
-        .attr('x', 6)
-        .attr('y', 3);
+        .attr('x', 8)
+        .attr('y', 4)
+        .style('font-size', '12px');
 
     // Update node and edge positions on each tick  
     simulation.on("tick", () => {
