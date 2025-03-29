@@ -5,7 +5,14 @@ const Graph = ({ nodes, edges }) => {
   const svgRef = useRef();
 
   useEffect(() => {
+    // Clear previous graph elements
     const svg = d3.select(svgRef.current);
+    svg.selectAll("*").remove();
+
+    // Only proceed if there are nodes and edges
+    if (nodes.length === 0 || edges.length === 0) {
+      return;
+    }
 
     // Set up force simulation
     const simulation = d3.forceSimulation(nodes)
@@ -28,6 +35,7 @@ const Graph = ({ nodes, edges }) => {
       .join("circle")
         .attr("r", 5)
         .attr("fill", "#69b3a2")
+        .attr("data-testid", "graph-node")
         .call(drag(simulation));
 
     // Create node labels
@@ -35,7 +43,7 @@ const Graph = ({ nodes, edges }) => {
       .selectAll("text")
       .data(nodes)
       .join("text")
-        .text(d => d.id)
+        .text(d => d.title || d.id)
         .attr('x', 6)
         .attr('y', 3);
 
@@ -58,7 +66,7 @@ const Graph = ({ nodes, edges }) => {
 
   }, [nodes, edges]);
 
-  return <svg ref={svgRef} width={800} height={500} />;
+  return <svg ref={svgRef} width={800} height={500} data-testid="graph-svg" />;
 }
 
 // Drag handler
