@@ -1,5 +1,5 @@
-import React, { useEffect, useRef } from 'react';
-import * as d3 from 'd3';
+import React, { useEffect, useRef } from '/node_modules/react/index.js';
+import * as d3 from '/node_modules/d3/dist/d3.min.js';
 
 const Graph = ({ 
   nodes = [], 
