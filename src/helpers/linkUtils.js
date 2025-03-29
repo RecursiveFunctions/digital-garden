@@ -31,13 +31,25 @@ function extractLinks(content) {
 }
 
 function getGraph(data) {
+  console.log('Graph generation started. Collections:', Object.keys(data.collections));
+  
   let nodes = {};
   let links = [];
   let stemURLs = {};
   let homeAlias = "/";
   let excludedNodes = new Set();
   
-  (data.collections.note || []).forEach((v, idx) => {
+  const noteCollection = data.collections.note || [];
+  console.log(`Total notes found: ${noteCollection.length}`);
+  
+  noteCollection.forEach((v, idx) => {
+    console.log(`Processing note: ${v.url}`, {
+      title: v.data.title,
+      fileSlug: v.fileSlug,
+      graphExclude: v.data["dg-graph-exclude"],
+      frontMatterContent: v.template?.frontMatter?.content
+    });
+
     if (v.data["dg-graph-exclude"] === true || v.data["dg-graph-exclude"] === "true") {
       excludedNodes.add(v.url);
       return;
@@ -49,6 +61,18 @@ function getGraph(data) {
     if (parts.length >= 3) {
       group = parts[parts.length - 2];
     }
+
+    // Fallback to reading file content if template content is not available
+    let content = '';
+    try {
+      const fs = require('fs');
+      const path = require('path');
+      const fullPath = path.join(__dirname, '..', 'site', 'notes', `${fpath}.md`);
+      content = fs.readFileSync(fullPath, 'utf8');
+    } catch (error) {
+      console.error(`Could not read file for ${fpath}:`, error);
+    }
+
     nodes[v.url] = {
       id: idx,
       title: v.data["dg-graph-title"] || v.data.title || v.fileSlug,
@@ -58,7 +82,7 @@ function getGraph(data) {
         v.data["dg-home"] ||
         (v.data.tags && v.data.tags.indexOf("gardenEntry") > -1) ||
         false,
-      outBound: extractLinks(v.template.frontMatter.content).filter(link => !excludedNodes.has(link)),
+      outBound: extractLinks(content || v.template?.frontMatter?.content || '').filter(link => !excludedNodes.has(link)),
       neighbors: new Set(),
       backLinks: new Set(),
       noteIcon: v.data.noteIcon || process.env.NOTE_ICON_DEFAULT,
@@ -96,6 +120,13 @@ function getGraph(data) {
     nodes[k].backLinks = Array.from(nodes[k].backLinks);
     nodes[k].size = nodes[k].neighbors.length;
   });
+
+  console.log('Graph generation result:', {
+    homeAlias,
+    nodeCount: Object.keys(nodes).length,
+    linkCount: links.length
+  });
+
   return {
     homeAlias,
     nodes,

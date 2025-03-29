@@ -70,9 +70,9 @@ function getAnchorAttributes(filePath, linkTitle) {
   const title = linkTitle ? linkTitle : fileName;
   let permalink = `/notes/${slugify(fileName)}`;
   let deadLink = false;
+
   try {
     const startPath = "./src/site/notes/";
-    // Handle both full paths, paths with directories, and just filenames
     let fullPath;
     
     // Make sure we don't duplicate the base path
@@ -171,8 +171,7 @@ function getOrCreateNoteStub(filePath) {
     fs.readFileSync(fullPath, "utf8");
     return fullPath; // Return the path if it exists
   } catch (e) {
-    // File doesn't exist, but don't create a stub - just return the path
-    // This disables the automatic stub file creation
+    // File doesn't exist, just log a warning
     console.warn(`File not found: ${fullPath}`);
     return fullPath;
   }
@@ -699,7 +698,8 @@ module.exports = function (eleventyConfig) {
   eleventyConfig.addPassthroughCopy("src/site/img");
   eleventyConfig.addPassthroughCopy("src/site/scripts");
   eleventyConfig.addPassthroughCopy("src/site/styles/_theme.*.css");
-  eleventyConfig.addPlugin(faviconsPlugin, { outputDir: "dist" });
+  // Temporarily comment out favicon plugin
+  // eleventyConfig.addPlugin(faviconsPlugin, { outputDir: "dist" });
   eleventyConfig.addPlugin(tocPlugin, {
     ul: true,
     tags: ["h1", "h2", "h3", "h4", "h5", "h6"],

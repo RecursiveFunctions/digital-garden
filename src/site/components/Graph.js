@@ -12,84 +12,102 @@ const Graph = ({
   const svgRef = useRef();
 
   useEffect(() => {
-    if (!svgRef.current || nodes.length === 0) return;
-    
-    const svg = d3.select(svgRef.current);
-    svg.selectAll("*").remove(); // Clear previous graph
+    console.log('Graph component received:', { nodes, edges });
 
-    // Ensure nodes have unique IDs
-    const processedNodes = nodes.map((node, index) => ({
-      ...node,
-      id: node.id || `node-${index}`
-    }));
+    if (!svgRef.current) {
+      console.error('SVG ref is not available');
+      return;
+    }
 
-    // Ensure edges reference correct node IDs
-    const processedEdges = edges.map(edge => ({
-      ...edge,
-      source: processedNodes.find(n => n.id === edge.source)?.id || edge.source,
-      target: processedNodes.find(n => n.id === edge.target)?.id || edge.target
-    })).filter(edge => 
-      processedNodes.some(n => n.id === edge.source) && 
-      processedNodes.some(n => n.id === edge.target)
-    );
+    if (nodes.length === 0) {
+      console.warn('No nodes to render');
+      return;
+    }
 
-    // Set up force simulation
-    const simulation = d3.forceSimulation(processedNodes)
-      .force("link", d3.forceLink(processedEdges).id(d => d.id))
-      .force("charge", d3.forceManyBody().strength(-300))
-      .force("center", d3.forceCenter(width / 2, height / 2))
-      .force("x", d3.forceX(width / 2).strength(0.1))
-      .force("y", d3.forceY(height / 2).strength(0.1))
-      .alphaDecay(0.02)
-      .alphaMin(0.1);
+    try {
+      const svg = d3.select(svgRef.current);
+      svg.selectAll("*").remove(); // Clear previous graph
 
-    // Create edges
-    const link = svg.append("g")
-      .selectAll("line")
-      .data(processedEdges)
-      .join("line")
-      .attr("stroke", linkColor)
-      .attr("stroke-opacity", 0.6);
+      // Ensure nodes have unique IDs
+      const processedNodes = nodes.map((node, index) => ({
+        ...node,
+        id: node.id || `node-${index}`
+      }));
 
-    // Create nodes 
-    const node = svg.append("g")
-      .selectAll("circle")
-      .data(processedNodes)
-      .join("circle")
-        .attr("r", d => {
-          const numberOfNeighbors = (d.neighbors && d.neighbors.length) || 2;
-          return Math.min(7, Math.max(numberOfNeighbors / 2, 2));
-        })
-        .attr("fill", nodeColor)
-        .attr("data-testid", "graph-node")
-        .call(drag(simulation));
+      // Ensure edges reference correct node IDs
+      const processedEdges = edges.map(edge => ({
+        ...edge,
+        source: processedNodes.find(n => n.id === edge.source)?.id || edge.source,
+        target: processedNodes.find(n => n.id === edge.target)?.id || edge.target
+      })).filter(edge => 
+        processedNodes.some(n => n.id === edge.source) && 
+        processedNodes.some(n => n.id === edge.target)
+      );
 
-    // Create node labels
-    const label = svg.append("g")
-      .selectAll("text")
-      .data(processedNodes)
-      .join("text")
-        .text(d => d.title || d.id)
-        .attr('x', 6)
-        .attr('y', 3)
-        .style('font-size', '10px');
+      console.log('Processed nodes:', processedNodes);
+      console.log('Processed edges:', processedEdges);
 
-    // Update node and edge positions on each tick  
-    simulation.on("tick", () => {
-      link
-        .attr("x1", d => d.source.x)
-        .attr("y1", d => d.source.y)  
-        .attr("x2", d => d.target.x)
-        .attr("y2", d => d.target.y);
+      // Set up force simulation
+      const simulation = d3.forceSimulation(processedNodes)
+        .force("link", d3.forceLink(processedEdges).id(d => d.id))
+        .force("charge", d3.forceManyBody().strength(-300))
+        .force("center", d3.forceCenter(width / 2, height / 2))
+        .force("x", d3.forceX(width / 2).strength(0.1))
+        .force("y", d3.forceY(height / 2).strength(0.1))
+        .alphaDecay(0.02)
+        .alphaMin(0.1);
 
-      node
-        .attr("cx", d => d.x)
-        .attr("cy", d => d.y);
-      
-      label
-        .attr("x", d => d.x)
-        .attr("y", d => d.y);
-    });
+      // Create edges
+      const link = svg.append("g")
+        .selectAll("line")
+        .data(processedEdges)
+        .join("line")
+        .attr("stroke", linkColor)
+        .attr("stroke-opacity", 0.6);
+
+      // Create nodes 
+      const node = svg.append("g")
+        .selectAll("circle")
+        .data(processedNodes)
+        .join("circle")
+          .attr("r", d => {
+            const numberOfNeighbors = (d.neighbors && d.neighbors.length) || 2;
+            return Math.min(7, Math.max(numberOfNeighbors / 2, 2));
+          })
+          .attr("fill", nodeColor)
+          .attr("data-testid", "graph-node")
+          .call(drag(simulation));
+
+      // Create node labels
+      const label = svg.append("g")
+        .selectAll("text")
+        .data(processedNodes)
+        .join("text")
+          .text(d => d.title || d.id)
+          .attr('x', 6)
+          .attr('y', 3)
+          .style('font-size', '10px');
+
+      // Update node and edge positions on each tick  
+      simulation.on("tick", () => {
+        link
+          .attr("x1", d => d.source.x)
+          .attr("y1", d => d.source.y)  
+          .attr("x2", d => d.target.x)
+          .attr("y2", d => d.target.y);
+
+        node
+          .attr("cx", d => d.x)
+          .attr("cy", d => d.y);
+        
+        label
+          .attr("x", d => d.x)
+          .attr("y", d => d.y);
+      });
+
+    } catch (error) {
+      console.error('Error rendering graph:', error);
+    }
 
   }, [nodes, edges, width, height, nodeColor, linkColor]);
 

@@ -4,9 +4,29 @@
     import Graph from '/site/components/Graph.js';
 
     async function fetchGraphData() {
-        const graphData = await fetch('/graph.json').then(res => res.json());
-        const fullGraphData = filterFullGraphData(graphData);
-        return {graphData, fullGraphData}
+        try {
+            console.log('Fetching graph data...');
+            const response = await fetch('/graph.json');
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const graphData = await response.json();
+            console.log('Raw graph data:', graphData);
+
+            // Validate graph data structure
+            if (!graphData || !graphData.nodes || !graphData.links) {
+                throw new Error('Invalid graph data structure');
+            }
+
+            const fullGraphData = filterFullGraphData(graphData);
+            console.log('Filtered full graph data:', fullGraphData);
+            return {graphData, fullGraphData}
+        } catch (error) {
+            console.error('Error fetching graph data:', error);
+            return { graphData: null, fullGraphData: null };
+        }
     }
 
     function getNextLevelNeighbours(existing, remaining) {
@@ -26,23 +46,39 @@
 
     function filterLocalGraphData(graphData, depth) {
         if (graphData == null) {
+            console.warn('Graph data is null in filterLocalGraphData');
             return { nodes: [], edges: [] };
         }
-        let remaining = JSON.parse(JSON.stringify(graphData.nodes));
-        let links = JSON.parse(JSON.stringify(graphData.links));
-        let currentLink = decodeURI(window.location.pathname);
-        let currentNode = remaining[currentLink] || Object.values(remaining).find((v) => v.home);
         
+        // Convert object to array of nodes if needed
+        const nodesArray = Array.isArray(graphData.nodes) 
+            ? graphData.nodes 
+            : Object.values(graphData.nodes);
+        
+        const linksArray = Array.isArray(graphData.links) 
+            ? graphData.links 
+            : Object.values(graphData.links);
+
+        console.log('Local graph raw data:', { 
+            nodesCount: nodesArray.length, 
+            linksCount: linksArray.length 
+        });
+
         // Convert graph data to our component's format
-        const nodes = Object.values(remaining).map(node => ({
-            id: node.url,
-            title: node.title
+        const nodes = nodesArray.map(node => ({
+            id: node.url || node.id,
+            title: node.title || node.id
         }));
 
-        const edges = links.map(link => ({
+        const edges = linksArray.map(link => ({
             source: link.source,
             target: link.target
         }));
+
+        console.log('Local graph processed:', { 
+            nodes, 
+            edges 
+        });
 
         return { nodes, edges };
     }
@@ -56,48 +92,80 @@
 
     function filterFullGraphData(graphData) {
         if (graphData == null) {
+            console.warn('Graph data is null in filterFullGraphData');
             return { nodes: [], edges: [] };
         }
-        graphData = JSON.parse(JSON.stringify(graphData));
-        const hiddens = Object.values(graphData.nodes).filter((n) => n.hide).map((n) => n.id);
         
-        const nodes = Object.values(graphData.nodes)
+        // Convert object to array of nodes if needed
+        const nodesArray = Array.isArray(graphData.nodes) 
+            ? graphData.nodes 
+            : Object.values(graphData.nodes);
+        
+        const linksArray = Array.isArray(graphData.links) 
+            ? graphData.links 
+            : Object.values(graphData.links);
+
+        const hiddens = nodesArray
+            .filter((n) => n.hide)
+            .map((n) => n.url || n.id);
+        
+        const nodes = nodesArray
             .filter((n) => !n.hide)
             .map(node => ({
-                id: node.url,
-                title: node.title
+                id: node.url || node.id,
+                title: node.title || node.id
             }));
 
-        const edges = JSON.parse(JSON.stringify(graphData.links))
-            .filter((l) => hiddens.indexOf(l.source) == -1 && hiddens.indexOf(l.target) == -1)
+        const edges = linksArray
+            .filter((l) => 
+                !hiddens.includes(l.source) && 
+                !hiddens.includes(l.target)
+            )
             .map(link => ({
                 source: link.source,
                 target: link.target
             }));
 
+        console.log('Full graph processed:', { 
+            nodes, 
+            edges 
+        });
+
         return { nodes, edges };
     }
 
     async function initializeGraph() {
-        const { graphData, fullGraphData } = await fetchGraphData();
-        
-        // Render local graph
-        const localGraphContainer = document.getElementById('link-graph');
-        const localData = filterLocalGraphData(graphData, 3);
-        const localRoot = createRoot(localGraphContainer);
-        localRoot.render(React.createElement(Graph, { 
-            nodes: localData.nodes, 
-            edges: localData.edges 
-        }));
+        try {
+            const { graphData, fullGraphData } = await fetchGraphData();
+            
+            // Render local graph
+            const localGraphContainer = document.getElementById('link-graph');
+            if (!localGraphContainer) {
+                console.error('Local graph container not found');
+                return;
+            }
+            const localData = filterLocalGraphData(graphData, 3);
+            const localRoot = createRoot(localGraphContainer);
+            localRoot.render(React.createElement(Graph, { 
+                nodes: localData.nodes, 
+                edges: localData.edges 
+            }));
 
-        // Render full graph
-        const fullGraphContainer = document.getElementById('full-graph-container');
-        const fullData = filterFullGraphData(graphData);
-        const fullRoot = createRoot(fullGraphContainer);
-        fullRoot.render(React.createElement(Graph, { 
-            nodes: fullData.nodes, 
-            edges: fullData.edges 
-        }));
+            // Render full graph
+            const fullGraphContainer = document.getElementById('full-graph-container');
+            if (!fullGraphContainer) {
+                console.error('Full graph container not found');
+                return;
+            }
+            const fullData = filterFullGraphData(graphData);
+            const fullRoot = createRoot(fullGraphContainer);
+            fullRoot.render(React.createElement(Graph, { 
+                nodes: fullData.nodes, 
+                edges: fullData.edges 
+            }));
+        } catch (error) {
+            console.error('Error initializing graph:', error);
+        }
     }
 
     // Initialize graph when the page loads
