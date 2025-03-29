@@ -51,6 +51,7 @@ function getGraph(data) {
     });
 
     if (v.data["dg-graph-exclude"] === true || v.data["dg-graph-exclude"] === "true") {
+      console.log(`Excluding note: ${v.url}`);
       excludedNodes.add(v.url);
       return;
     }
@@ -88,6 +89,7 @@ function getGraph(data) {
       noteIcon: v.data.noteIcon || process.env.NOTE_ICON_DEFAULT,
       hide: v.data.hideInGraph || false,
     };
+    console.log(`Node created: ${v.url}`, nodes[v.url]);
     stemURLs[fpath] = v.url;
     if (
       v.data["dg-home"] ||

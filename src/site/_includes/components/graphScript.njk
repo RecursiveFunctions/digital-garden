@@ -138,6 +138,11 @@
         try {
             const { graphData, fullGraphData } = await fetchGraphData();
             
+            if (!graphData || !fullGraphData) {
+                console.error('Graph data is null or invalid');
+                return;
+            }
+            
             // Render local graph
             const localGraphContainer = document.getElementById('link-graph');
             if (!localGraphContainer) {
