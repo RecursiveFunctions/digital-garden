@@ -16,9 +16,13 @@ const Graph = ({ nodes, edges }) => {
 
     // Set up force simulation
     const simulation = d3.forceSimulation(nodes)
-      .force("link", d3.forceLink(edges).id(d => d.id))
-      .force("charge", d3.forceManyBody().strength(-400))
-      .force("center", d3.forceCenter(400, 250));
+      .force("link", d3.forceLink(edges).id(d => d.id).distance(100))
+      .force("charge", d3.forceManyBody().strength(-300))
+      .force("center", d3.forceCenter(400, 250))
+      .force("x", d3.forceX(400).strength(0.1))
+      .force("y", d3.forceY(250).strength(0.1))
+      .alphaDecay(0.02)
+      .alphaMin(0.1);
 
     // Create edges
     const link = svg.append("g")
