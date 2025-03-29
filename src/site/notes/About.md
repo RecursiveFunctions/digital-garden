@@ -39,7 +39,7 @@ This site is created using [[Obsidian]] , the [Digital Garden Plugin](https://dg
 > [[Windows]]
 
 >[!gov] Civics and Government
-> [[The constitution]]
+> [[202503280149|Constitution]]
 
 >[!note] Philosophy
 > [[Philosophy/Personal Views|Personal Views]]
