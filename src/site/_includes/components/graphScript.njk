@@ -1,9 +1,6 @@
 <script type="module">
-    import React from '/node_modules/react/index.js';
-    import { createRoot } from '/node_modules/react-dom/client/index.js';
-    import Graph from '/site/components/Graph.js';
-
-    async function fetchGraphData() {
+    // Instead of importing React and ReactDOM, we'll load them from a CDN
+    const fetchGraphData = async () => {
         try {
             console.log('Fetching graph data...');
             const response = await fetch('/graph.json');
@@ -20,29 +17,12 @@
                 throw new Error('Invalid graph data structure');
             }
 
-            const fullGraphData = filterFullGraphData(graphData);
-            console.log('Filtered full graph data:', fullGraphData);
-            return {graphData, fullGraphData}
+            return graphData;
         } catch (error) {
             console.error('Error fetching graph data:', error);
-            return { graphData: null, fullGraphData: null };
+            return null;
         }
-    }
-
-    function getNextLevelNeighbours(existing, remaining) {
-        const keys = Object.values(existing).map((n) => n.neighbors).flat();
-        const n_remaining = Object.keys(remaining).reduce((acc, key) => {
-                if (keys.indexOf(key) != -1) {
-                    if (!remaining[key].hide) {
-                        existing[key] = remaining[key];
-                    }
-                } else {
-                    acc[key] = remaining[key];
-                }
-                return acc;
-            }, {});
-        return existing, n_remaining;
-    }
+    };
 
     function filterLocalGraphData(graphData, depth) {
         if (graphData == null) {
@@ -67,7 +47,8 @@
         // Convert graph data to our component's format
         const nodes = nodesArray.map(node => ({
             id: node.url || node.id,
-            title: node.title || node.id
+            title: node.title || node.id,
+            neighbors: node.neighbors || []
         }));
 
         const edges = linksArray.map(link => ({
@@ -83,99 +64,177 @@
         return { nodes, edges };
     }
 
-    function getCssVar(variable) {return getComputedStyle(document.body).getPropertyValue(variable)}
+    function renderGraph(container, nodes, edges) {
+        if (!container) {
+            console.error('Graph container not found');
+            return;
+        }
 
-    function htmlDecode(input) {
-        var doc = new DOMParser().parseFromString(input, "text/html");
-        return doc.documentElement.textContent;
+        if (!nodes || nodes.length === 0) {
+            console.warn('No nodes to render');
+            return;
+        }
+
+        try {
+            // Clear previous graph
+            container.innerHTML = '';
+            
+            // Create SVG element
+            const svg = d3.create("svg")
+                .attr("width", 800)
+                .attr("height", 500);
+            
+            // Ensure nodes have unique IDs
+            const processedNodes = nodes.map((node, index) => ({
+                ...node,
+                id: node.id || `node-${index}`
+            }));
+
+            // Ensure edges reference correct node IDs
+            const processedEdges = edges.filter(edge => 
+                processedNodes.some(n => n.id === edge.source) && 
+                processedNodes.some(n => n.id === edge.target)
+            );
+
+            console.log('Processed for graph:', { 
+                nodes: processedNodes, 
+                edges: processedEdges 
+            });
+
+            // Set up force simulation
+            const simulation = d3.forceSimulation(processedNodes)
+                .force("link", d3.forceLink(processedEdges).id(d => d.id))
+                .force("charge", d3.forceManyBody().strength(-300))
+                .force("center", d3.forceCenter(400, 250))
+                .force("x", d3.forceX(400).strength(0.1))
+                .force("y", d3.forceY(250).strength(0.1))
+                .alphaDecay(0.02)
+                .alphaMin(0.1);
+
+            // Create edges
+            const link = svg.append("g")
+                .selectAll("line")
+                .data(processedEdges)
+                .join("line")
+                .attr("stroke", "#999")
+                .attr("stroke-opacity", 0.6);
+
+            // Create nodes 
+            const node = svg.append("g")
+                .selectAll("circle")
+                .data(processedNodes)
+                .join("circle")
+                .attr("r", d => {
+                    const numberOfNeighbors = (d.neighbors && d.neighbors.length) || 2;
+                    return Math.min(7, Math.max(numberOfNeighbors / 2, 2));
+                })
+                .attr("fill", "#69b3a2")
+                .call(drag(simulation));
+
+            // Create node labels
+            const label = svg.append("g")
+                .selectAll("text")
+                .data(processedNodes)
+                .join("text")
+                .text(d => d.title || d.id)
+                .attr('x', 6)
+                .attr('y', 3)
+                .style('font-size', '10px');
+
+            // Update node and edge positions on each tick  
+            simulation.on("tick", () => {
+                link
+                    .attr("x1", d => d.source.x)
+                    .attr("y1", d => d.source.y)  
+                    .attr("x2", d => d.target.x)
+                    .attr("y2", d => d.target.y);
+
+                node
+                    .attr("cx", d => d.x)
+                    .attr("cy", d => d.y);
+                
+                label
+                    .attr("x", d => d.x)
+                    .attr("y", d => d.y);
+            });
+
+            // Add the SVG to the container
+            container.appendChild(svg.node());
+
+        } catch (error) {
+            console.error('Error rendering graph:', error);
+        }
     }
 
-    function filterFullGraphData(graphData) {
-        if (graphData == null) {
-            console.warn('Graph data is null in filterFullGraphData');
-            return { nodes: [], edges: [] };
+    // Drag handler
+    function drag(simulation) {
+        function dragstarted(event) {
+            if (!event.active) simulation.alphaTarget(0.3).restart();
+            event.subject.fx = event.subject.x;
+            event.subject.fy = event.subject.y;
         }
         
-        // Convert object to array of nodes if needed
-        const nodesArray = Array.isArray(graphData.nodes) 
-            ? graphData.nodes 
-            : Object.values(graphData.nodes);
+        function dragged(event) {
+            event.subject.fx = event.x;
+            event.subject.fy = event.y;
+        }
         
-        const linksArray = Array.isArray(graphData.links) 
-            ? graphData.links 
-            : Object.values(graphData.links);
-
-        const hiddens = nodesArray
-            .filter((n) => n.hide)
-            .map((n) => n.url || n.id);
+        function dragended(event) {
+            if (!event.active) simulation.alphaTarget(0);
+            event.subject.fx = null;
+            event.subject.fy = null;
+        }
         
-        const nodes = nodesArray
-            .filter((n) => !n.hide)
-            .map(node => ({
-                id: node.url || node.id,
-                title: node.title || node.id
-            }));
-
-        const edges = linksArray
-            .filter((l) => 
-                !hiddens.includes(l.source) && 
-                !hiddens.includes(l.target)
-            )
-            .map(link => ({
-                source: link.source,
-                target: link.target
-            }));
-
-        console.log('Full graph processed:', { 
-            nodes, 
-            edges 
-        });
-
-        return { nodes, edges };
+        return d3.drag()
+            .on("start", dragstarted)
+            .on("drag", dragged)
+            .on("end", dragended);
     }
 
     async function initializeGraph() {
         try {
-            const { graphData, fullGraphData } = await fetchGraphData();
+            const graphData = await fetchGraphData();
             
-            if (!graphData || !fullGraphData) {
+            if (!graphData) {
                 console.error('Graph data is null or invalid');
                 return;
             }
             
             // Render local graph
             const localGraphContainer = document.getElementById('link-graph');
-            if (!localGraphContainer) {
+            if (localGraphContainer) {
+                const localData = filterLocalGraphData(graphData, 3);
+                renderGraph(localGraphContainer, localData.nodes, localData.edges);
+            } else {
                 console.error('Local graph container not found');
-                return;
             }
-            const localData = filterLocalGraphData(graphData, 3);
-            const localRoot = createRoot(localGraphContainer);
-            localRoot.render(React.createElement(Graph, { 
-                nodes: localData.nodes, 
-                edges: localData.edges 
-            }));
 
             // Render full graph
             const fullGraphContainer = document.getElementById('full-graph-container');
-            if (!fullGraphContainer) {
+            if (fullGraphContainer) {
+                const fullData = filterLocalGraphData(graphData, 100); // Use a large depth for full graph
+                renderGraph(fullGraphContainer, fullData.nodes, fullData.edges);
+            } else {
                 console.error('Full graph container not found');
-                return;
             }
-            const fullData = filterFullGraphData(graphData);
-            const fullRoot = createRoot(fullGraphContainer);
-            fullRoot.render(React.createElement(Graph, { 
-                nodes: fullData.nodes, 
-                edges: fullData.edges 
-            }));
         } catch (error) {
             console.error('Error initializing graph:', error);
         }
     }
 
-    // Initialize graph when the page loads
-    initializeGraph();
+    // Initialize graph when D3 is loaded
+    document.addEventListener('DOMContentLoaded', function() {
+        if (typeof d3 !== 'undefined') {
+            initializeGraph();
+        } else {
+            console.error('D3 library not loaded');
+        }
+    });
 </script>
+
+<!-- Load D3.js from CDN -->
+<script src="https://d3js.org/d3.v7.min.js"></script>
+
 <div x-data="{ graphData: null, depth: 3, showFullGraph: false }" id="graph-component">
     <div class="graph-title-container">
         <div class="graph-title">Connected Pages</div>
