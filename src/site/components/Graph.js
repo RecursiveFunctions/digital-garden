@@ -1,47 +1,78 @@
 import React, { useEffect, useRef } from 'react';
 import * as d3 from 'd3';
 
-const Graph = ({ nodes, edges }) => {
+const Graph = ({ 
+  nodes = [], 
+  edges = [], 
+  width = 800, 
+  height = 500, 
+  nodeColor = "#69b3a2", 
+  linkColor = "#999" 
+}) => {
   const svgRef = useRef();
 
   useEffect(() => {
-    if (!svgRef.current) return;
+    if (!svgRef.current || nodes.length === 0) return;
     
     const svg = d3.select(svgRef.current);
     svg.selectAll("*").remove(); // Clear previous graph
 
+    // Ensure nodes have unique IDs
+    const processedNodes = nodes.map((node, index) => ({
+      ...node,
+      id: node.id || `node-${index}`
+    }));
+
+    // Ensure edges reference correct node IDs
+    const processedEdges = edges.map(edge => ({
+      ...edge,
+      source: processedNodes.find(n => n.id === edge.source)?.id || edge.source,
+      target: processedNodes.find(n => n.id === edge.target)?.id || edge.target
+    })).filter(edge => 
+      processedNodes.some(n => n.id === edge.source) && 
+      processedNodes.some(n => n.id === edge.target)
+    );
+
     // Set up force simulation
-    const simulation = d3.forceSimulation(nodes)
-      .force("link", d3.forceLink(edges).id(d => d.id))
-      .force("charge", d3.forceManyBody())
-      .force("center", d3.forceCenter(400, 250));
+    const simulation = d3.forceSimulation(processedNodes)
+      .force("link", d3.forceLink(processedEdges).id(d => d.id))
+      .force("charge", d3.forceManyBody().strength(-300))
+      .force("center", d3.forceCenter(width / 2, height / 2))
+      .force("x", d3.forceX(width / 2).strength(0.1))
+      .force("y", d3.forceY(height / 2).strength(0.1))
+      .alphaDecay(0.02)
+      .alphaMin(0.1);
 
     // Create edges
     const link = svg.append("g")
       .selectAll("line")
-      .data(edges)
+      .data(processedEdges)
       .join("line")
-      .attr("stroke", "#999")
+      .attr("stroke", linkColor)
       .attr("stroke-opacity", 0.6);
 
     // Create nodes 
     const node = svg.append("g")
       .selectAll("circle")
-      .data(nodes)
+      .data(processedNodes)
       .join("circle")
-        .attr("r", 5)
-        .attr("fill", "#69b3a2")
+        .attr("r", d => {
+          const numberOfNeighbors = (d.neighbors && d.neighbors.length) || 2;
+          return Math.min(7, Math.max(numberOfNeighbors / 2, 2));
+        })
+        .attr("fill", nodeColor)
         .attr("data-testid", "graph-node")
         .call(drag(simulation));
 
     // Create node labels
     const label = svg.append("g")
       .selectAll("text")
-      .data(nodes)
+      .data(processedNodes)
       .join("text")
         .text(d => d.title || d.id)
         .attr('x', 6)
-        .attr('y', 3);
+        .attr('y', 3)
+        .style('font-size', '10px');
 
     // Update node and edge positions on each tick  
     simulation.on("tick", () => {
@@ -60,14 +91,15 @@ const Graph = ({ nodes, edges }) => {
         .attr("y", d => d.y);
     });
 
-  }, [nodes, edges]);
+  }, [nodes, edges, width, height, nodeColor, linkColor]);
 
-  return <svg ref={svgRef} width={800} height={500} data-testid="graph-svg" />;
+  return nodes.length > 0 
+    ? <svg ref={svgRef} width={width} height={height} data-testid="graph-svg" /> 
+    : null;
 }
 
 // Drag handler
 const drag = simulation => {
-  
   function dragstarted(event) {
     if (!event.active) simulation.alphaTarget(0.3).restart();
     event.subject.fx = event.subject.x;

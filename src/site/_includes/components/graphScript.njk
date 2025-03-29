@@ -54,103 +54,6 @@
         return doc.documentElement.textContent;
     }
 
-    function renderGraph(graphData, id, delay, fullScreen) {
-        if (graphData == null) {
-            return;
-        }
-        const el = document.getElementById(id);
-        width = el.offsetWidth;
-        height = el.offsetHeight;
-        const highlightNodes = new Set();
-        let hoverNode = null;
-        const color = getCssVar("--graph-main");
-        const mutedColor = getCssVar("--graph-muted");
-        let Graph = ForceGraph()
-        (el)
-            .graphData(graphData)
-            .nodeId('id')
-            .nodeLabel('title')
-            .linkSource('source')
-            .linkTarget('target')
-            .d3AlphaDecay(0.10)
-            .width(width)
-            .height(height)
-            .linkDirectionalArrowLength(2)
-            .linkDirectionalArrowRelPos(0.5)
-            .autoPauseRedraw(false)
-            .linkColor((link) => {
-                if (hoverNode == null) {
-                    return color;
-                }
-                if (link.source.id == hoverNode.id || link.target.id == hoverNode.id) {
-                    return color;
-                } else {
-                    return mutedColor;
-                }
-                
-            })
-            .nodeCanvasObject((node, ctx) => {
-                const numberOfNeighbours = (node.neighbors && node.neighbors.length) || 2;
-                const nodeR = Math.min(7, Math.max(numberOfNeighbours / 2, 2));
-                
-                ctx.beginPath();
-                ctx.arc(node.x, node.y, nodeR, 0, 2 * Math.PI, false);
-                if (hoverNode == null) {
-                    ctx.fillStyle = color;
-                } else {
-                    if (node == hoverNode || highlightNodes.has(node.url)) {
-                        ctx.fillStyle = color;
-                    } else {
-                        ctx.fillStyle = mutedColor;
-                    }
-                }
-                 
-                ctx.fill();
-                
-                if (node.current) {
-                    ctx.beginPath();
-                    ctx.arc(node.x, node.y, nodeR + 1, 0, 2 * Math.PI, false);
-                    ctx.lineWidth = 0.5;
-                    ctx.strokeStyle = color;
-                    ctx.stroke();
-                }
-
-                const label = htmlDecode(node.title)
-                const fontSize = 3.5;
-                ctx.font = `${fontSize}px Sans-Serif`;
-
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'top';
-                ctx.fillText(label, node.x, node.y + nodeR + 2);
-            })
-            .onNodeClick(node => {
-                window.location = node.url;
-            })
-            .onNodeHover(node => {
-                highlightNodes.clear();
-                if (node) {
-                highlightNodes.add(node);
-                node.neighbors.forEach(neighbor => highlightNodes.add(neighbor));
-                }
-                hoverNode = node || null;
-                
-            });
-            if (fullScreen || (delay != null && graphData.nodes.length > 4)) {
-                setTimeout(() => {
-                    Graph.zoomToFit(5, 75);
-                }, delay || 200);
-            }
-        return Graph;
-    }
-
-    function renderLocalGraph(graphData, depth, fullScreen) {
-        if (window.graph){
-            window.graph._destructor();
-        }
-        const data = filterLocalGraphData(graphData, depth);
-        return renderGraph(data, 'link-graph', null, fullScreen);
-    }
-
     function filterFullGraphData(graphData) {
         if (graphData == null) {
             return { nodes: [], edges: [] };
@@ -173,22 +76,6 @@
             }));
 
         return { nodes, edges };
-    }
-
-    function openFullGraph(fullGraphData) {
-        lucide.createIcons({
-                attrs: {
-                    class: ["svg-icon"]
-                }
-            });
-        return renderGraph(fullGraphData, "full-graph-container", 200, false);;
-    }
-
-    function closefullGraph(fullGraph) {
-        if (fullGraph) {
-            fullGraph._destructor();
-        }
-        return null;
     }
 
     async function initializeGraph() {
