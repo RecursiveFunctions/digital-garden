@@ -228,36 +228,18 @@
                     // ...
                 });
 
-            // Group nodes by depth
-            const depthGroups = {};
-            nodes.forEach(node => {
-                const depth = node.depth || 1; // Assuming depth is a property of the node
-                if (!depthGroups[depth]) {
-                    depthGroups[depth] = [];
-                }
-                depthGroups[depth].push(node);
-            });
-
-            // Staggered initialization based on depth
+            // Staggered initialization from the center
             let delay = 0;
-            Object.keys(depthGroups).forEach(depth => {
-                const group = depthGroups[depth];
+            nodes.forEach((node, index) => {
                 setTimeout(() => {
-                    group.forEach(node => {
-                        // Set initial position based on node depth
-                        const depthPosition = (parseInt(depth) - 1) * (height / 3); // Divide height into 3 sections
-                        node.x = Math.random() * width; // Random x position
-                        node.y = depthPosition + (Math.random() - 0.5) * 20; // Random y position with slight offset
-
-                        // Add a small random offset for a more natural appearance
-                        node.x += (Math.random() - 0.5) * 20; // Random offset in x direction
-                        node.y += (Math.random() - 0.5) * 20; // Random offset in y direction
-                    });
+                    // Set initial position to the center with random offsets
+                    node.x = width / 2 + (Math.random() - 0.5) * 100; // Random x position around center
+                    node.y = height / 2 + (Math.random() - 0.5) * 100; // Random y position around center
 
                     simulation.nodes(nodes); // Update simulation with new nodes
                     simulation.alpha(1).restart(); // Restart simulation with full alpha
                 }, delay);
-                delay += 650; // Increase delay for the next depth group (500ms for example)
+                delay += 50; // Stagger initialization by 50ms
             });
 
             // Create edges
