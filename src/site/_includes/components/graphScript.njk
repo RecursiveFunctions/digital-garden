@@ -64,6 +64,33 @@
         return { nodes, edges };
     }
 
+    function drag(simulation) {
+        function dragstarted(event, d) {
+            console.log('Drag started:', d);
+            if (!event.active) simulation.alphaTarget(0.3).restart();
+            d.fx = d.x;
+            d.fy = d.y;
+        }
+        
+        function dragged(event, d) {
+            console.log('Dragging:', d);
+            d.fx = event.x;
+            d.fy = event.y;
+        }
+        
+        function dragended(event, d) {
+            console.log('Drag ended:', d);
+            if (!event.active) simulation.alphaTarget(0);
+            d.fx = null;
+            d.fy = null;
+        }
+        
+        return d3.drag()
+            .on("start", dragstarted)
+            .on("drag", dragged)
+            .on("end", dragended);
+    }
+
     function renderGraph(container, nodes, edges) {
         if (!container) {
             console.error('Graph container not found');
@@ -72,17 +99,27 @@
 
         if (!nodes || nodes.length === 0) {
             console.warn('No nodes to render');
+            container.innerHTML = '<div style="padding: 20px; text-align: center;">No graph data available</div>';
             return;
         }
 
         try {
+            console.log('Rendering graph with nodes:', nodes.length, 'and edges:', edges.length);
+            
             // Clear previous graph
             container.innerHTML = '';
             
-            // Create SVG element
+            // Create SVG element with proper sizing
+            const width = container.clientWidth || 800;
+            const height = container.clientHeight || 500;
+            
+            console.log('Graph container dimensions:', width, height);
+            
             const svg = d3.create("svg")
-                .attr("width", 800)
-                .attr("height", 500);
+                .attr("width", width)
+                .attr("height", height)
+                .attr("viewBox", [0, 0, width, height])
+                .attr("style", "max-width: 100%; height: auto;");
             
             // Ensure nodes have unique IDs
             const processedNodes = nodes.map((node, index) => ({
@@ -90,59 +127,114 @@
                 id: node.id || `node-${index}`
             }));
 
-            // Ensure edges reference correct node IDs
-            const processedEdges = edges.filter(edge => 
-                processedNodes.some(n => n.id === edge.source) && 
-                processedNodes.some(n => n.id === edge.target)
-            );
+            // Map numeric IDs to actual node objects for links
+            const nodeById = new Map(processedNodes.map(node => [node.id, node]));
+            
+            // Process edges to ensure they reference actual node objects
+            const processedEdges = edges.map(edge => {
+                const source = typeof edge.source === 'number' ? 
+                    processedNodes.find(n => n.id === edge.source) || processedNodes[edge.source] : 
+                    nodeById.get(edge.source) || edge.source;
+                    
+                const target = typeof edge.target === 'number' ? 
+                    processedNodes.find(n => n.id === edge.target) || processedNodes[edge.target] : 
+                    nodeById.get(edge.target) || edge.target;
+                
+                return source && target ? { source, target } : null;
+            }).filter(Boolean);
 
             console.log('Processed for graph:', { 
-                nodes: processedNodes, 
-                edges: processedEdges 
+                nodes: processedNodes.length, 
+                edges: processedEdges.length 
             });
+            
+            if (processedEdges.length === 0) {
+                console.warn('No valid edges to render');
+            }
 
-            // Set up force simulation
+            // Set up force simulation with optimized parameters
             const simulation = d3.forceSimulation(processedNodes)
-                .force("link", d3.forceLink(processedEdges).id(d => d.id))
+                .force("link", d3.forceLink(processedEdges).id(d => d.id).distance(100))
                 .force("charge", d3.forceManyBody().strength(-300))
-                .force("center", d3.forceCenter(400, 250))
-                .force("x", d3.forceX(400).strength(0.1))
-                .force("y", d3.forceY(250).strength(0.1))
-                .alphaDecay(0.02)
-                .alphaMin(0.1);
+                .force("center", d3.forceCenter(width / 2, height / 2))
+                .force("x", d3.forceX(width / 2).strength(0.1))
+                .force("y", d3.forceY(height / 2).strength(0.1))
+                .force("collide", d3.forceCollide(15)) // Prevent node overlap
+                .alphaDecay(0.05) // Faster convergence
+                .alphaMin(0.001);
+
+            // Create a group for graph elements
+            const g = svg.append("g");
+            
+            // Add zoom capability
+            svg.call(d3.zoom()
+                .extent([[0, 0], [width, height]])
+                .scaleExtent([0.1, 8])
+                .on("zoom", (event) => {
+                    g.attr("transform", event.transform);
+                }));
 
             // Create edges
-            const link = svg.append("g")
+            const link = g.append("g")
+                .attr("stroke", "#999")
+                .attr("stroke-opacity", 0.6)
                 .selectAll("line")
                 .data(processedEdges)
                 .join("line")
-                .attr("stroke", "#999")
-                .attr("stroke-opacity", 0.6);
+                .attr("stroke-width", d => Math.sqrt(d.value || 1));
 
-            // Create nodes 
-            const node = svg.append("g")
+            // Create nodes with custom styling
+            const node = g.append("g")
                 .selectAll("circle")
                 .data(processedNodes)
                 .join("circle")
                 .attr("r", d => {
                     const numberOfNeighbors = (d.neighbors && d.neighbors.length) || 2;
-                    return Math.min(7, Math.max(numberOfNeighbors / 2, 2));
+                    return Math.min(10, Math.max(numberOfNeighbors / 2, 5));
                 })
                 .attr("fill", "#69b3a2")
-                .call(drag(simulation));
+                .attr("stroke", "#fff")
+                .attr("stroke-width", 1.5)
+                .call(drag(simulation))
+                .on("mouseover", function(event, d) {
+                    d3.select(this).attr("fill", "#ff7675");
+                    
+                    // Highlight connected links
+                    link.style("stroke", l => 
+                        l.source.id === d.id || l.target.id === d.id ? "#ff7675" : "#999");
+                    
+                    // Bring connected nodes to front
+                    node.each(function(n) {
+                        if (n.id === d.id) {
+                            this.parentNode.appendChild(this);
+                        }
+                    });
+                })
+                .on("mouseout", function() {
+                    d3.select(this).attr("fill", "#69b3a2");
+                    link.style("stroke", "#999");
+                });
 
             // Create node labels
-            const label = svg.append("g")
+            const label = g.append("g")
                 .selectAll("text")
                 .data(processedNodes)
                 .join("text")
                 .text(d => d.title || d.id)
-                .attr('x', 6)
+                .attr('x', 12)
                 .attr('y', 3)
-                .style('font-size', '10px');
+                .style('font-size', '12px')
+                .style('pointer-events', 'none') // Make labels not interfere with mouse events
+                .style('fill', '#333');
 
             // Update node and edge positions on each tick  
             simulation.on("tick", () => {
+                // Keep nodes within bounds
+                processedNodes.forEach(d => {
+                    d.x = Math.max(10, Math.min(width - 10, d.x));
+                    d.y = Math.max(10, Math.min(height - 10, d.y));
+                });
+                
                 link
                     .attr("x1", d => d.source.x)
                     .attr("y1", d => d.source.y)  
@@ -154,8 +246,13 @@
                     .attr("cy", d => d.y);
                 
                 label
-                    .attr("x", d => d.x)
-                    .attr("y", d => d.y);
+                    .attr("x", d => d.x + 12)
+                    .attr("y", d => d.y + 3);
+            });
+            
+            // Log when the simulation stabilizes
+            simulation.on("end", () => {
+                console.log("Force simulation has converged");
             });
 
             // Add the SVG to the container
@@ -163,32 +260,8 @@
 
         } catch (error) {
             console.error('Error rendering graph:', error);
+            container.innerHTML = '<div style="padding: 20px; color: red;">Error rendering graph: ' + error.message + '</div>';
         }
-    }
-
-    // Drag handler
-    function drag(simulation) {
-        function dragstarted(event) {
-            if (!event.active) simulation.alphaTarget(0.3).restart();
-            event.subject.fx = event.subject.x;
-            event.subject.fy = event.subject.y;
-        }
-        
-        function dragged(event) {
-            event.subject.fx = event.x;
-            event.subject.fy = event.y;
-        }
-        
-        function dragended(event) {
-            if (!event.active) simulation.alphaTarget(0);
-            event.subject.fx = null;
-            event.subject.fy = null;
-        }
-        
-        return d3.drag()
-            .on("start", dragstarted)
-            .on("drag", dragged)
-            .on("end", dragended);
     }
 
     async function initializeGraph() {
@@ -252,6 +325,6 @@
             </div>
         </div>
     </div>
-    <div id="link-graph" class="graph"></div>
-    <div id="full-graph-container" class="graph" x-show="showFullGraph"></div>
+    <div id="link-graph" class="graph" style="min-height: 320px; min-width: 320px;"></div>
+    <div id="full-graph-container" class="graph" x-show="showFullGraph" style="min-height: 500px; min-width: 500px;"></div>
 </div>

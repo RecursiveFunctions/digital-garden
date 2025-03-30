@@ -42,6 +42,15 @@ function getGraph(data) {
   const noteCollection = data.collections.note || [];
   console.log(`Total notes found: ${noteCollection.length}`);
   
+  if (noteCollection.length === 0) {
+    console.warn('No notes found in collection. Check eleventy configuration.');
+    return {
+      homeAlias: "/",
+      nodes: {},
+      links: []
+    };
+  }
+  
   noteCollection.forEach((v, idx) => {
     console.log(`Processing note: ${v.url}`, {
       title: v.data.title,
@@ -74,6 +83,10 @@ function getGraph(data) {
       console.error(`Could not read file for ${fpath}:`, error);
     }
 
+    // Extract links before creating the node
+    const outboundLinks = extractLinks(content || v.template?.frontMatter?.content || '');
+    console.log(`Found ${outboundLinks.length} outbound links in ${v.url}`);
+
     nodes[v.url] = {
       id: idx,
       title: v.data["dg-graph-title"] || v.data.title || v.fileSlug,
@@ -83,13 +96,13 @@ function getGraph(data) {
         v.data["dg-home"] ||
         (v.data.tags && v.data.tags.indexOf("gardenEntry") > -1) ||
         false,
-      outBound: extractLinks(content || v.template?.frontMatter?.content || '').filter(link => !excludedNodes.has(link)),
+      outBound: outboundLinks.filter(link => !excludedNodes.has(link)),
       neighbors: new Set(),
       backLinks: new Set(),
       noteIcon: v.data.noteIcon || process.env.NOTE_ICON_DEFAULT,
       hide: v.data.hideInGraph || false,
     };
-    console.log(`Node created: ${v.url}`, nodes[v.url]);
+    console.log(`Node created: ${v.url} with ID ${idx}`);
     stemURLs[fpath] = v.url;
     if (
       v.data["dg-home"] ||
@@ -98,12 +111,30 @@ function getGraph(data) {
       homeAlias = v.url;
     }
   });
+
+  // Only process links if we have nodes
+  if (Object.keys(nodes).length === 0) {
+    console.warn('No nodes were created for the graph.');
+    return {
+      homeAlias,
+      nodes: {},
+      links: []
+    };
+  }
+
+  let validLinkCount = 0;
+  let invalidLinkCount = 0;
+  
   Object.values(nodes).forEach((node) => {
     let outBound = new Set();
     node.outBound.forEach((olink) => {
       let link = (stemURLs[olink] || olink).split("#")[0];
       if (nodes[link] && !excludedNodes.has(link)) {
         outBound.add(link);
+        validLinkCount++;
+      } else {
+        invalidLinkCount++;
+        console.log(`Invalid link: ${olink} from node ${node.url}`);
       }
     });
     node.outBound = Array.from(outBound);
@@ -113,11 +144,19 @@ function getGraph(data) {
         n.neighbors.add(node.url);
         n.backLinks.add(node.url);
         node.neighbors.add(n.url);
-        links.push({ source: node.id, target: n.id });
+        links.push({ 
+          source: node.id, 
+          target: n.id,
+          value: 1  // Add a default weight
+        });
       }
     });
   });
-  Object.keys(nodes).map((k) => {
+  
+  console.log(`Link processing summary: Valid links: ${validLinkCount}, Invalid links: ${invalidLinkCount}`);
+
+  // Convert Set objects to Arrays for JSON serialization
+  Object.keys(nodes).forEach((k) => {
     nodes[k].neighbors = Array.from(nodes[k].neighbors);
     nodes[k].backLinks = Array.from(nodes[k].backLinks);
     nodes[k].size = nodes[k].neighbors.length;

@@ -19,7 +19,8 @@ On this page I'll post a handful of philosophers and influential figures I've le
 You cannot divorce politics from any subject.
 
 
-# Influential Figures
+# Very Interesting People
 [[Kwame Nkrumah\|Kwame Nkrumah]]
 Vernor Vinge
 Dasniel
+- 

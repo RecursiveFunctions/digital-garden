@@ -9,16 +9,53 @@ const linkUtils = require('../../helpers/linkUtils');
 module.exports = function(data) {
   try {
     console.log('Generating graph data for the digital garden...');
+    
+    // Validate input data
+    if (!data || !data.collections) {
+      console.error('Invalid data object. Missing collections property.');
+      throw new Error('Invalid data object');
+    }
+    
+    // Check if the note collection exists
+    if (!data.collections.note) {
+      console.warn('Note collection is missing or empty. Check your eleventy config.');
+    }
+    
     // Call the getGraph function from linkUtils
     const graphData = linkUtils.getGraph(data);
-    console.log(`Graph data generated successfully. Nodes: ${Object.keys(graphData.nodes).length}, Links: ${graphData.links.length}`);
-    return graphData;
+    
+    // Validate the generated graph data
+    const nodeCount = Object.keys(graphData.nodes || {}).length;
+    const linkCount = (graphData.links || []).length;
+    
+    console.log(`Graph data generated successfully. Nodes: ${nodeCount}, Links: ${linkCount}`);
+    
+    // Return valid graph data or fallback to empty structure
+    return {
+      homeAlias: graphData.homeAlias || "/",
+      nodes: graphData.nodes || {},
+      links: graphData.links || []
+    };
   } catch (error) {
     console.error('Error generating graph data:', error);
-    // Return a minimal valid graph structure to prevent runtime errors
+    
+    // Create a simple fallback graph with a single home node
+    // This ensures the graph component always has something to render
     return {
       homeAlias: "/",
-      nodes: {},
+      nodes: {
+        "/": {
+          id: 0,
+          title: "Home",
+          url: "/",
+          group: "none",
+          home: true,
+          outBound: [],
+          neighbors: [],
+          backLinks: [],
+          size: 0
+        }
+      },
       links: []
     };
   }
