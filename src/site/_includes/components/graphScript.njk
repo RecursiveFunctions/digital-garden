@@ -228,18 +228,42 @@
                     // ...
                 });
 
-            // Staggered initialization from the center
-            let delay = 0;
-            nodes.forEach((node, index) => {
-                setTimeout(() => {
-                    // Set initial position to the center with random offsets
-                    node.x = width / 2 + (Math.random() - 0.5) * 100; // Random x position around center
-                    node.y = height / 2 + (Math.random() - 0.5) * 100; // Random y position around center
+            // Group nodes by depth for staggered initialization
+            const depthGroups = {};
+            nodes.forEach(node => {
+                const depth = node.depth || 1;
+                if (!depthGroups[depth]) {
+                    depthGroups[depth] = [];
+                }
+                depthGroups[depth].push(node);
+            });
 
-                    simulation.nodes(nodes); // Update simulation with new nodes
-                    simulation.alpha(1).restart(); // Restart simulation with full alpha
-                }, delay);
-                delay += 50; // Stagger initialization by 50ms
+            // Initialize all nodes at the center first
+            nodes.forEach(node => {
+                node.x = width / 2;
+                node.y = height / 2;
+            });
+
+            // Staggered initialization from the center based on depth
+            let depthDelay = 0;
+            Object.keys(depthGroups).sort((a, b) => parseInt(a) - parseInt(b)).forEach(depth => {
+                const nodesInDepth = depthGroups[depth];
+                setTimeout(() => {
+                    console.log(`Initializing depth ${depth} nodes (${nodesInDepth.length} nodes)...`);
+                    
+                    // Initialize all nodes in this depth group
+                    nodesInDepth.forEach(node => {
+                        // Add small random offset from center
+                        node.x = width / 2 + (Math.random() - 0.5) * 80;
+                        node.y = height / 2 + (Math.random() - 0.5) * 80;
+                    });
+                    
+                    // Restart simulation with new positions
+                    simulation.alpha(1).restart();
+                }, depthDelay);
+                
+                // Add delay between depth groups
+                depthDelay += 500;
             });
 
             // Create edges
