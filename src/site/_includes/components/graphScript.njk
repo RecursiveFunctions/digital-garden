@@ -129,8 +129,8 @@
             container.innerHTML = '';
             
             // Create SVG element with proper sizing
-            const width = container.clientWidth || 800;
-            const height = container.clientHeight || 500;
+            const width = Math.max(container.clientWidth, 1000) || 1000;
+            const height = Math.max(container.clientHeight, 800) || 800;
             
             console.log('Graph container dimensions:', width, height);
             
@@ -138,7 +138,7 @@
                 .attr("width", width)
                 .attr("height", height)
                 .attr("viewBox", [0, 0, width, height])
-                .attr("style", "max-width: 100%; height: auto;");
+                .attr("style", "max-width: 100%; height: auto; background: rgba(35, 39, 48, 0.1);");
             
             // Create a lookup map for nodes by ID
             const nodeById = new Map();
@@ -180,23 +180,23 @@
 
             // Set up force simulation with optimized parameters
             const simulation = d3.forceSimulation(nodes)
-                .force("link", d3.forceLink(links).id(d => d.id).distance(100))
-                .force("charge", d3.forceManyBody().strength(-300))
+                .force("link", d3.forceLink(links).id(d => d.id).distance(150)) // Increased distance
+                .force("charge", d3.forceManyBody().strength(-800)) // Increased repulsion
                 .force("center", d3.forceCenter(width / 2, height / 2))
-                .force("x", d3.forceX(width / 2).strength(0.1))
-                .force("y", d3.forceY(height / 2).strength(0.1))
-                .force("collide", d3.forceCollide(15)) // Prevent node overlap
-                .alphaDecay(0.05) // Faster convergence
+                .force("x", d3.forceX(width / 2).strength(0.05)) // Decreased strength
+                .force("y", d3.forceY(height / 2).strength(0.05)) // Decreased strength
+                .force("collide", d3.forceCollide(30)) // Increased collision radius
+                .alphaDecay(0.02) // Slower decay for better layout
                 .alphaMin(0.001);
 
             // Create edges
             const link = g.append("g")
-                .attr("stroke", "#999")
-                .attr("stroke-opacity", 0.6)
+                .attr("stroke", "#a8b0bd")
+                .attr("stroke-opacity", 0.4)
                 .selectAll("line")
                 .data(links)
                 .join("line")
-                .attr("stroke-width", d => Math.sqrt(d.value || 1));
+                .attr("stroke-width", d => Math.sqrt(d.value || 1) * 1.5);
 
             // Create nodes with custom styling
             const node = g.append("g")
@@ -205,18 +205,39 @@
                 .join("circle")
                 .attr("r", d => {
                     const numberOfNeighbors = (d.neighbors && d.neighbors.length) || 2;
-                    return Math.min(10, Math.max(numberOfNeighbors / 2, 5));
+                    return Math.min(12, Math.max(numberOfNeighbors / 2, 6));
                 })
-                .attr("fill", "#69b3a2")
+                .attr("fill", "#89cff0") // Light blue nodes
                 .attr("stroke", "#fff")
-                .attr("stroke-width", 1.5)
+                .attr("stroke-width", 2)
                 .call(drag(simulation))
                 .on("mouseover", function(event, d) {
-                    d3.select(this).attr("fill", "#ff7675");
+                    // Highlight the node
+                    d3.select(this)
+                      .attr("fill", "#ff7675")
+                      .attr("r", function(d) {
+                        const currentRadius = +d3.select(this).attr("r");
+                        return currentRadius * 1.2;
+                      });
                     
-                    // Highlight connected links
+                    // Highlight connected links and make them thicker
                     link.style("stroke", l => 
-                        l.source.id === d.id || l.target.id === d.id ? "#ff7675" : "#999");
+                        l.source.id === d.id || l.target.id === d.id ? "#ff7675" : "#a8b0bd")
+                        .style("stroke-opacity", l => 
+                        l.source.id === d.id || l.target.id === d.id ? 0.8 : 0.4)
+                        .style("stroke-width", l => 
+                        l.source.id === d.id || l.target.id === d.id ? 3 : Math.sqrt(l.value || 1) * 1.5);
+                    
+                    // Highlight connected node labels
+                    label.style("font-weight", l => 
+                        l.id === d.id || links.some(link => 
+                            (link.source.id === d.id && link.target.id === l.id) || 
+                            (link.target.id === d.id && link.source.id === l.id)
+                        ) ? "bold" : "normal")
+                      .style("font-size", l => 
+                        l.id === d.id ? "14px" : "12px")
+                      .style("fill", l => 
+                        l.id === d.id ? "#ff7675" : "#fff");
                     
                     // Bring connected nodes to front
                     node.each(function(n) {
@@ -224,10 +245,46 @@
                             this.parentNode.appendChild(this);
                         }
                     });
+
+                    // Make tooltip with node info
+                    const tooltip = document.createElement('div');
+                    tooltip.id = 'graph-tooltip';
+                    tooltip.style.position = 'absolute';
+                    tooltip.style.left = (event.pageX + 10) + 'px';
+                    tooltip.style.top = (event.pageY + 10) + 'px';
+                    tooltip.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+                    tooltip.style.color = '#fff';
+                    tooltip.style.padding = '5px 10px';
+                    tooltip.style.borderRadius = '5px';
+                    tooltip.style.fontSize = '12px';
+                    tooltip.style.zIndex = '1000';
+                    tooltip.innerHTML = `<strong>${d.title}</strong><br/>Connections: ${d.neighbors?.length || 0}`;
+                    document.body.appendChild(tooltip);
                 })
                 .on("mouseout", function() {
-                    d3.select(this).attr("fill", "#69b3a2");
-                    link.style("stroke", "#999");
+                    // Reset node style
+                    d3.select(this)
+                      .attr("fill", "#89cff0")
+                      .attr("r", function(d) {
+                        const numberOfNeighbors = (d.neighbors && d.neighbors.length) || 2;
+                        return Math.min(12, Math.max(numberOfNeighbors / 2, 6));
+                      });
+                    
+                    // Reset links
+                    link.style("stroke", "#a8b0bd")
+                        .style("stroke-opacity", 0.4)
+                        .style("stroke-width", d => Math.sqrt(d.value || 1) * 1.5);
+                    
+                    // Reset labels
+                    label.style("font-weight", "normal")
+                         .style("font-size", "12px")
+                         .style("fill", "#fff");
+                    
+                    // Remove tooltip
+                    const tooltip = document.getElementById('graph-tooltip');
+                    if (tooltip) {
+                        document.body.removeChild(tooltip);
+                    }
                 });
 
             // Create node labels
@@ -240,7 +297,10 @@
                 .attr('y', 3)
                 .style('font-size', '12px')
                 .style('pointer-events', 'none') // Make labels not interfere with mouse events
-                .style('fill', '#333');
+                .style('fill', '#fff') // White text for better contrast
+                .style('stroke', 'rgba(0,0,0,0.5)') // Text outline for better readability
+                .style('stroke-width', '0.5px')
+                .style('paint-order', 'stroke');
 
             // Update node and edge positions on each tick  
             simulation.on("tick", () => {
@@ -272,6 +332,9 @@
 
             // Add the SVG to the container
             container.appendChild(svg.node());
+
+            // Update graph container styles
+            container.style.backgroundColor = '#232730'; // Dark background color
 
         } catch (error) {
             console.error('Error rendering graph:', error);
@@ -340,6 +403,6 @@
             </div>
         </div>
     </div>
-    <div id="link-graph" class="graph" style="min-height: 320px; min-width: 320px;"></div>
-    <div id="full-graph-container" class="graph" x-show="showFullGraph" style="min-height: 500px; min-width: 500px;"></div>
+    <div id="link-graph" class="graph" style="min-height: 600px; min-width: 100%; height: 600px;"></div>
+    <div id="full-graph-container" class="graph" x-show="showFullGraph" style="min-height: 800px; min-width: 100%; height: 800px;"></div>
 </div>
