@@ -264,7 +264,7 @@
                     const numberOfNeighbors = (d.neighbors && d.neighbors.length) || 2;
                     return Math.min(10, Math.max(numberOfNeighbors / 2, 5));
                 })
-                .attr("fill", d => groupColors[d.group] || colors.blue)
+                .attr("fill", d => d.id === window.centralNodeId ? colors.lavender : groupColors[d.group] || colors.blue)
                 .attr("stroke", colors.text)
                 .attr("stroke-width", 1)
                 .attr("data-node-id", d => d.id)
@@ -275,7 +275,7 @@
                 .on("mouseover", function(event, d) {
                     // Highlight the node
                     d3.select(this)
-                      .attr("fill", colors.lavender)
+                      .attr("fill", d => d.id === window.centralNodeId ? colors.lavender : colors.lavender)
                       .attr("r", function(d) {
                         const currentRadius = +d3.select(this).attr("r");
                         return currentRadius * 1.2;
@@ -327,7 +327,7 @@
                 .on("mouseout", function(d) {
                     // Reset node style
                     d3.select(this)
-                      .attr("fill", d => groupColors[d.group] || colors.blue)
+                      .attr("fill", d => d.id === window.centralNodeId ? colors.lavender : groupColors[d.group] || colors.blue)
                       .attr("r", function(d) {
                         const numberOfNeighbors = (d.neighbors && d.neighbors.length) || 2;
                         return Math.min(10, Math.max(numberOfNeighbors / 2, 5));
@@ -468,7 +468,7 @@
                         .attr("y1", d => d.source.y)
                         .attr("x2", d => d.target.x)
                         .attr("y2", d => d.target.y);
-                }, 150); // Increased delay to 150ms
+                }, 250); // Increased delay to 250ms
             });
             
             // Log when the simulation stabilizes
