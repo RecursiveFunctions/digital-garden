@@ -244,9 +244,10 @@
                 const group = depthGroups[depth];
                 setTimeout(() => {
                     group.forEach(node => {
-                        // Set initial position based on node data or randomize within a range
-                        node.x = node.x || Math.random() * width; // Use node's x if available, else random
-                        node.y = node.y || Math.random() * height; // Use node's y if available, else random
+                        // Set initial position based on node depth
+                        const depthPosition = (parseInt(depth) - 1) * (height / 3); // Divide height into 3 sections
+                        node.x = Math.random() * width; // Random x position
+                        node.y = depthPosition + (Math.random() - 0.5) * 20; // Random y position with slight offset
 
                         // Add a small random offset for a more natural appearance
                         node.x += (Math.random() - 0.5) * 20; // Random offset in x direction
@@ -256,7 +257,7 @@
                     simulation.nodes(nodes); // Update simulation with new nodes
                     simulation.alpha(1).restart(); // Restart simulation with full alpha
                 }, delay);
-                delay += 500; // Increase delay for the next depth group (500ms for example)
+                delay += 650; // Increase delay for the next depth group (500ms for example)
             });
 
             // Create edges
