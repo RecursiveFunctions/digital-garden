@@ -448,19 +448,17 @@
                     d.y = Math.max(10, Math.min(height - 10, d.y));
                 });
                 
-                link
-                    .attr("x1", d => d.source.x)
-                    .attr("y1", d => d.source.y)  
-                    .attr("x2", d => d.target.x)
-                    .attr("y2", d => d.target.y);
-
-                node
-                    .attr("cx", d => d.x)
+                // Update node positions
+                node.attr("cx", d => d.x)
                     .attr("cy", d => d.y);
-                
-                label
-                    .attr("x", d => d.x + 12)
-                    .attr("y", d => d.y + 3);
+
+                // Delay edge position updates to allow nodes to catch up
+                setTimeout(() => {
+                    link.attr("x1", d => d.source.x)
+                        .attr("y1", d => d.source.y)
+                        .attr("x2", d => d.target.x)
+                        .attr("y2", d => d.target.y);
+                }, 50); // Delay edge updates by 50ms
             });
             
             // Log when the simulation stabilizes
