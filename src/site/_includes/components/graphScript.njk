@@ -181,7 +181,7 @@
             svg.call(zoom);
 
             // Set the initial zoom level (e.g., 1.5 for 150% zoom)
-            const initialScale = 1.5;
+            const initialScale = 3.5;
             const initialTranslateX = 0; // Adjust as needed
             const initialTranslateY = 0; // Adjust as needed
 
@@ -468,7 +468,7 @@
                         .attr("y1", d => d.source.y)
                         .attr("x2", d => d.target.x)
                         .attr("y2", d => d.target.y);
-                }, 100); // Increased delay to 100ms
+                }, 150); // Increased delay to 150ms
             });
             
             // Log when the simulation stabilizes
