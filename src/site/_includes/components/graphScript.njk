@@ -170,15 +170,23 @@
             // Create a group for graph elements
             const g = svg.append("g");
             
-            // Adjust zoom behavior
+            // Define the zoom behavior
             const zoom = d3.zoom()
-                .scaleExtent([1, 5]) // Adjust the scale extent as needed
+                .scaleExtent([0.5, 5]) // Adjust the scale extent as needed
                 .on("zoom", (event) => {
-                    g.attr("transform", event.transform);
+                    svg.attr("transform", event.transform);
                 });
 
             // Apply zoom to the SVG
             svg.call(zoom);
+
+            // Set the initial zoom level (e.g., 1.5 for 150% zoom)
+            const initialScale = 1.5;
+            const initialTranslateX = 0; // Adjust as needed
+            const initialTranslateY = 0; // Adjust as needed
+
+            // Apply the initial transformation
+            svg.attr("transform", `translate(${initialTranslateX}, ${initialTranslateY}) scale(${initialScale})`);
 
             // Define colors object for consistent reference
             window.colors = window.colors || {
