@@ -231,7 +231,7 @@
                 .force("link", d3.forceLink(edges).id(d => d.id).distance(100))
                 .force("charge", d3.forceManyBody().strength(-50))
                 .force("center", d3.forceCenter(width / 2, height / 2))
-                .alphaDecay(0.05)
+                .alphaDecay(0.01)
                 .alpha(0)  // Start with alpha at 0 to prevent automatic movement
                 .stop();   // Stop the simulation initially
 
@@ -689,14 +689,8 @@
             const centralNode = nodesArray.find(n => n.url === currentPath);
             
             if (!centralNode) {
-                            console.warn('Could not find node for current page:', currentPath);
-                // Fall back to just rendering the full graph
-                const container = document.getElementById('link-graph');
-                if (container) {
-                    const localData = filterLocalGraphData(graphData, 3);
-                    renderGraph(container, localData.nodes, localData.edges);
-                }
-                return;
+                console.warn('Could not find node for current page:', currentPath);
+                return; // Exit if no central node is found
             }
 
             console.log('Central node found:', centralNode);
@@ -704,12 +698,16 @@
             // Store the central node ID as a global variable for easier access
             window.centralNodeId = centralNode.id;
             
-            // Center the graph on the current page node
+            // Center the root node in the middle of the graph
             const container = document.getElementById('link-graph');
             const width = Math.max(container.clientWidth, 1000) || 1000;
             const height = Math.max(container.clientHeight, 800) || 800;
 
-            // Set initial positions of all nodes based on the central node
+            // Set the root node's initial position to the center
+            centralNode.x = width / 2;
+            centralNode.y = height / 2;
+
+            // Set initial positions of all other nodes
             nodesArray.forEach(node => {
                 node.x = centralNode.x || width / 2; // Center on current page node
                 node.y = centralNode.y || height / 2; // Center on current page node
