@@ -251,19 +251,26 @@
                 setTimeout(() => {
                     console.log(`Initializing depth ${depth} nodes (${nodesInDepth.length} nodes)...`);
                     
-                    // Initialize all nodes in this depth group
+                    // Rapid initialization of all nodes in this depth group
+                    let nodeDelay = 0;
                     nodesInDepth.forEach(node => {
-                        // Add small random offset from center
-                        node.x = width / 2 + (Math.random() - 0.5) * 80;
-                        node.y = height / 2 + (Math.random() - 0.5) * 80;
+                        setTimeout(() => {
+                            // Add larger, more dynamic offset from center
+                            node.x = width / 2 + (Math.random() - 0.5) * 200;
+                            node.y = height / 2 + (Math.random() - 0.5) * 200;
+                            
+                            // Apply a small force to make it "pop" into place
+                            simulation.alpha(0.8).restart();
+                        }, nodeDelay);
+                        
+                        // Very short delay between nodes in the same depth (rapid fire)
+                        nodeDelay += 20; // Just 20ms between nodes in same depth
                     });
                     
-                    // Restart simulation with new positions
-                    simulation.alpha(1).restart();
                 }, depthDelay);
                 
-                // Add delay between depth groups
-                depthDelay += 500;
+                // Add a longer delay between depth groups
+                depthDelay += 800; // 800ms pause between depth levels
             });
 
             // Create edges
