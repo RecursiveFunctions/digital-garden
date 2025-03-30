@@ -216,13 +216,13 @@
 
             // Set up force simulation with optimized parameters
             const simulation = d3.forceSimulation(nodes)
-                .force("link", d3.forceLink(links).id(d => d.id).distance(80))
-                .force("charge", d3.forceManyBody().strength(-500))
+                .force("link", d3.forceLink(links).id(d => d.id).distance(50))
+                .force("charge", d3.forceManyBody().strength(-200))
                 .force("center", d3.forceCenter(width / 2, height / 2))
-                .force("x", d3.forceX(width / 2).strength(0.03))
-                .force("y", d3.forceY(height / 2).strength(0.03))
-                .force("collide", d3.forceCollide(20))
-                .alphaDecay(0.02)
+                .force("x", d3.forceX(width / 2).strength(0.1))
+                .force("y", d3.forceY(height / 2).strength(0.1))
+                .force("collide", d3.forceCollide(15))
+                .alphaDecay(0.05)
                 .alphaMin(0.001);
 
             // Create edges
@@ -246,6 +246,8 @@
                 .attr("fill", d => groupColors[d.group] || colors.blue)
                 .attr("stroke", colors.text)
                 .attr("stroke-width", 1)
+                .attr("data-node-id", d => d.id)
+                .attr("class", "graph-node")
                 .call(drag(simulation))
                 .on("mouseover", function(event, d) {
                     // Highlight the node
@@ -325,8 +327,17 @@
                     }
                 })
                 .on("click", function(event, d) {
-                    // Set this node as the focal node and update the graph to show connections
-                    // based on the current depth setting
+                    // Remove previous focus
+                    d3.selectAll(".graph-node").classed("focused-node", false);
+                    // Add focus to clicked node
+                    d3.select(this).classed("focused-node", true);
+                    
+                    // Navigate to the note when clicked
+                    if (d.url) {
+                        window.location.href = d.url;
+                    }
+                    
+                    // Set this node as the focal node and update the graph
                     const depthControl = document.getElementById('graph-depth');
                     if (depthControl) {
                         const depth = parseInt(depthControl.value);
@@ -430,10 +441,13 @@
                     depth
                 );
                 
-                console.log(`Filtered graph to depth ${depth}: ${filteredNodes.length} nodes, ${filteredLinks.length} links`);
+                // Clear the existing graph
+                container.innerHTML = '';
                 
                 // Re-render the graph with the filtered data
                 renderGraph(container, filteredNodes, filteredLinks);
+                
+                console.log(`Filtered graph to depth ${depth}: ${filteredNodes.length} nodes, ${filteredLinks.length} links`);
             } catch (error) {
                 console.error('Error updating graph with depth:', error);
             }
@@ -552,6 +566,36 @@
         
         return { nodes: filteredNodes, links: filteredLinks };
     }
+
+    // Add event listener for depth slider
+    document.addEventListener('DOMContentLoaded', function() {
+        const depthSlider = document.getElementById('graph-depth');
+        if (depthSlider) {
+            depthSlider.addEventListener('input', function(e) {
+                const depth = parseInt(e.target.value);
+                // Get the currently focused node or use the first node
+                const focusedNode = document.querySelector('.focused-node');
+                const nodeId = focusedNode ? focusedNode.dataset.nodeId : nodes[0]?.id;
+                if (nodeId) {
+                    updateGraphWithDepth(nodeId, depth);
+                }
+            });
+        }
+    });
+
+    // Add CSS for focused node
+    const style = document.createElement('style');
+    style.textContent = `
+        .graph-node {
+            transition: all 0.3s ease;
+        }
+        .focused-node {
+            stroke: ${colors.lavender};
+            stroke-width: 3px;
+            r: 12px;
+        }
+    `;
+    document.head.appendChild(style);
 </script>
 
 <!-- Load D3.js from CDN -->
