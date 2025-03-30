@@ -118,7 +118,7 @@
 
         if (!nodes || nodes.length === 0) {
             console.warn('No nodes to render');
-            container.innerHTML = '<div style="padding: 20px; text-align: center;">No graph data available</div>';
+            container.innerHTML = '<div style="padding: 20px; text-align: center; color: #cdd6f4;">No graph data available</div>';
             return;
         }
 
@@ -138,7 +138,7 @@
                 .attr("width", width)
                 .attr("height", height)
                 .attr("viewBox", [0, 0, width, height])
-                .attr("style", "max-width: 100%; height: auto; background: rgba(35, 39, 48, 0.1);");
+                .attr("style", "max-width: 100%; height: auto;");
             
             // Create a lookup map for nodes by ID
             const nodeById = new Map();
@@ -178,25 +178,61 @@
                     g.attr("transform", event.transform);
                 }));
 
+            // Catppuccin Mocha Theme Colors
+            const colors = {
+                background: '#1e1e2e',
+                text: '#cdd6f4',
+                subtext: '#bac2de',
+                surface: '#313244',
+                overlay: '#45475a',
+                base: '#24273a',
+                mantle: '#181825',
+                crust: '#11111b',
+                rosewater: '#f5e0dc',
+                flamingo: '#f2cdcd',
+                pink: '#f5c2e7',
+                mauve: '#cba6f7',
+                red: '#f38ba8',
+                maroon: '#eba0ac',
+                peach: '#fab387',
+                yellow: '#f9e2af',
+                green: '#a6e3a1',
+                teal: '#94e2d5',
+                sky: '#89dceb',
+                sapphire: '#74c7ec',
+                blue: '#89b4fa',
+                lavender: '#b4befe'
+            };
+
+            // Group color mapping based on node group
+            const groupColors = {
+                'none': colors.blue,
+                'Daily Notes': colors.green,
+                'Programming': colors.mauve,
+                'Projects': colors.peach,
+                'Personal': colors.pink,
+                'Reference': colors.yellow
+            };
+
             // Set up force simulation with optimized parameters
             const simulation = d3.forceSimulation(nodes)
-                .force("link", d3.forceLink(links).id(d => d.id).distance(150)) // Increased distance
-                .force("charge", d3.forceManyBody().strength(-800)) // Increased repulsion
+                .force("link", d3.forceLink(links).id(d => d.id).distance(80))
+                .force("charge", d3.forceManyBody().strength(-500))
                 .force("center", d3.forceCenter(width / 2, height / 2))
-                .force("x", d3.forceX(width / 2).strength(0.05)) // Decreased strength
-                .force("y", d3.forceY(height / 2).strength(0.05)) // Decreased strength
-                .force("collide", d3.forceCollide(30)) // Increased collision radius
-                .alphaDecay(0.02) // Slower decay for better layout
+                .force("x", d3.forceX(width / 2).strength(0.03))
+                .force("y", d3.forceY(height / 2).strength(0.03))
+                .force("collide", d3.forceCollide(20))
+                .alphaDecay(0.02)
                 .alphaMin(0.001);
 
             // Create edges
             const link = g.append("g")
-                .attr("stroke", "#a8b0bd")
-                .attr("stroke-opacity", 0.4)
+                .attr("stroke", colors.overlay)
+                .attr("stroke-opacity", 0.5)
                 .selectAll("line")
                 .data(links)
                 .join("line")
-                .attr("stroke-width", d => Math.sqrt(d.value || 1) * 1.5);
+                .attr("stroke-width", d => Math.sqrt(d.value || 1) * 0.8);
 
             // Create nodes with custom styling
             const node = g.append("g")
@@ -205,16 +241,16 @@
                 .join("circle")
                 .attr("r", d => {
                     const numberOfNeighbors = (d.neighbors && d.neighbors.length) || 2;
-                    return Math.min(12, Math.max(numberOfNeighbors / 2, 6));
+                    return Math.min(10, Math.max(numberOfNeighbors / 2, 5));
                 })
-                .attr("fill", "#89cff0") // Light blue nodes
-                .attr("stroke", "#fff")
-                .attr("stroke-width", 2)
+                .attr("fill", d => groupColors[d.group] || colors.blue)
+                .attr("stroke", colors.text)
+                .attr("stroke-width", 1)
                 .call(drag(simulation))
                 .on("mouseover", function(event, d) {
                     // Highlight the node
                     d3.select(this)
-                      .attr("fill", "#ff7675")
+                      .attr("fill", colors.lavender)
                       .attr("r", function(d) {
                         const currentRadius = +d3.select(this).attr("r");
                         return currentRadius * 1.2;
@@ -222,11 +258,11 @@
                     
                     // Highlight connected links and make them thicker
                     link.style("stroke", l => 
-                        l.source.id === d.id || l.target.id === d.id ? "#ff7675" : "#a8b0bd")
+                        l.source.id === d.id || l.target.id === d.id ? colors.lavender : colors.overlay)
                         .style("stroke-opacity", l => 
-                        l.source.id === d.id || l.target.id === d.id ? 0.8 : 0.4)
+                        l.source.id === d.id || l.target.id === d.id ? 0.8 : 0.5)
                         .style("stroke-width", l => 
-                        l.source.id === d.id || l.target.id === d.id ? 3 : Math.sqrt(l.value || 1) * 1.5);
+                        l.source.id === d.id || l.target.id === d.id ? 2 : Math.sqrt(l.value || 1) * 0.8);
                     
                     // Highlight connected node labels
                     label.style("font-weight", l => 
@@ -237,7 +273,7 @@
                       .style("font-size", l => 
                         l.id === d.id ? "14px" : "12px")
                       .style("fill", l => 
-                        l.id === d.id ? "#ff7675" : "#fff");
+                        l.id === d.id ? colors.lavender : colors.text);
                     
                     // Bring connected nodes to front
                     node.each(function(n) {
@@ -252,38 +288,49 @@
                     tooltip.style.position = 'absolute';
                     tooltip.style.left = (event.pageX + 10) + 'px';
                     tooltip.style.top = (event.pageY + 10) + 'px';
-                    tooltip.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
-                    tooltip.style.color = '#fff';
-                    tooltip.style.padding = '5px 10px';
-                    tooltip.style.borderRadius = '5px';
-                    tooltip.style.fontSize = '12px';
+                    tooltip.style.backgroundColor = colors.surface;
+                    tooltip.style.color = colors.text;
+                    tooltip.style.padding = '8px 12px';
+                    tooltip.style.borderRadius = '8px';
+                    tooltip.style.fontSize = '14px';
                     tooltip.style.zIndex = '1000';
-                    tooltip.innerHTML = `<strong>${d.title}</strong><br/>Connections: ${d.neighbors?.length || 0}`;
+                    tooltip.style.boxShadow = '0 4px 6px rgba(0,0,0,0.3)';
+                    tooltip.style.border = `1px solid ${colors.overlay}`;
+                    tooltip.innerHTML = `<strong>${d.title}</strong><br/><span style="color:${colors.subtext}">Connections: ${d.neighbors?.length || 0}</span>`;
                     document.body.appendChild(tooltip);
                 })
-                .on("mouseout", function() {
+                .on("mouseout", function(d) {
                     // Reset node style
                     d3.select(this)
-                      .attr("fill", "#89cff0")
+                      .attr("fill", d => groupColors[d.group] || colors.blue)
                       .attr("r", function(d) {
                         const numberOfNeighbors = (d.neighbors && d.neighbors.length) || 2;
-                        return Math.min(12, Math.max(numberOfNeighbors / 2, 6));
+                        return Math.min(10, Math.max(numberOfNeighbors / 2, 5));
                       });
                     
                     // Reset links
-                    link.style("stroke", "#a8b0bd")
-                        .style("stroke-opacity", 0.4)
-                        .style("stroke-width", d => Math.sqrt(d.value || 1) * 1.5);
+                    link.style("stroke", colors.overlay)
+                        .style("stroke-opacity", 0.5)
+                        .style("stroke-width", d => Math.sqrt(d.value || 1) * 0.8);
                     
                     // Reset labels
                     label.style("font-weight", "normal")
                          .style("font-size", "12px")
-                         .style("fill", "#fff");
+                         .style("fill", colors.text);
                     
                     // Remove tooltip
                     const tooltip = document.getElementById('graph-tooltip');
                     if (tooltip) {
                         document.body.removeChild(tooltip);
+                    }
+                })
+                .on("click", function(event, d) {
+                    // Set this node as the focal node and update the graph to show connections
+                    // based on the current depth setting
+                    const depthControl = document.getElementById('graph-depth');
+                    if (depthControl) {
+                        const depth = parseInt(depthControl.value);
+                        updateGraphWithDepth(d.id, depth);
                     }
                 });
 
@@ -296,11 +343,9 @@
                 .attr('x', 12)
                 .attr('y', 3)
                 .style('font-size', '12px')
-                .style('pointer-events', 'none') // Make labels not interfere with mouse events
-                .style('fill', '#fff') // White text for better contrast
-                .style('stroke', 'rgba(0,0,0,0.5)') // Text outline for better readability
-                .style('stroke-width', '0.5px')
-                .style('paint-order', 'stroke');
+                .style('pointer-events', 'none')
+                .style('fill', colors.text)
+                .style('font-family', 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif');
 
             // Update node and edge positions on each tick  
             simulation.on("tick", () => {
@@ -334,12 +379,65 @@
             container.appendChild(svg.node());
 
             // Update graph container styles
-            container.style.backgroundColor = '#232730'; // Dark background color
+            container.style.backgroundColor = colors.background;
+            
+            // Store graph data in the container for depth filtering
+            container.dataset.graphData = JSON.stringify({
+                originalNodes: nodes,
+                originalLinks: links
+            });
+            
+            // Return the components for external access
+            return {
+                svg, g, node, link, label, simulation
+            };
 
         } catch (error) {
             console.error('Error rendering graph:', error);
-            container.innerHTML = '<div style="padding: 20px; color: red;">Error rendering graph: ' + error.message + '</div>';
+            container.innerHTML = `<div style="padding: 20px; color: ${colors.red}; background-color: ${colors.crust}; border-radius: 8px; margin: 10px;">Error rendering graph: ${error.message}</div>`;
         }
+    }
+
+    // Update the graph based on the current depth setting
+    function updateGraphWithDepth(centralNodeId, depth) {
+        const localGraphContainer = document.getElementById('link-graph');
+        const fullGraphContainer = document.getElementById('full-graph-container');
+        
+        if (!localGraphContainer && !fullGraphContainer) {
+            console.error('No graph containers found');
+            return;
+        }
+        
+        // Handle each container that's present
+        [localGraphContainer, fullGraphContainer].forEach(container => {
+            if (!container) return;
+            
+            try {
+                // Get the stored original graph data
+                const storedData = container.dataset.graphData;
+                if (!storedData) {
+                    console.warn('No stored graph data found in container');
+                    return;
+                }
+                
+                const { originalNodes, originalLinks } = JSON.parse(storedData);
+                
+                // Filter nodes and links based on the depth
+                const { nodes: filteredNodes, links: filteredLinks } = filterByDepth(
+                    originalNodes, 
+                    originalLinks, 
+                    centralNodeId, 
+                    depth
+                );
+                
+                console.log(`Filtered graph to depth ${depth}: ${filteredNodes.length} nodes, ${filteredLinks.length} links`);
+                
+                // Re-render the graph with the filtered data
+                renderGraph(container, filteredNodes, filteredLinks);
+            } catch (error) {
+                console.error('Error updating graph with depth:', error);
+            }
+        });
     }
 
     async function initializeGraph() {
@@ -356,6 +454,27 @@
             if (localGraphContainer) {
                 const localData = filterLocalGraphData(graphData, 3);
                 renderGraph(localGraphContainer, localData.nodes, localData.edges);
+                
+                // Set up depth control event listener
+                const depthControl = document.getElementById('graph-depth');
+                if (depthControl) {
+                    depthControl.addEventListener('input', function() {
+                        const depth = parseInt(this.value);
+                        console.log(`Depth changed to: ${depth}`);
+                        
+                        // Get current page URL to use as central node
+                        const currentPath = window.location.pathname;
+                        console.log(`Current path: ${currentPath}`);
+                        
+                        // Find the node that matches the current path
+                        const centralNode = localData.nodes.find(n => n.url === currentPath);
+                        if (centralNode) {
+                            updateGraphWithDepth(centralNode.id, depth);
+                        } else {
+                            console.warn('Could not find node for current page:', currentPath);
+                        }
+                    });
+                }
             } else {
                 console.error('Local graph container not found');
             }
@@ -381,6 +500,58 @@
             console.error('D3 library not loaded');
         }
     });
+
+    // Create graph data filter based on depth
+    function filterByDepth(nodes, links, currentNodeId, maxDepth) {
+        // If no current node is selected, return all nodes
+        if (!currentNodeId) return { nodes, links };
+
+        // Map node IDs to their objects for faster lookup
+        const nodeMap = new Map();
+        nodes.forEach(node => nodeMap.set(node.id, node));
+        
+        // Create a map of node ID to distance from selected node
+        const distanceMap = new Map();
+        
+        // BFS to find all nodes within maxDepth
+        const queue = [{id: currentNodeId, distance: 0}];
+        distanceMap.set(currentNodeId, 0);
+        
+        while (queue.length > 0) {
+            const { id, distance } = queue.shift();
+            const node = nodeMap.get(id);
+            
+            if (!node) continue;
+            
+            // If we've reached max depth, don't explore further
+            if (distance >= maxDepth) continue;
+            
+            // Get neighbors from links
+            const neighbors = links.reduce((acc, link) => {
+                if (link.source.id === id && !distanceMap.has(link.target.id)) {
+                    acc.push({id: link.target.id, distance: distance + 1});
+                    distanceMap.set(link.target.id, distance + 1);
+                } else if (link.target.id === id && !distanceMap.has(link.source.id)) {
+                    acc.push({id: link.source.id, distance: distance + 1});
+                    distanceMap.set(link.source.id, distance + 1);
+                }
+                return acc;
+            }, []);
+            
+            queue.push(...neighbors);
+        }
+        
+        // Filter nodes and links by depth
+        const filteredNodes = nodes.filter(node => distanceMap.has(node.id) && distanceMap.get(node.id) <= maxDepth);
+        const filteredLinks = links.filter(link => 
+            distanceMap.has(link.source.id) && 
+            distanceMap.has(link.target.id) && 
+            distanceMap.get(link.source.id) <= maxDepth && 
+            distanceMap.get(link.target.id) <= maxDepth
+        );
+        
+        return { nodes: filteredNodes, links: filteredLinks };
+    }
 </script>
 
 <!-- Load D3.js from CDN -->
@@ -403,6 +574,88 @@
             </div>
         </div>
     </div>
-    <div id="link-graph" class="graph" style="min-height: 600px; min-width: 100%; height: 600px;"></div>
-    <div id="full-graph-container" class="graph" x-show="showFullGraph" style="min-height: 800px; min-width: 100%; height: 800px;"></div>
+    <div id="link-graph" class="graph" style="min-height: 600px; min-width: 100%; height: 600px; border-radius: 12px; overflow: hidden; border: 1px solid #313244;"></div>
+    <div id="full-graph-container" class="graph" x-show="showFullGraph" style="min-height: 800px; min-width: 100%; height: 800px; border-radius: 12px; overflow: hidden; border: 1px solid #313244;"></div>
 </div>
+
+<!-- Depth control styling -->
+<style>
+    #graph-component {
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    .graph-title-container {
+        background-color: #1e1e2e;
+        color: #cdd6f4;
+        border-radius: 12px 12px 0 0;
+        padding: 12px 16px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border: 1px solid #313244;
+        border-bottom: none;
+    }
+    .graph-title {
+        font-weight: 600;
+        font-size: 18px;
+    }
+    #graph-controls {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    .depth-control {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .depth-control label {
+        font-size: 14px;
+        color: #bac2de;
+    }
+    .slider {
+        position: relative;
+        width: 150px;
+    }
+    input[type="range"] {
+        width: 100%;
+        height: 5px;
+        -webkit-appearance: none;
+        appearance: none;
+        background: #313244;
+        outline: none;
+        border-radius: 5px;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: #89b4fa;
+        cursor: pointer;
+        border: 2px solid #cdd6f4;
+        transition: background 0.2s;
+    }
+    input[type="range"]::-webkit-slider-thumb:hover {
+        background: #b4befe;
+    }
+    input[type="range"]::-moz-range-thumb {
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: #89b4fa;
+        cursor: pointer;
+        border: 2px solid #cdd6f4;
+        transition: background 0.2s;
+    }
+    input[type="range"]::-moz-range-thumb:hover {
+        background: #b4befe;
+    }
+    datalist {
+        display: flex;
+        justify-content: space-between;
+        color: #bac2de;
+        font-size: 12px;
+        margin-top: 4px;
+    }
+</style>
