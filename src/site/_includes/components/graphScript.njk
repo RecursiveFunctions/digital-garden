@@ -463,9 +463,32 @@
                 return;
             }
             
+            // Convert graph data nodes to array if it's an object
+            const nodesArray = Array.isArray(graphData.nodes) 
+                ? graphData.nodes 
+                : Object.values(graphData.nodes);
+            
+            // Convert graph data links to array if it's an object
+            const linksArray = Array.isArray(graphData.links) 
+                ? graphData.links 
+                : Object.values(graphData.links);
+            
+            // Get current page URL to use as central node
+            const currentPath = window.location.pathname;
+            console.log(`Current page path: ${currentPath}`);
+            
+            // Find the node that matches the current path
+            const centralNode = nodesArray.find(n => n.url === currentPath);
+            
+            if (!centralNode) {
+                console.warn('Could not find node for current page:', currentPath);
+                return;
+            }
+            
             // Render local graph
             const localGraphContainer = document.getElementById('link-graph');
             if (localGraphContainer) {
+                // Filter graph data with the current page as the central node
                 const localData = filterLocalGraphData(graphData, 3);
                 renderGraph(localGraphContainer, localData.nodes, localData.edges);
                 
@@ -476,16 +499,11 @@
                         const depth = parseInt(this.value);
                         console.log(`Depth changed to: ${depth}`);
                         
-                        // Get current page URL to use as central node
-                        const currentPath = window.location.pathname;
-                        console.log(`Current path: ${currentPath}`);
-                        
-                        // Find the node that matches the current path
-                        const centralNode = localData.nodes.find(n => n.url === currentPath);
+                        // Always use the current page node as the central node
                         if (centralNode) {
                             updateGraphWithDepth(centralNode.id, depth);
                         } else {
-                            console.warn('Could not find node for current page:', currentPath);
+                            console.warn('Could not find node for current page');
                         }
                     });
                 }
