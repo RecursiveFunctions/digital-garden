@@ -327,21 +327,33 @@
                     }
                 })
                 .on("click", function(event, d) {
+                    // Stop the default link navigation behavior
+                    event.preventDefault();
+                    
+                    console.log('Node clicked:', d);
+                    
                     // Remove previous focus
                     d3.selectAll(".graph-node").classed("focused-node", false);
+                    
                     // Add focus to clicked node
-                    d3.select(this).classed("focused-node", true);
+                    d3.select(this)
+                      .classed("focused-node", true)
+                      .attr("data-node-id", d.id); // Ensure node ID is stored in the element
                     
-                    // Navigate to the note when clicked
-                    if (d.url) {
-                        window.location.href = d.url;
-                    }
-                    
-                    // Set this node as the focal node and update the graph
+                    // Get the current depth from the slider
                     const depthControl = document.getElementById('graph-depth');
                     if (depthControl) {
                         const depth = parseInt(depthControl.value);
+                        console.log(`Updating graph with node ${d.id} at depth ${depth}`);
                         updateGraphWithDepth(d.id, depth);
+                    }
+                    
+                    // Navigate to the note when clicked (but after handling the graph update)
+                    if (d.url) {
+                        // Slight delay to allow graph updating to happen first
+                        setTimeout(() => {
+                            window.location.href = d.url;
+                        }, 100);
                     }
                 });
 
@@ -411,6 +423,20 @@
 
     // Update the graph based on the current depth setting
     function updateGraphWithDepth(centralNodeId, depth) {
+        console.log(`updateGraphWithDepth called with centralNodeId=${centralNodeId}, depth=${depth}`);
+        
+        if (!centralNodeId) {
+            console.error('No central node ID provided for depth filtering');
+            centralNodeId = window.centralNodeId; // Fall back to current page node
+            
+            if (!centralNodeId) {
+                console.error('No fallback central node ID available');
+                return;
+            }
+            
+            console.log(`Using fallback central node ID: ${centralNodeId}`);
+        }
+        
         const localGraphContainer = document.getElementById('link-graph');
         const fullGraphContainer = document.getElementById('full-graph-container');
         
@@ -431,7 +457,11 @@
                     return;
                 }
                 
+                console.log(`Processing container with stored data length: ${storedData.length}`);
+                
                 const { originalNodes, originalLinks } = JSON.parse(storedData);
+                
+                console.log(`Original data: ${originalNodes.length} nodes, ${originalLinks.length} links`);
                 
                 // Filter nodes and links based on the depth
                 const { nodes: filteredNodes, links: filteredLinks } = filterByDepth(
@@ -440,6 +470,8 @@
                     centralNodeId, 
                     depth
                 );
+                
+                console.log(`Filtered data: ${filteredNodes.length} nodes, ${filteredLinks.length} links`);
                 
                 // Clear the existing graph
                 container.innerHTML = '';
@@ -452,6 +484,68 @@
                 console.error('Error updating graph with depth:', error);
             }
         });
+    }
+
+    // Create graph data filter based on depth
+    function filterByDepth(nodes, links, currentNodeId, maxDepth) {
+        console.log(`Filtering graph by depth: nodeId=${currentNodeId}, maxDepth=${maxDepth}`);
+        
+        // If no current node is selected, return all nodes
+        if (!currentNodeId) {
+            console.warn('No current node ID provided for depth filtering');
+            return { nodes, links };
+        }
+
+        // Map node IDs to their objects for faster lookup
+        const nodeMap = new Map();
+        nodes.forEach(node => nodeMap.set(node.id, node));
+        
+        // Create a map of node ID to distance from selected node
+        const distanceMap = new Map();
+        
+        // BFS to find all nodes within maxDepth
+        const queue = [{id: currentNodeId, distance: 0}];
+        distanceMap.set(currentNodeId, 0);
+        
+        while (queue.length > 0) {
+            const { id, distance } = queue.shift();
+            const node = nodeMap.get(id);
+            
+            if (!node) {
+                console.warn(`Node not found for ID: ${id}`);
+                continue;
+            }
+            
+            // If we've reached max depth, don't explore further
+            if (distance >= maxDepth) continue;
+            
+            // Get neighbors from links
+            const neighbors = links.reduce((acc, link) => {
+                if (link.source.id === id && !distanceMap.has(link.target.id)) {
+                    acc.push({id: link.target.id, distance: distance + 1});
+                    distanceMap.set(link.target.id, distance + 1);
+                } else if (link.target.id === id && !distanceMap.has(link.source.id)) {
+                    acc.push({id: link.source.id, distance: distance + 1});
+                    distanceMap.set(link.source.id, distance + 1);
+                }
+                return acc;
+            }, []);
+            
+            queue.push(...neighbors);
+        }
+        
+        // Filter nodes and links by depth
+        const filteredNodes = nodes.filter(node => distanceMap.has(node.id) && distanceMap.get(node.id) <= maxDepth);
+        const filteredLinks = links.filter(link => 
+            distanceMap.has(link.source.id) && 
+            distanceMap.has(link.target.id) && 
+            distanceMap.get(link.source.id) <= maxDepth && 
+            distanceMap.get(link.target.id) <= maxDepth
+        );
+
+        console.log(`Filtered to ${filteredNodes.length} nodes and ${filteredLinks.length} links at depth ${maxDepth}`);
+        
+        return { nodes: filteredNodes, links: filteredLinks };
     }
 
     async function initializeGraph() {
@@ -484,6 +578,11 @@
                 console.warn('Could not find node for current page:', currentPath);
                 return;
             }
+
+            console.log('Central node found:', centralNode);
+            
+            // Store the central node ID as a global variable for easier access
+            window.centralNodeId = centralNode.id;
             
             // Render local graph
             const localGraphContainer = document.getElementById('link-graph');
@@ -495,17 +594,14 @@
                 // Set up depth control event listener
                 const depthControl = document.getElementById('graph-depth');
                 if (depthControl) {
-                    depthControl.addEventListener('input', function() {
-                        const depth = parseInt(this.value);
-                        console.log(`Depth changed to: ${depth}`);
-                        
-                        // Always use the current page node as the central node
-                        if (centralNode) {
-                            updateGraphWithDepth(centralNode.id, depth);
-                        } else {
-                            console.warn('Could not find node for current page');
-                        }
-                    });
+                    // Set initial value to 3
+                    depthControl.value = 3;
+                    
+                    // Remove any existing event listeners (to prevent duplicates)
+                    depthControl.removeEventListener('input', handleDepthChange);
+                    
+                    // Add the event listener
+                    depthControl.addEventListener('input', handleDepthChange);
                 }
             } else {
                 console.error('Local graph container not found');
@@ -517,10 +613,23 @@
                 const fullData = filterLocalGraphData(graphData, 100); // Use a large depth for full graph
                 renderGraph(fullGraphContainer, fullData.nodes, fullData.edges);
             } else {
-                console.error('Full graph container not found');
+                console.log('Full graph container not available');
             }
         } catch (error) {
             console.error('Error initializing graph:', error);
+        }
+    }
+
+    // Handler function for depth slider changes
+    function handleDepthChange(event) {
+        const depth = parseInt(event.target.value);
+        console.log(`Depth changed to: ${depth}`);
+        
+        // Always use the current page node as the central node
+        if (window.centralNodeId) {
+            updateGraphWithDepth(window.centralNodeId, depth);
+        } else {
+            console.warn('Could not find central node ID for depth filtering');
         }
     }
 
@@ -530,74 +639,6 @@
             initializeGraph();
         } else {
             console.error('D3 library not loaded');
-        }
-    });
-
-    // Create graph data filter based on depth
-    function filterByDepth(nodes, links, currentNodeId, maxDepth) {
-        // If no current node is selected, return all nodes
-        if (!currentNodeId) return { nodes, links };
-
-        // Map node IDs to their objects for faster lookup
-        const nodeMap = new Map();
-        nodes.forEach(node => nodeMap.set(node.id, node));
-        
-        // Create a map of node ID to distance from selected node
-        const distanceMap = new Map();
-        
-        // BFS to find all nodes within maxDepth
-        const queue = [{id: currentNodeId, distance: 0}];
-        distanceMap.set(currentNodeId, 0);
-        
-        while (queue.length > 0) {
-            const { id, distance } = queue.shift();
-            const node = nodeMap.get(id);
-            
-            if (!node) continue;
-            
-            // If we've reached max depth, don't explore further
-            if (distance >= maxDepth) continue;
-            
-            // Get neighbors from links
-            const neighbors = links.reduce((acc, link) => {
-                if (link.source.id === id && !distanceMap.has(link.target.id)) {
-                    acc.push({id: link.target.id, distance: distance + 1});
-                    distanceMap.set(link.target.id, distance + 1);
-                } else if (link.target.id === id && !distanceMap.has(link.source.id)) {
-                    acc.push({id: link.source.id, distance: distance + 1});
-                    distanceMap.set(link.source.id, distance + 1);
-                }
-                return acc;
-            }, []);
-            
-            queue.push(...neighbors);
-        }
-        
-        // Filter nodes and links by depth
-        const filteredNodes = nodes.filter(node => distanceMap.has(node.id) && distanceMap.get(node.id) <= maxDepth);
-        const filteredLinks = links.filter(link => 
-            distanceMap.has(link.source.id) && 
-            distanceMap.has(link.target.id) && 
-            distanceMap.get(link.source.id) <= maxDepth && 
-            distanceMap.get(link.target.id) <= maxDepth
-        );
-        
-        return { nodes: filteredNodes, links: filteredLinks };
-    }
-
-    // Add event listener for depth slider
-    document.addEventListener('DOMContentLoaded', function() {
-        const depthSlider = document.getElementById('graph-depth');
-        if (depthSlider) {
-            depthSlider.addEventListener('input', function(e) {
-                const depth = parseInt(e.target.value);
-                // Get the currently focused node or use the first node
-                const focusedNode = document.querySelector('.focused-node');
-                const nodeId = focusedNode ? focusedNode.dataset.nodeId : nodes[0]?.id;
-                if (nodeId) {
-                    updateGraphWithDepth(nodeId, depth);
-                }
-            });
         }
     });
 
