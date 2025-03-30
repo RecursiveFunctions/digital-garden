@@ -44,17 +44,36 @@
             linksCount: linksArray.length 
         });
 
+        // Create a map from node id to index
+        const nodeIdToIndex = {};
+        nodesArray.forEach((node, index) => {
+            nodeIdToIndex[node.id] = index;
+        });
+
         // Convert graph data to our component's format
-        const nodes = nodesArray.map(node => ({
-            id: node.url || node.id,
+        const nodes = nodesArray.map((node, index) => ({
+            // Use the original node ID to ensure edges connect properly
+            id: node.id,
+            originalId: node.id,
+            url: node.url,
             title: node.title || node.id,
-            neighbors: node.neighbors || []
+            neighbors: node.neighbors || [],
+            index: index // Store original index
         }));
 
-        const edges = linksArray.map(link => ({
-            source: link.source,
-            target: link.target
-        }));
+        console.log('Node ID mapping:', nodeIdToIndex);
+
+        // Map links using the node ID to index mapping
+        const edges = linksArray.map(link => {
+            const sourceId = typeof link.source === 'object' ? link.source.id : link.source;
+            const targetId = typeof link.target === 'object' ? link.target.id : link.target;
+            
+            return {
+                source: sourceId,
+                target: targetId,
+                value: link.value || 1
+            };
+        });
 
         console.log('Local graph processed:', { 
             nodes, 
@@ -121,47 +140,32 @@
                 .attr("viewBox", [0, 0, width, height])
                 .attr("style", "max-width: 100%; height: auto;");
             
-            // Ensure nodes have unique IDs
-            const processedNodes = nodes.map((node, index) => ({
-                ...node,
-                id: node.id || `node-${index}`
-            }));
-
-            // Map numeric IDs to actual node objects for links
-            const nodeById = new Map(processedNodes.map(node => [node.id, node]));
-            
-            // Process edges to ensure they reference actual node objects
-            const processedEdges = edges.map(edge => {
-                const source = typeof edge.source === 'number' ? 
-                    processedNodes.find(n => n.id === edge.source) || processedNodes[edge.source] : 
-                    nodeById.get(edge.source) || edge.source;
-                    
-                const target = typeof edge.target === 'number' ? 
-                    processedNodes.find(n => n.id === edge.target) || processedNodes[edge.target] : 
-                    nodeById.get(edge.target) || edge.target;
-                
-                return source && target ? { source, target } : null;
-            }).filter(Boolean);
-
-            console.log('Processed for graph:', { 
-                nodes: processedNodes.length, 
-                edges: processedEdges.length 
+            // Create a lookup map for nodes by ID
+            const nodeById = new Map();
+            nodes.forEach(node => {
+                nodeById.set(node.id, node);
             });
             
-            if (processedEdges.length === 0) {
-                console.warn('No valid edges to render');
-            }
-
-            // Set up force simulation with optimized parameters
-            const simulation = d3.forceSimulation(processedNodes)
-                .force("link", d3.forceLink(processedEdges).id(d => d.id).distance(100))
-                .force("charge", d3.forceManyBody().strength(-300))
-                .force("center", d3.forceCenter(width / 2, height / 2))
-                .force("x", d3.forceX(width / 2).strength(0.1))
-                .force("y", d3.forceY(height / 2).strength(0.1))
-                .force("collide", d3.forceCollide(15)) // Prevent node overlap
-                .alphaDecay(0.05) // Faster convergence
-                .alphaMin(0.001);
+            console.log('Node map size:', nodeById.size);
+            
+            // Process edges to reference node objects directly
+            const links = [];
+            edges.forEach(edge => {
+                const source = nodeById.get(edge.source);
+                const target = nodeById.get(edge.target);
+                
+                if (source && target) {
+                    links.push({
+                        source,
+                        target,
+                        value: edge.value || 1
+                    });
+                } else {
+                    console.warn('Could not find nodes for edge:', edge);
+                }
+            });
+            
+            console.log('Processed links:', links.length);
 
             // Create a group for graph elements
             const g = svg.append("g");
@@ -174,19 +178,30 @@
                     g.attr("transform", event.transform);
                 }));
 
+            // Set up force simulation with optimized parameters
+            const simulation = d3.forceSimulation(nodes)
+                .force("link", d3.forceLink(links).id(d => d.id).distance(100))
+                .force("charge", d3.forceManyBody().strength(-300))
+                .force("center", d3.forceCenter(width / 2, height / 2))
+                .force("x", d3.forceX(width / 2).strength(0.1))
+                .force("y", d3.forceY(height / 2).strength(0.1))
+                .force("collide", d3.forceCollide(15)) // Prevent node overlap
+                .alphaDecay(0.05) // Faster convergence
+                .alphaMin(0.001);
+
             // Create edges
             const link = g.append("g")
                 .attr("stroke", "#999")
                 .attr("stroke-opacity", 0.6)
                 .selectAll("line")
-                .data(processedEdges)
+                .data(links)
                 .join("line")
                 .attr("stroke-width", d => Math.sqrt(d.value || 1));
 
             // Create nodes with custom styling
             const node = g.append("g")
                 .selectAll("circle")
-                .data(processedNodes)
+                .data(nodes)
                 .join("circle")
                 .attr("r", d => {
                     const numberOfNeighbors = (d.neighbors && d.neighbors.length) || 2;
@@ -218,7 +233,7 @@
             // Create node labels
             const label = g.append("g")
                 .selectAll("text")
-                .data(processedNodes)
+                .data(nodes)
                 .join("text")
                 .text(d => d.title || d.id)
                 .attr('x', 12)
@@ -230,7 +245,7 @@
             // Update node and edge positions on each tick  
             simulation.on("tick", () => {
                 // Keep nodes within bounds
-                processedNodes.forEach(d => {
+                nodes.forEach(d => {
                     d.x = Math.max(10, Math.min(width - 10, d.x));
                     d.y = Math.max(10, Math.min(height - 10, d.y));
                 });

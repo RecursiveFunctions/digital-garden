@@ -149,6 +149,7 @@ function getGraph(data) {
           target: n.id,
           value: 1  // Add a default weight
         });
+        console.log(`Added link from ${node.id} (${node.url}) to ${n.id} (${n.url})`);
       }
     });
   });

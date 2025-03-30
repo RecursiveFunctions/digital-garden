@@ -20,7 +20,6 @@ You cannot divorce politics from any subject.
 
 
 # Very Interesting People
-[[Kwame Nkrumah\|Kwame Nkrumah]]
-Vernor Vinge
-Dasniel
-- 
+[[Kwame Nkrumah\|Kwame Nkrumah]] - 
+Vernor Vinge - _Coined the term "Singularity" in 1982 to describe AI's potential exponential growth_
+[[202503292136|Dasniel]] - _just some fucking dude_
