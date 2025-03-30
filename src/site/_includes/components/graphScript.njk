@@ -178,8 +178,8 @@
                     g.attr("transform", event.transform);
                 }));
 
-            // Catppuccin Mocha Theme Colors
-            const colors = {
+            // Define colors object for consistent reference
+            window.colors = window.colors || {
                 background: '#1e1e2e',
                 text: '#cdd6f4',
                 subtext: '#bac2de',
@@ -203,6 +203,8 @@
                 blue: '#89b4fa',
                 lavender: '#b4befe'
             };
+
+            const colors = window.colors;
 
             // Group color mapping based on node group
             const groupColors = {
@@ -418,304 +420,10 @@
 
         } catch (error) {
             console.error('Error rendering graph:', error);
-            container.innerHTML = `<div style="padding: 20px; color: ${colors.red}; background-color: ${colors.crust}; border-radius: 8px; margin: 10px;">Error rendering graph: ${error.message}</div>`;
+            container.innerHTML = `<div style="padding: 20px; color: ${colors?.red || '#f38ba8'}; background-color: ${colors?.crust || '#11111b'}; border-radius: 8px; margin: 10px;">Error rendering graph: ${error.message}</div>`;
         }
     }
 
-    // Update the graph based on the current depth setting
-    function updateGraphWithDepth(centralNodeId, depth) {
-        console.log(`updateGraphWithDepth called with centralNodeId=${centralNodeId}, depth=${depth}`);
-        
-        if (!centralNodeId) {
-            console.error('No central node ID provided for depth filtering');
-            centralNodeId = window.centralNodeId; // Fall back to current page node
-            
-            if (!centralNodeId) {
-                console.error('No fallback central node ID available');
-                return;
-            }
-            
-            console.log(`Using fallback central node ID: ${centralNodeId}`);
-        }
-        
-        const localGraphContainer = document.getElementById('link-graph');
-        const fullGraphContainer = document.getElementById('full-graph-container');
-        
-        if (!localGraphContainer && !fullGraphContainer) {
-            console.error('No graph containers found');
-            return;
-        }
-        
-        // Handle each container that's present
-        [localGraphContainer, fullGraphContainer].forEach(container => {
-            if (!container) return;
-            
-            try {
-                // Get the stored original graph data
-                const storedData = container.dataset.graphData;
-                if (!storedData) {
-                    console.warn('No stored graph data found in container');
-                    return;
-                }
-                
-                console.log(`Processing container with stored data length: ${storedData.length}`);
-                
-                const { originalNodes, originalLinks } = JSON.parse(storedData);
-                
-                console.log(`Original data: ${originalNodes.length} nodes, ${originalLinks.length} links`);
-                
-                // Filter nodes and links based on the depth
-                const { nodes: filteredNodes, links: filteredLinks } = filterByDepth(
-                    originalNodes, 
-                    originalLinks, 
-                    centralNodeId, 
-                    depth
-                );
-                
-                console.log(`Filtered data: ${filteredNodes.length} nodes, ${filteredLinks.length} links`);
-                
-                // Clear the existing graph
-                container.innerHTML = '';
-                
-                // Re-render the graph with the filtered data
-                renderGraph(container, filteredNodes, filteredLinks);
-                
-                console.log(`Filtered graph to depth ${depth}: ${filteredNodes.length} nodes, ${filteredLinks.length} links`);
-            } catch (error) {
-                console.error('Error updating graph with depth:', error);
-            }
-        });
-    }
-
-    // Create graph data filter based on depth
-    function filterByDepth(nodes, links, currentNodeId, maxDepth) {
-        console.log(`Filtering graph by depth: nodeId=${currentNodeId}, maxDepth=${maxDepth}`);
-        
-        // If no current node is selected, return all nodes
-        if (!currentNodeId) {
-            console.warn('No current node ID provided for depth filtering');
-            return { nodes, links };
-        }
-
-        // Map node IDs to their objects for faster lookup
-        const nodeMap = new Map();
-        nodes.forEach(node => nodeMap.set(node.id, node));
-        
-        // Create a map of node ID to distance from selected node
-        const distanceMap = new Map();
-        
-        // BFS to find all nodes within maxDepth
-        const queue = [{id: currentNodeId, distance: 0}];
-        distanceMap.set(currentNodeId, 0);
-        
-        while (queue.length > 0) {
-            const { id, distance } = queue.shift();
-            const node = nodeMap.get(id);
-            
-            if (!node) {
-                console.warn(`Node not found for ID: ${id}`);
-                continue;
-            }
-            
-            // If we've reached max depth, don't explore further
-            if (distance >= maxDepth) continue;
-            
-            // Get neighbors from links
-            const neighbors = links.reduce((acc, link) => {
-                if (link.source.id === id && !distanceMap.has(link.target.id)) {
-                    acc.push({id: link.target.id, distance: distance + 1});
-                    distanceMap.set(link.target.id, distance + 1);
-                } else if (link.target.id === id && !distanceMap.has(link.source.id)) {
-                    acc.push({id: link.source.id, distance: distance + 1});
-                    distanceMap.set(link.source.id, distance + 1);
-                }
-                return acc;
-            }, []);
-            
-            queue.push(...neighbors);
-        }
-        
-        // Filter nodes and links by depth
-        const filteredNodes = nodes.filter(node => distanceMap.has(node.id) && distanceMap.get(node.id) <= maxDepth);
-        const filteredLinks = links.filter(link => 
-            distanceMap.has(link.source.id) && 
-            distanceMap.has(link.target.id) && 
-            distanceMap.get(link.source.id) <= maxDepth && 
-            distanceMap.get(link.target.id) <= maxDepth
-        );
-
-        console.log(`Filtered to ${filteredNodes.length} nodes and ${filteredLinks.length} links at depth ${maxDepth}`);
-        
-        return { nodes: filteredNodes, links: filteredLinks };
-    }
-
-    async function initializeGraph() {
-        try {
-            const graphData = await fetchGraphData();
-            
-            if (!graphData) {
-                console.error('Graph data is null or invalid');
-                return;
-            }
-            
-            // Store original graph data globally for filtering
-            window.originalGraphData = graphData;
-            
-            // Convert graph data nodes to array if it's an object
-            const nodesArray = Array.isArray(graphData.nodes) 
-                ? graphData.nodes 
-                : Object.values(graphData.nodes);
-            
-            // Convert graph data links to array if it's an object
-            const linksArray = Array.isArray(graphData.links) 
-                ? graphData.links 
-                : Object.values(graphData.links);
-            
-            // Get current page URL to use as central node
-            const currentPath = window.location.pathname;
-            console.log(`Current page path: ${currentPath}`);
-            
-            // Find the node that matches the current path
-            const centralNode = nodesArray.find(n => n.url === currentPath);
-            
-            if (!centralNode) {
-                console.warn('Could not find node for current page:', currentPath);
-                return;
-            }
-
-            console.log('Central node found:', centralNode);
-            
-            // Store the central node ID as a global variable for easier access
-            window.centralNodeId = centralNode.id;
-            
-            // Render local graph with initial depth of 3
-            renderFilteredGraph(3);
-            
-            // Set up depth control event listener
-            setupDepthSlider();
-            
-            // Render full graph if needed
-            const fullGraphContainer = document.getElementById('full-graph-container');
-            if (fullGraphContainer) {
-                const fullData = filterLocalGraphData(graphData, 100); // Use a large depth for full graph
-                renderGraph(fullGraphContainer, fullData.nodes, fullData.edges);
-            }
-        } catch (error) {
-            console.error('Error initializing graph:', error);
-        }
-    }
-    
-    // Function to setup the depth slider
-    function setupDepthSlider() {
-        const depthControl = document.getElementById('graph-depth');
-        if (!depthControl) {
-            console.error('Depth slider not found');
-            return;
-        }
-        
-        // Remove Alpine.js binding which might be interfering
-        depthControl.removeAttribute('x-model.number');
-        
-        // Set initial value
-        depthControl.value = 3;
-        
-        // Remove any existing event listeners
-        depthControl.replaceWith(depthControl.cloneNode(true));
-        
-        // Get the fresh reference
-        const freshDepthControl = document.getElementById('graph-depth');
-        
-        // Add new event listener
-        freshDepthControl.addEventListener('input', function() {
-            const depth = parseInt(this.value);
-            console.log(`Depth slider changed to: ${depth}`);
-            renderFilteredGraph(depth);
-        });
-        
-        // Add visual depth indicator
-        const depthIndicator = document.createElement('span');
-        depthIndicator.id = 'depth-value-indicator';
-        depthIndicator.textContent = '3';
-        depthIndicator.style.marginLeft = '8px';
-        depthIndicator.style.color = '#bac2de';
-        depthIndicator.style.fontWeight = 'bold';
-        
-        const depthLabel = document.querySelector('.depth-control label');
-        if (depthLabel) {
-            depthLabel.appendChild(depthIndicator);
-        }
-        
-        freshDepthControl.addEventListener('input', function() {
-            const depthIndicator = document.getElementById('depth-value-indicator');
-            if (depthIndicator) {
-                depthIndicator.textContent = this.value;
-            }
-        });
-    }
-    
-    // Render a filtered graph based on depth
-    function renderFilteredGraph(depth) {
-        if (!window.originalGraphData || !window.centralNodeId) {
-            console.error('Original graph data or central node ID not available');
-            return;
-        }
-        
-        console.log(`Rendering filtered graph with depth ${depth} from node ${window.centralNodeId}`);
-        
-        // Get the container
-        const container = document.getElementById('link-graph');
-        if (!container) {
-            console.error('Graph container not found');
-            return;
-        }
-        
-        // Convert data format
-        const nodesArray = Array.isArray(window.originalGraphData.nodes) 
-            ? window.originalGraphData.nodes 
-            : Object.values(window.originalGraphData.nodes);
-        
-        const linksArray = Array.isArray(window.originalGraphData.links) 
-            ? window.originalGraphData.links 
-            : Object.values(window.originalGraphData.links);
-        
-        // Clear the container
-        container.innerHTML = '';
-        
-        // Create a fresh graph with the specified depth
-        const centralNodeObj = nodesArray.find(n => n.id === window.centralNodeId);
-        if (!centralNodeObj) {
-            console.error(`Central node with ID ${window.centralNodeId} not found in the graph data`);
-            return;
-        }
-        
-        console.log('Using central node:', centralNodeObj);
-        
-        // Filter nodes by depth using breadth-first search
-        const { filteredNodes, filteredLinks } = filterNodesByDepth(nodesArray, linksArray, window.centralNodeId, depth);
-        
-        console.log(`Filtered to ${filteredNodes.length} nodes and ${filteredLinks.length} links`);
-        
-        // Process the filtered data
-        const processedData = {
-            nodes: filteredNodes.map(node => ({
-                id: node.id,
-                originalId: node.id,
-                url: node.url,
-                title: node.title || node.id,
-                neighbors: node.neighbors || [],
-                group: node.group || 'none'
-            })),
-            edges: filteredLinks.map(link => ({
-                source: typeof link.source === 'object' ? link.source.id : link.source,
-                target: typeof link.target === 'object' ? link.target.id : link.target,
-                value: link.value || 1
-            }))
-        };
-        
-        // Render the filtered graph
-        renderGraph(container, processedData.nodes, processedData.edges);
-    }
-    
     // Filter nodes and links by depth using breadth-first search
     function filterNodesByDepth(allNodes, allLinks, centralNodeId, maxDepth) {
         console.log(`Filtering by depth: ${maxDepth} from node ${centralNodeId}`);
@@ -741,14 +449,25 @@
             // Find all links connected to this node
             allLinks.forEach(link => {
                 let neighborId = null;
+                let sourceId = link.source;
+                let targetId = link.target;
+                
+                // Handle both object and primitive representations
+                if (typeof sourceId === 'object' && sourceId) {
+                    sourceId = sourceId.id;
+                }
+                
+                if (typeof targetId === 'object' && targetId) {
+                    targetId = targetId.id;
+                }
                 
                 // Check if this node is the source
-                if ((typeof link.source === 'object' && link.source.id === id) || link.source === id) {
-                    neighborId = typeof link.target === 'object' ? link.target.id : link.target;
+                if (sourceId === id) {
+                    neighborId = targetId;
                 }
                 // Check if this node is the target
-                else if ((typeof link.target === 'object' && link.target.id === id) || link.target === id) {
-                    neighborId = typeof link.source === 'object' ? link.source.id : link.source;
+                else if (targetId === id) {
+                    neighborId = sourceId;
                 }
                 
                 // If we found a neighbor and haven't visited it yet
@@ -763,8 +482,17 @@
         const filteredNodes = allNodes.filter(node => distances.has(node.id) && distances.get(node.id) <= maxDepth);
         
         const filteredLinks = allLinks.filter(link => {
-            const sourceId = typeof link.source === 'object' ? link.source.id : link.source;
-            const targetId = typeof link.target === 'object' ? link.target.id : link.target;
+            let sourceId = link.source;
+            let targetId = link.target;
+            
+            // Handle both object and primitive representations
+            if (typeof sourceId === 'object' && sourceId) {
+                sourceId = sourceId.id;
+            }
+            
+            if (typeof targetId === 'object' && targetId) {
+                targetId = targetId.id;
+            }
             
             return distances.has(sourceId) && 
                    distances.has(targetId) && 
@@ -774,7 +502,212 @@
         
         return { filteredNodes, filteredLinks };
     }
+    
+    // Render a filtered graph based on depth
+    function renderFilteredGraph(depth) {
+        if (!window.originalGraphData) {
+            console.error('Original graph data not available');
+            return;
+        }
 
+        if (!window.centralNodeId) {
+            console.error('Central node ID not available');
+            const currentPath = window.location.pathname;
+            console.log(`Looking for node with URL ${currentPath}`);
+            
+            // Try to find the node for the current page
+            const nodesArray = Array.isArray(window.originalGraphData.nodes) 
+                ? window.originalGraphData.nodes 
+                : Object.values(window.originalGraphData.nodes);
+            
+            const centralNode = nodesArray.find(n => n.url === currentPath);
+            if (!centralNode) {
+                console.error(`Could not find node for current page: ${currentPath}`);
+                return;
+            }
+            
+            window.centralNodeId = centralNode.id;
+            console.log(`Found central node ID: ${window.centralNodeId}`);
+        }
+        
+        console.log(`Rendering filtered graph with depth ${depth} from node ${window.centralNodeId}`);
+        
+        // Get the container
+        const container = document.getElementById('link-graph');
+        if (!container) {
+            console.error('Graph container not found');
+            return;
+        }
+        
+        // Convert data format
+        const nodesArray = Array.isArray(window.originalGraphData.nodes) 
+            ? window.originalGraphData.nodes 
+            : Object.values(window.originalGraphData.nodes);
+        
+        const linksArray = Array.isArray(window.originalGraphData.links) 
+            ? window.originalGraphData.links 
+            : Object.values(window.originalGraphData.links);
+
+        // Log the unfiltered data for debugging
+        console.log(`Unfiltered data: ${nodesArray.length} nodes, ${linksArray.length} links`);
+        
+        // Filter nodes by depth using breadth-first search
+        const { filteredNodes, filteredLinks } = filterNodesByDepth(nodesArray, linksArray, window.centralNodeId, depth);
+        
+        console.log(`Filtered to ${filteredNodes.length} nodes and ${filteredLinks.length} links at depth ${depth}`);
+        
+        // Process the filtered data for rendering
+        const processedNodes = filteredNodes.map(node => ({
+            id: node.id,
+            originalId: node.id,
+            url: node.url,
+            title: node.title || node.id,
+            neighbors: node.neighbors || [],
+            group: node.group || 'none'
+        }));
+        
+        const processedEdges = filteredLinks.map(link => {
+            const sourceId = typeof link.source === 'object' ? link.source.id : link.source;
+            const targetId = typeof link.target === 'object' ? link.target.id : link.target;
+            
+            return {
+                source: sourceId,
+                target: targetId,
+                value: link.value || 1
+            };
+        });
+        
+        // Render the filtered graph
+        renderGraph(container, processedNodes, processedEdges);
+    }
+    
+    async function initializeGraph() {
+        try {
+            console.log('Initializing graph...');
+            const graphData = await fetchGraphData();
+            
+            if (!graphData) {
+                console.error('Graph data is null or invalid');
+                return;
+            }
+            
+            console.log('Graph data loaded:', graphData);
+            
+            // Store original graph data globally for filtering
+            window.originalGraphData = graphData;
+            
+            // Convert graph data nodes to array if it's an object
+            const nodesArray = Array.isArray(graphData.nodes) 
+                ? graphData.nodes 
+                : Object.values(graphData.nodes);
+            
+            // Convert graph data links to array if it's an object
+            const linksArray = Array.isArray(graphData.links) 
+                ? graphData.links 
+                : Object.values(graphData.links);
+            
+            // Get current page URL to use as central node
+            const currentPath = window.location.pathname;
+            console.log(`Current page path: ${currentPath}`);
+            
+            // Find the node that matches the current path
+            const centralNode = nodesArray.find(n => n.url === currentPath);
+            
+            if (!centralNode) {
+                console.warn('Could not find node for current page:', currentPath);
+                // Fall back to just rendering the full graph
+                const container = document.getElementById('link-graph');
+                if (container) {
+                    const localData = filterLocalGraphData(graphData, 3);
+                    renderGraph(container, localData.nodes, localData.edges);
+                }
+                return;
+            }
+
+            console.log('Central node found:', centralNode);
+            
+            // Store the central node ID as a global variable for easier access
+            window.centralNodeId = centralNode.id;
+            
+            // Render local graph with initial depth of 3
+            renderFilteredGraph(3);
+            
+            // Set up depth control event listener
+            setupDepthSlider();
+            
+            // Render full graph if needed
+            const fullGraphContainer = document.getElementById('full-graph-container');
+            if (fullGraphContainer) {
+                const fullData = filterLocalGraphData(graphData, 100); // Use a large depth for full graph
+                renderGraph(fullGraphContainer, fullData.nodes, fullData.edges);
+            }
+        } catch (error) {
+            console.error('Error initializing graph:', error);
+            // Show error message in the graph container
+            const container = document.getElementById('link-graph');
+            if (container) {
+                container.innerHTML = `<div style="padding: 20px; text-align: center; color: #f38ba8; background-color: #11111b; border-radius: 8px; margin: 10px;">Error initializing graph: ${error.message}</div>`;
+            }
+        }
+    }
+    
+    // Initialize graph when D3 is loaded
+    document.addEventListener('DOMContentLoaded', function() {
+        if (typeof d3 === 'undefined') {
+            console.error('D3 library not loaded');
+            const container = document.getElementById('link-graph');
+            if (container) {
+                container.innerHTML = '<div style="padding: 20px; text-align: center; color: #f38ba8; background-color: #11111b; border-radius: 8px; margin: 10px;">Error: D3 library not loaded. Please check your internet connection.</div>';
+            }
+            return;
+        }
+        
+        console.log('D3 found, initializing graph...');
+        initializeGraph();
+    });
+    
+    // Function to setup the depth slider
+    function setupDepthSlider() {
+        const depthControl = document.getElementById('graph-depth');
+        if (!depthControl) {
+            console.error('Depth slider not found');
+            return;
+        }
+        
+        console.log('Setting up depth slider...');
+        
+        // Set initial value
+        depthControl.value = 3;
+        
+        // Add event listener
+        depthControl.addEventListener('input', function() {
+            const depth = parseInt(this.value);
+            console.log(`Depth slider changed to: ${depth}`);
+            renderFilteredGraph(depth);
+            
+            // Update visual indicator if present
+            const depthIndicator = document.getElementById('depth-value-indicator');
+            if (depthIndicator) {
+                depthIndicator.textContent = depth.toString();
+            }
+        });
+        
+        // Add visual depth indicator if not already present
+        if (!document.getElementById('depth-value-indicator')) {
+            const depthIndicator = document.createElement('span');
+            depthIndicator.id = 'depth-value-indicator';
+            depthIndicator.textContent = '3';
+            depthIndicator.style.marginLeft = '8px';
+            depthIndicator.style.color = '#bac2de';
+            depthIndicator.style.fontWeight = 'bold';
+            
+            const depthLabel = document.querySelector('.depth-control label');
+            if (depthLabel) {
+                depthLabel.appendChild(depthIndicator);
+            }
+        }
+    }
+    
     // Handler for node clicks
     function handleNodeClick(nodeId, depth) {
         console.log(`Node clicked: ${nodeId}, using depth: ${depth}`);
@@ -786,43 +719,26 @@
         renderFilteredGraph(depth);
     }
     
-    // Create graph data filter based on depth (replaced by more robust implementation above)
-    function filterByDepth(nodes, links, currentNodeId, maxDepth) {
-        console.log(`Legacy filterByDepth called with nodeId=${currentNodeId}, maxDepth=${maxDepth}`);
-        return filterNodesByDepth(nodes, links, currentNodeId, maxDepth);
+    // Add CSS for focused node if not already present
+    if (!document.getElementById('graph-node-styles')) {
+        const style = document.createElement('style');
+        style.id = 'graph-node-styles';
+        style.textContent = `
+            .graph-node {
+                transition: all 0.3s ease;
+                cursor: pointer;
+            }
+            .focused-node {
+                stroke: #b4befe;
+                stroke-width: 3px;
+                r: 12px;
+            }
+            #graph-tooltip {
+                pointer-events: none;
+            }
+        `;
+        document.head.appendChild(style);
     }
-    
-    // Update the graph based on depth (replaced by renderFilteredGraph)
-    function updateGraphWithDepth(centralNodeId, depth) {
-        console.log(`Legacy updateGraphWithDepth called with nodeId=${centralNodeId}, depth=${depth}`);
-        // Store the new central node ID
-        window.centralNodeId = centralNodeId;
-        // Use the new function
-        renderFilteredGraph(depth);
-    }
-
-    // Initialize graph when D3 is loaded
-    document.addEventListener('DOMContentLoaded', function() {
-        if (typeof d3 !== 'undefined') {
-            initializeGraph();
-        } else {
-            console.error('D3 library not loaded');
-        }
-    });
-
-    // Add CSS for focused node
-    const style = document.createElement('style');
-    style.textContent = `
-        .graph-node {
-            transition: all 0.3s ease;
-        }
-        .focused-node {
-            stroke: ${colors.lavender};
-            stroke-width: 3px;
-            r: 12px;
-        }
-    `;
-    document.head.appendChild(style);
 </script>
 
 <!-- Load D3.js from CDN -->
