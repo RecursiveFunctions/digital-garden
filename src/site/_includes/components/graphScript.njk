@@ -218,14 +218,25 @@
 
             // Set up force simulation with optimized parameters
             const simulation = d3.forceSimulation(nodes)
-                .force("link", d3.forceLink(links).id(d => d.id).distance(50))
-                .force("charge", d3.forceManyBody().strength(-200))
+                .force("link", d3.forceLink(links).id(d => d.id).distance(100))
+                .force("charge", d3.forceManyBody().strength(-50))
                 .force("center", d3.forceCenter(width / 2, height / 2))
-                .force("x", d3.forceX(width / 2).strength(0.1))
-                .force("y", d3.forceY(height / 2).strength(0.1))
-                .force("collide", d3.forceCollide(15))
                 .alphaDecay(0.05)
-                .alphaMin(0.001);
+                .alpha(1)
+                .on("tick", () => {
+                    // Update node and link positions
+                    // ...
+                });
+
+            // Create nodes with staggered initialization
+            nodes.forEach((node, index) => {
+                setTimeout(() => {
+                    node.x = Math.random() * width; // Random initial position
+                    node.y = Math.random() * height; // Random initial position
+                    simulation.nodes(nodes); // Update simulation with new nodes
+                    simulation.alpha(1).restart(); // Restart simulation with full alpha
+                }, index * 50); // Stagger initialization by 50ms
+            });
 
             // Create edges
             const link = g.append("g")
@@ -523,9 +534,9 @@
             const centralNode = nodesArray.find(n => n.url === currentPath);
             if (!centralNode) {
                 console.error(`Could not find node for current page: ${currentPath}`);
-                return;
-            }
-            
+            return;
+        }
+        
             window.centralNodeId = centralNode.id;
             console.log(`Found central node ID: ${window.centralNodeId}`);
         }
@@ -536,9 +547,9 @@
         const container = document.getElementById('link-graph');
         if (!container) {
             console.error('Graph container not found');
-            return;
-        }
-        
+                    return;
+                }
+                
         // Convert data format
         const nodesArray = Array.isArray(window.originalGraphData.nodes) 
             ? window.originalGraphData.nodes 
@@ -580,7 +591,7 @@
         // Render the filtered graph
         renderGraph(container, processedNodes, processedEdges);
     }
-    
+
     async function initializeGraph() {
         try {
             console.log('Initializing graph...');
@@ -605,16 +616,16 @@
             const linksArray = Array.isArray(graphData.links) 
                 ? graphData.links 
                 : Object.values(graphData.links);
-            
-            // Get current page URL to use as central node
-            const currentPath = window.location.pathname;
+                        
+                        // Get current page URL to use as central node
+                        const currentPath = window.location.pathname;
             console.log(`Current page path: ${currentPath}`);
-            
-            // Find the node that matches the current path
+                        
+                        // Find the node that matches the current path
             const centralNode = nodesArray.find(n => n.url === currentPath);
             
             if (!centralNode) {
-                console.warn('Could not find node for current page:', currentPath);
+                            console.warn('Could not find node for current page:', currentPath);
                 // Fall back to just rendering the full graph
                 const container = document.getElementById('link-graph');
                 if (container) {
@@ -650,7 +661,7 @@
             }
         }
     }
-    
+
     // Initialize graph when D3 is loaded
     document.addEventListener('DOMContentLoaded', function() {
         if (typeof d3 === 'undefined') {
