@@ -9,6 +9,9 @@ permalink: /daily-notes/
 
 This page contains links to all daily notes, sorted by date (newest first). This index is automatically generated.
 
+## 2025 April
+- [[Daily Notes/2025-04-03|03 Apr 2025]] - Site Rename
+
 ## 2025 March
 - [[Daily Notes/2025-03-29|29 Mar 2025]] - On Anonymity and threat models
 - [[Daily Notes/2025-03-28|28 Mar 2025]] - Got a domain for the digital garden
@@ -25,5 +28,5 @@ This page contains links to all daily notes, sorted by date (newest first). This
 - [[Daily Notes/2025-03-14|14 Mar 2025]] - moving notes from google drive to the digital garden
 
 <div class="note-footer">
-  <div class="note-updated">Last updated: 29 Mar 2025</div>
+  <div class="note-updated">Last updated: 03 Apr 2025</div>
 </div>
