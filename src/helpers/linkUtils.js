@@ -1,6 +1,8 @@
 const wikiLinkRegex = /\[\[(.*?\|.*?)\]\]/g;
 const internalLinkRegex = /href="\/(.*?)"/g;
 const matter = require('gray-matter');
+const path = require('path');
+const fs = require('fs');
 
 function caselessCompare(a, b) {
   return a.toLowerCase() === b.toLowerCase();
@@ -31,7 +33,13 @@ function extractLinks(content) {
   ];
 }
 
-async function getGraph(data) {
+function generateDefaultUrl(inputPath) {
+  // Remove the src/site/notes prefix and .md extension
+  const relativePath = inputPath.replace(/^.*?\/notes\//, '').replace(/\.md$/, '');
+  return `/notes/${relativePath}`;
+}
+
+function getGraph(data) {
   console.log('Graph generation started. Collections:', Object.keys(data.collections));
   
   let nodes = {};
@@ -52,7 +60,7 @@ async function getGraph(data) {
     };
   }
 
-  // Process each note in sequence to avoid overwhelming the system
+  // Process each note in sequence
   for (let idx = 0; idx < noteCollection.length; idx++) {
     const note = noteCollection[idx];
     
@@ -60,32 +68,46 @@ async function getGraph(data) {
     let content = '';
     let frontMatter = {};
     try {
-      const fs = require('fs');
-      const rawContent = fs.readFileSync(note.inputPath, 'utf8');
+      // Only access inputPath from the note object
+      const inputPath = note.inputPath;
+      if (!inputPath || !fs.existsSync(inputPath)) {
+        console.error(`Invalid or missing input path for note at index ${idx}`);
+        continue;
+      }
+
+      const rawContent = fs.readFileSync(inputPath, 'utf8');
       const parsed = matter(rawContent);
       content = parsed.content;
       frontMatter = parsed.data;
     } catch (error) {
-      console.error(`Could not read content for ${note.inputPath}:`, error);
+      console.error(`Could not read content for note at index ${idx}:`, error);
       continue;
     }
 
-    // Extract safe data, prioritizing frontmatter over note data
+    // Generate safe data without accessing any template properties
+    const defaultUrl = generateDefaultUrl(note.inputPath);
+    const fileSlug = path.basename(note.inputPath, '.md');
+    
     const safeData = {
-      url: frontMatter.permalink || note.url || '',
-      fileSlug: note.fileSlug || '',
-      filePathStem: note.filePathStem || '',
-      inputPath: note.inputPath || '',
+      url: frontMatter.permalink || defaultUrl,
+      fileSlug,
+      filePathStem: note.inputPath.replace(/\.md$/, ''),
+      inputPath: note.inputPath,
       data: {
-        title: frontMatter.title || note.data?.title || '',
-        tags: Array.isArray(frontMatter.tags || note.data?.tags) ? [...(frontMatter.tags || note.data?.tags)] : [],
-        'dg-home': frontMatter['dg-home'] || note.data?.['dg-home'] || false,
-        'dg-graph-exclude': frontMatter['dg-graph-exclude'] || note.data?.['dg-graph-exclude'] || false,
-        'dg-graph-title': frontMatter['dg-graph-title'] || note.data?.['dg-graph-title'] || '',
-        noteIcon: frontMatter.noteIcon || note.data?.noteIcon || process.env.NOTE_ICON_DEFAULT,
-        hideInGraph: frontMatter.hide || note.data?.hideInGraph || false
+        title: frontMatter.title || fileSlug,
+        tags: Array.isArray(frontMatter.tags) ? [...frontMatter.tags] : [],
+        'dg-home': frontMatter['dg-home'] || false,
+        'dg-graph-exclude': frontMatter['dg-graph-exclude'] || false,
+        'dg-graph-title': frontMatter['dg-graph-title'] || '',
+        noteIcon: frontMatter.noteIcon || process.env.NOTE_ICON_DEFAULT,
+        hideInGraph: frontMatter.hide || false
       }
     };
+
+    // Check if this is a home/garden entry
+    if (safeData.data.tags.includes('gardenEntry')) {
+      safeData.data['dg-home'] = true;
+    }
 
     console.log(`Processing note: ${safeData.url}`, {
       title: safeData.data.title,
@@ -93,17 +115,18 @@ async function getGraph(data) {
       graphExclude: safeData.data['dg-graph-exclude']
     });
 
-    if (safeData.data['dg-graph-exclude'] === true || safeData.data['dg-graph-exclude'] === "true") {
+    if (safeData.data['dg-graph-exclude']) {
       console.log(`Excluding note: ${safeData.url}`);
       excludedNodes.add(safeData.url);
       continue;
     }
     
-    let fpath = safeData.filePathStem.replace("/notes/", "");
-    let parts = fpath.split("/");
+    // Determine group based on file path
+    let parts = note.inputPath.split(path.sep);
     let group = "none";
-    if (parts.length >= 3) {
-      group = parts[parts.length - 2];
+    const notesIndex = parts.indexOf('notes');
+    if (notesIndex >= 0 && parts.length > notesIndex + 2) {
+      group = parts[notesIndex + 1];
     }
 
     // Extract links from the content
@@ -112,26 +135,20 @@ async function getGraph(data) {
 
     nodes[safeData.url] = {
       id: idx,
-      title: safeData.data['dg-graph-title'] || safeData.data.title || safeData.fileSlug,
+      title: safeData.data['dg-graph-title'] || safeData.data.title,
       url: safeData.url,
       group,
-      home:
-        safeData.data['dg-home'] ||
-        (safeData.data.tags && safeData.data.tags.indexOf("gardenEntry") > -1) ||
-        false,
+      home: safeData.data['dg-home'],
       outBound: outboundLinks.filter(link => !excludedNodes.has(link)),
       neighbors: new Set(),
       backLinks: new Set(),
-      noteIcon: safeData.data.noteIcon || process.env.NOTE_ICON_DEFAULT,
-      hide: safeData.data.hideInGraph || false,
+      noteIcon: safeData.data.noteIcon,
+      hide: safeData.data.hideInGraph,
     };
 
     console.log(`Node created: ${safeData.url} with ID ${idx}`);
-    stemURLs[fpath] = safeData.url;
-    if (
-      safeData.data['dg-home'] ||
-      (safeData.data.tags && safeData.data.tags.indexOf("gardenEntry") > -1)
-    ) {
+    stemURLs[fileSlug] = safeData.url;
+    if (safeData.data['dg-home']) {
       homeAlias = safeData.url;
     }
   }
