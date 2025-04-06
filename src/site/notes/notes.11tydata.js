@@ -1,6 +1,5 @@
 require("dotenv").config();
 const settings = require("../../helpers/constants");
-const path = require('path');
 
 const allSettings = settings.ALL_NOTE_SETTINGS;
 
@@ -13,23 +12,18 @@ module.exports = {
       return "layouts/note.njk";
     },
     permalink: (data) => {
+      // Handle garden entry
       if (data.tags && data.tags.indexOf("gardenEntry") != -1) {
         return "/";
       }
+      
       // If a permalink is explicitly set in the frontmatter, use it
       if (data.permalink) {
         return data.permalink;
       }
-      
-      // Generate a unique permalink based on the full file path
-      const filePathParts = data.filePathStem.split('/notes/');
-      if (filePathParts.length < 2) {
-        // Fallback for files not in the expected structure
-        return `/notes/${path.basename(data.filePathStem)}/`;
-      }
-      
-      // Use the path after /notes/ to maintain directory structure
-      return `/${filePathParts[1]}/`;
+
+      // Use the file path as the permalink
+      return `/notes/${data.page.fileSlug}/`;
     },
     settings: (data) => {
       const noteSettings = {};
