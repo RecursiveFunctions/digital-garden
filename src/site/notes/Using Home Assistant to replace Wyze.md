@@ -1,5 +1,7 @@
 ---
-{"dg-publish":true,"dg-path":"Privacy/Home Assistant","permalink":"/privacy/home-assistant/"}
+dg-publish: true
+dg-path: Privacy/Home Assistant
+permalink: /privacy/home-assistant/
 ---
 
 

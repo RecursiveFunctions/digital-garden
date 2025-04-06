@@ -1,14 +1,14 @@
 ---
 dg-publish: false
 tags: 
-permalink: /file/
+permalink: /linux/commands/
 hide: true
 aliases:
   - commands
   - linux commands
 dg-graph-title: Linux Commands
-dg-graph-exclude: "false"
-dgShowInlineTitle: "false"
+dg-graph-exclude: false
+dgShowInlineTitle: false
 updated:
 ---
 # Linux Commands
