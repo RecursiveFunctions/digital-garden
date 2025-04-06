@@ -17,5 +17,5 @@ scp <source file path> <user>@<ip>:<destination path>
 #to upload a remote file to a remote destination
 scp <user1@hostA>:<source file path> <user2@hostB>:<destination path>
 ```
-![Pasted image 20221111013910.png](/img/user/raw_notes/Images/Pasted%20image%2020221111013910.png)
-![Pasted image 20221111014337.png](/img/user/raw_notes/Images/Pasted%20image%2020221111014337.png)
+![Pasted image 20221111013910.png](/src/site/img/Pasted%20image%2020221111013910.png)
+![Pasted image 20221111014337.png](/src/site/img/Pasted%20image%2020221111014337.png)
