@@ -44,28 +44,44 @@ function getGraph(data) {
   
   if (noteCollection.length === 0) {
     console.warn('No notes found in collection. Check eleventy configuration.');
-    return {
+    return Promise.resolve({
       homeAlias: "/",
       nodes: {},
       links: []
-    };
+    });
   }
 
   // Use Promise.all to handle async operations
   return Promise.all(noteCollection.map(async (v, idx) => {
-    console.log(`Processing note: ${v.url}`, {
-      title: v.data.title,
-      fileSlug: v.fileSlug,
-      graphExclude: v.data["dg-graph-exclude"]
+    // Get all data we need from the template first
+    const templateData = {
+      url: v.url || '',
+      fileSlug: v.fileSlug || '',
+      filePathStem: v.filePathStem || '',
+      data: {
+        title: v.data?.title || '',
+        tags: v.data?.tags || [],
+        'dg-home': v.data?.['dg-home'] || false,
+        'dg-graph-exclude': v.data?.['dg-graph-exclude'] || false,
+        'dg-graph-title': v.data?.['dg-graph-title'] || '',
+        noteIcon: v.data?.noteIcon || process.env.NOTE_ICON_DEFAULT,
+        hideInGraph: v.data?.hideInGraph || false
+      }
+    };
+
+    console.log(`Processing note: ${templateData.url}`, {
+      title: templateData.data.title,
+      fileSlug: templateData.fileSlug,
+      graphExclude: templateData.data['dg-graph-exclude']
     });
 
-    if (v.data["dg-graph-exclude"] === true || v.data["dg-graph-exclude"] === "true") {
-      console.log(`Excluding note: ${v.url}`);
-      excludedNodes.add(v.url);
+    if (templateData.data['dg-graph-exclude'] === true || templateData.data['dg-graph-exclude'] === "true") {
+      console.log(`Excluding note: ${templateData.url}`);
+      excludedNodes.add(templateData.url);
       return null;
     }
     
-    let fpath = v.filePathStem.replace("/notes/", "");
+    let fpath = templateData.filePathStem.replace("/notes/", "");
     let parts = fpath.split("/");
     let group = "none";
     if (parts.length >= 3) {
@@ -77,39 +93,39 @@ function getGraph(data) {
     try {
       content = await v.template.read();
     } catch (error) {
-      console.error(`Could not read content for ${v.url}:`, error);
+      console.error(`Could not read content for ${templateData.url}:`, error);
     }
 
     // Extract links from the content
     const outboundLinks = extractLinks(content || '');
-    console.log(`Found ${outboundLinks.length} outbound links in ${v.url}`);
+    console.log(`Found ${outboundLinks.length} outbound links in ${templateData.url}`);
 
-    nodes[v.url] = {
+    nodes[templateData.url] = {
       id: idx,
-      title: v.data["dg-graph-title"] || v.data.title || v.fileSlug,
-      url: v.url,
+      title: templateData.data['dg-graph-title'] || templateData.data.title || templateData.fileSlug,
+      url: templateData.url,
       group,
       home:
-        v.data["dg-home"] ||
-        (v.data.tags && v.data.tags.indexOf("gardenEntry") > -1) ||
+        templateData.data['dg-home'] ||
+        (templateData.data.tags && templateData.data.tags.indexOf("gardenEntry") > -1) ||
         false,
       outBound: outboundLinks.filter(link => !excludedNodes.has(link)),
       neighbors: new Set(),
       backLinks: new Set(),
-      noteIcon: v.data.noteIcon || process.env.NOTE_ICON_DEFAULT,
-      hide: v.data.hideInGraph || false,
+      noteIcon: templateData.data.noteIcon || process.env.NOTE_ICON_DEFAULT,
+      hide: templateData.data.hideInGraph || false,
     };
 
-    console.log(`Node created: ${v.url} with ID ${idx}`);
-    stemURLs[fpath] = v.url;
+    console.log(`Node created: ${templateData.url} with ID ${idx}`);
+    stemURLs[fpath] = templateData.url;
     if (
-      v.data["dg-home"] ||
-      (v.data.tags && v.data.tags.indexOf("gardenEntry") > -1)
+      templateData.data['dg-home'] ||
+      (templateData.data.tags && templateData.data.tags.indexOf("gardenEntry") > -1)
     ) {
-      homeAlias = v.url;
+      homeAlias = templateData.url;
     }
 
-    return nodes[v.url];
+    return nodes[templateData.url];
   })).then(processedNodes => {
     // Filter out null values (excluded nodes)
     processedNodes = processedNodes.filter(node => node !== null);
@@ -153,6 +169,12 @@ function getGraph(data) {
           console.log(`Added link from ${node.id} (${node.url}) to ${n.id} (${n.url})`);
         }
       });
+    });
+
+    // Convert Set objects to Arrays for JSON serialization
+    Object.values(nodes).forEach(node => {
+      node.neighbors = Array.from(node.neighbors);
+      node.backLinks = Array.from(node.backLinks);
     });
 
     console.log(`Graph generation complete. Valid links: ${validLinkCount}, Invalid links: ${invalidLinkCount}`);
