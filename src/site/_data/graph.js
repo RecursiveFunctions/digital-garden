@@ -4,7 +4,7 @@ const linkUtils = require('../../helpers/linkUtils');
  * Generates the graph data for the digital garden
  * 
  * @param {Object} data - The Eleventy data object
- * @returns {Object} - The graph data for the digital garden
+ * @returns {Promise<Object>} - The graph data for the digital garden
  */
 module.exports = async function(data) {
   try {
@@ -24,8 +24,8 @@ module.exports = async function(data) {
       console.warn('Note collection is missing or empty. Check your eleventy config.');
     }
     
-    // Generate graph data synchronously to avoid template access issues
-    const graphData = linkUtils.getGraph(data);
+    // Generate graph data and await its result
+    const graphData = await linkUtils.getGraph(data);
     
     // Validate the generated graph data
     const nodeCount = Object.keys(graphData.nodes || {}).length;

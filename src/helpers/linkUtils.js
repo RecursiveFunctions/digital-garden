@@ -40,173 +40,177 @@ function generateDefaultUrl(inputPath) {
 }
 
 function getGraph(data) {
-  console.log('Graph generation started. Collections:', Object.keys(data.collections));
-  
-  let nodes = {};
-  let links = [];
-  let stemURLs = {};
-  let homeAlias = "/";
-  let excludedNodes = new Set();
-  
-  const noteCollection = data.collections.note || [];
-  console.log(`Total notes found: ${noteCollection.length}`);
-  
-  if (!noteCollection.length) {
-    console.warn('No notes found in collection. Check eleventy configuration.');
-    return {
-      homeAlias: "/",
-      nodes: {},
-      links: []
-    };
-  }
-
-  // Process each note in sequence
-  for (let idx = 0; idx < noteCollection.length; idx++) {
-    const note = noteCollection[idx];
+  return new Promise((resolve) => {
+    console.log('Graph generation started. Collections:', Object.keys(data.collections));
     
-    // Get content and frontmatter safely
-    let content = '';
-    let frontMatter = {};
-    try {
-      // Only access inputPath from the note object
-      const inputPath = note.inputPath;
-      if (!inputPath || !fs.existsSync(inputPath)) {
-        console.error(`Invalid or missing input path for note at index ${idx}`);
+    let nodes = {};
+    let links = [];
+    let stemURLs = {};
+    let homeAlias = "/";
+    let excludedNodes = new Set();
+    
+    const noteCollection = data.collections.note || [];
+    console.log(`Total notes found: ${noteCollection.length}`);
+    
+    if (!noteCollection.length) {
+      console.warn('No notes found in collection. Check eleventy configuration.');
+      resolve({
+        homeAlias: "/",
+        nodes: {},
+        links: []
+      });
+      return;
+    }
+
+    // Process each note in sequence
+    for (let idx = 0; idx < noteCollection.length; idx++) {
+      const note = noteCollection[idx];
+      
+      // Get content and frontmatter safely
+      let content = '';
+      let frontMatter = {};
+      try {
+        // Only access inputPath from the note object
+        const inputPath = note.inputPath;
+        if (!inputPath || !fs.existsSync(inputPath)) {
+          console.error(`Invalid or missing input path for note at index ${idx}`);
+          continue;
+        }
+
+        const rawContent = fs.readFileSync(inputPath, 'utf8');
+        const parsed = matter(rawContent);
+        content = parsed.content;
+        frontMatter = parsed.data;
+      } catch (error) {
+        console.error(`Could not read content for note at index ${idx}:`, error);
         continue;
       }
 
-      const rawContent = fs.readFileSync(inputPath, 'utf8');
-      const parsed = matter(rawContent);
-      content = parsed.content;
-      frontMatter = parsed.data;
-    } catch (error) {
-      console.error(`Could not read content for note at index ${idx}:`, error);
-      continue;
-    }
+      // Generate safe data without accessing any template properties
+      const defaultUrl = generateDefaultUrl(note.inputPath);
+      const fileSlug = path.basename(note.inputPath, '.md');
+      
+      const safeData = {
+        url: frontMatter.permalink || defaultUrl,
+        fileSlug,
+        filePathStem: note.inputPath.replace(/\.md$/, ''),
+        inputPath: note.inputPath,
+        data: {
+          title: frontMatter.title || fileSlug,
+          tags: Array.isArray(frontMatter.tags) ? [...frontMatter.tags] : [],
+          'dg-home': frontMatter['dg-home'] || false,
+          'dg-graph-exclude': frontMatter['dg-graph-exclude'] || false,
+          'dg-graph-title': frontMatter['dg-graph-title'] || '',
+          noteIcon: frontMatter.noteIcon || process.env.NOTE_ICON_DEFAULT,
+          hideInGraph: frontMatter.hide || false
+        }
+      };
 
-    // Generate safe data without accessing any template properties
-    const defaultUrl = generateDefaultUrl(note.inputPath);
-    const fileSlug = path.basename(note.inputPath, '.md');
-    
-    const safeData = {
-      url: frontMatter.permalink || defaultUrl,
-      fileSlug,
-      filePathStem: note.inputPath.replace(/\.md$/, ''),
-      inputPath: note.inputPath,
-      data: {
-        title: frontMatter.title || fileSlug,
-        tags: Array.isArray(frontMatter.tags) ? [...frontMatter.tags] : [],
-        'dg-home': frontMatter['dg-home'] || false,
-        'dg-graph-exclude': frontMatter['dg-graph-exclude'] || false,
-        'dg-graph-title': frontMatter['dg-graph-title'] || '',
-        noteIcon: frontMatter.noteIcon || process.env.NOTE_ICON_DEFAULT,
-        hideInGraph: frontMatter.hide || false
+      // Check if this is a home/garden entry
+      if (safeData.data.tags.includes('gardenEntry')) {
+        safeData.data['dg-home'] = true;
       }
-    };
 
-    // Check if this is a home/garden entry
-    if (safeData.data.tags.includes('gardenEntry')) {
-      safeData.data['dg-home'] = true;
+      console.log(`Processing note: ${safeData.url}`, {
+        title: safeData.data.title,
+        fileSlug: safeData.fileSlug,
+        graphExclude: safeData.data['dg-graph-exclude']
+      });
+
+      if (safeData.data['dg-graph-exclude']) {
+        console.log(`Excluding note: ${safeData.url}`);
+        excludedNodes.add(safeData.url);
+        continue;
+      }
+      
+      // Determine group based on file path
+      let parts = note.inputPath.split(path.sep);
+      let group = "none";
+      const notesIndex = parts.indexOf('notes');
+      if (notesIndex >= 0 && parts.length > notesIndex + 2) {
+        group = parts[notesIndex + 1];
+      }
+
+      // Extract links from the content
+      const outboundLinks = extractLinks(content || '');
+      console.log(`Found ${outboundLinks.length} outbound links in ${safeData.url}`);
+
+      nodes[safeData.url] = {
+        id: idx,
+        title: safeData.data['dg-graph-title'] || safeData.data.title,
+        url: safeData.url,
+        group,
+        home: safeData.data['dg-home'],
+        outBound: outboundLinks.filter(link => !excludedNodes.has(link)),
+        neighbors: new Set(),
+        backLinks: new Set(),
+        noteIcon: safeData.data.noteIcon,
+        hide: safeData.data.hideInGraph,
+      };
+
+      console.log(`Node created: ${safeData.url} with ID ${idx}`);
+      stemURLs[fileSlug] = safeData.url;
+      if (safeData.data['dg-home']) {
+        homeAlias = safeData.url;
+      }
     }
 
-    console.log(`Processing note: ${safeData.url}`, {
-      title: safeData.data.title,
-      fileSlug: safeData.fileSlug,
-      graphExclude: safeData.data['dg-graph-exclude']
+    // Process links after all nodes are created
+    if (Object.keys(nodes).length === 0) {
+      console.warn('No nodes were created for the graph.');
+      resolve({
+        homeAlias,
+        nodes: {},
+        links: []
+      });
+      return;
+    }
+
+    let validLinkCount = 0;
+    let invalidLinkCount = 0;
+    
+    Object.values(nodes).forEach((node) => {
+      let outBound = new Set();
+      node.outBound.forEach((olink) => {
+        let link = (stemURLs[olink] || olink).split("#")[0];
+        if (nodes[link] && !excludedNodes.has(link)) {
+          outBound.add(link);
+          validLinkCount++;
+        } else {
+          invalidLinkCount++;
+          console.log(`Invalid link: ${olink} from node ${node.url}`);
+        }
+      });
+      node.outBound = Array.from(outBound);
+      node.outBound.forEach((link) => {
+        let n = nodes[link];
+        if (n && !excludedNodes.has(n.url)) {
+          n.neighbors.add(node.url);
+          n.backLinks.add(node.url);
+          node.neighbors.add(n.url);
+          links.push({ 
+            source: node.id, 
+            target: n.id,
+            value: 1
+          });
+          console.log(`Added link from ${node.id} (${node.url}) to ${n.id} (${n.url})`);
+        }
+      });
     });
 
-    if (safeData.data['dg-graph-exclude']) {
-      console.log(`Excluding note: ${safeData.url}`);
-      excludedNodes.add(safeData.url);
-      continue;
-    }
-    
-    // Determine group based on file path
-    let parts = note.inputPath.split(path.sep);
-    let group = "none";
-    const notesIndex = parts.indexOf('notes');
-    if (notesIndex >= 0 && parts.length > notesIndex + 2) {
-      group = parts[notesIndex + 1];
-    }
+    // Convert Set objects to Arrays for JSON serialization
+    Object.values(nodes).forEach(node => {
+      node.neighbors = Array.from(node.neighbors);
+      node.backLinks = Array.from(node.backLinks);
+    });
 
-    // Extract links from the content
-    const outboundLinks = extractLinks(content || '');
-    console.log(`Found ${outboundLinks.length} outbound links in ${safeData.url}`);
-
-    nodes[safeData.url] = {
-      id: idx,
-      title: safeData.data['dg-graph-title'] || safeData.data.title,
-      url: safeData.url,
-      group,
-      home: safeData.data['dg-home'],
-      outBound: outboundLinks.filter(link => !excludedNodes.has(link)),
-      neighbors: new Set(),
-      backLinks: new Set(),
-      noteIcon: safeData.data.noteIcon,
-      hide: safeData.data.hideInGraph,
-    };
-
-    console.log(`Node created: ${safeData.url} with ID ${idx}`);
-    stemURLs[fileSlug] = safeData.url;
-    if (safeData.data['dg-home']) {
-      homeAlias = safeData.url;
-    }
-  }
-
-  // Process links after all nodes are created
-  if (Object.keys(nodes).length === 0) {
-    console.warn('No nodes were created for the graph.');
-    return {
+    console.log(`Graph generation complete. Valid links: ${validLinkCount}, Invalid links: ${invalidLinkCount}`);
+    resolve({
       homeAlias,
-      nodes: {},
-      links: []
-    };
-  }
-
-  let validLinkCount = 0;
-  let invalidLinkCount = 0;
-  
-  Object.values(nodes).forEach((node) => {
-    let outBound = new Set();
-    node.outBound.forEach((olink) => {
-      let link = (stemURLs[olink] || olink).split("#")[0];
-      if (nodes[link] && !excludedNodes.has(link)) {
-        outBound.add(link);
-        validLinkCount++;
-      } else {
-        invalidLinkCount++;
-        console.log(`Invalid link: ${olink} from node ${node.url}`);
-      }
-    });
-    node.outBound = Array.from(outBound);
-    node.outBound.forEach((link) => {
-      let n = nodes[link];
-      if (n && !excludedNodes.has(n.url)) {
-        n.neighbors.add(node.url);
-        n.backLinks.add(node.url);
-        node.neighbors.add(n.url);
-        links.push({ 
-          source: node.id, 
-          target: n.id,
-          value: 1
-        });
-        console.log(`Added link from ${node.id} (${node.url}) to ${n.id} (${n.url})`);
-      }
+      nodes,
+      links
     });
   });
-
-  // Convert Set objects to Arrays for JSON serialization
-  Object.values(nodes).forEach(node => {
-    node.neighbors = Array.from(node.neighbors);
-    node.backLinks = Array.from(node.backLinks);
-  });
-
-  console.log(`Graph generation complete. Valid links: ${validLinkCount}, Invalid links: ${invalidLinkCount}`);
-  return {
-    homeAlias,
-    nodes,
-    links
-  };
 }
 
 exports.wikiLinkRegex = wikiLinkRegex;
