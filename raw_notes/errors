@@ -1,56 +1,239 @@
-[01:33:50.188] Cloning github.com/RecursiveFunctions/digital-garden (Branch: main, Commit: 81b71b9)
-[01:33:51.069] Cloning completed: 880.000ms
-[01:33:51.186] Restored build cache from previous deployment (F33kBnU7H8gTHoArvvRwUpctz2z2)
-[01:33:51.310] Running build in Washington, D.C., USA (East) – iad1
-[01:33:51.698] Running "vercel build"
-[01:33:52.073] Vercel CLI 41.4.1
-[01:33:52.734] Running "install" command: `npm install`...
-[01:33:55.030] 
-[01:33:55.031] up to date, audited 1004 packages in 2s
-[01:33:55.031] 
-[01:33:55.032] 172 packages are looking for funding
-[01:33:55.032]   run `npm fund` for details
-[01:33:55.032] 
-[01:33:55.033] found 0 vulnerabilities
-[01:33:55.350] 
-[01:33:55.352] > web@1.0.0 prebuild
-[01:33:55.352] > rimraf dist
-[01:33:55.352] 
-[01:33:55.423] 
-[01:33:55.424] > web@1.0.0 build
-[01:33:55.424] > npm-run-all get-theme build:*
-[01:33:55.424] 
-[01:33:55.675] 
-[01:33:55.677] > web@1.0.0 get-theme
-[01:33:55.677] > node src/site/get-theme.js
-[01:33:55.677] 
-[01:33:55.985] 
-[01:33:55.986] > web@1.0.0 build:eleventy
-[01:33:55.987] > cross-env ELEVENTY_ENV=prod NODE_OPTIONS=--max-old-space-size=4096 eleventy
-[01:33:55.987] 
-[01:33:56.987] Daily Notes index generated successfully!
-[01:33:56.988] Generating graph data for the digital garden...
-[01:33:56.989] Invalid data object. Missing collections property.
-[01:33:56.990] Error generating graph data: Error: Invalid data object
-[01:33:56.990]     at module.exports (/vercel/path0/src/site/_data/graph.js:19:13)
-[01:33:56.990]     at async TemplateData.getDataValue (/vercel/path0/node_modules/@11ty/eleventy/src/TemplateData.js:523:23)
-[01:33:56.990]     at async TemplateData.getAllGlobalData (/vercel/path0/node_modules/@11ty/eleventy/src/TemplateData.js:306:18)
-[01:33:56.990]     at async /vercel/path0/node_modules/@11ty/eleventy/src/TemplateData.js:360:26
-[01:33:57.135] [11ty] Problem writing Eleventy templates: (more in DEBUG output)
-[01:33:57.136] [11ty] Cannot read properties of undefined (reading 'split') (via TypeError)
-[01:33:57.137] [11ty] 
-[01:33:57.137] [11ty] Original error stack trace: TypeError: Cannot read properties of undefined (reading 'split')
-[01:33:57.137] [11ty]     at Object.permalink (/vercel/path0/src/site/notes/notes.11tydata.js:25:47)
-[01:33:57.137] [11ty]     at ComputedDataProxy.findVarsUsed (/vercel/path0/node_modules/@11ty/eleventy/src/ComputedDataProxy.js:122:11)
-[01:33:57.138] [11ty]     at ComputedData.resolveVarOrder (/vercel/path0/node_modules/@11ty/eleventy/src/ComputedData.js:69:34)
-[01:33:57.138] [11ty]     at async ComputedData.setupData (/vercel/path0/node_modules/@11ty/eleventy/src/ComputedData.js:99:5)
-[01:33:57.138] [11ty]     at async Template.addComputedData (/vercel/path0/node_modules/@11ty/eleventy/src/Template.js:596:7)
-[01:33:57.138] [11ty]     at async Template.getTemplates (/vercel/path0/node_modules/@11ty/eleventy/src/Template.js:682:7)
-[01:33:57.138] [11ty]     at async TemplateMap.initDependencyMap (/vercel/path0/node_modules/@11ty/eleventy/src/TemplateMap.js:414:22)
-[01:33:57.138] [11ty]     at async TemplateMap.cache (/vercel/path0/node_modules/@11ty/eleventy/src/TemplateMap.js:458:5)
-[01:33:57.139] [11ty]     at async TemplateWriter._createTemplateMap (/vercel/path0/node_modules/@11ty/eleventy/src/TemplateWriter.js:330:5)
-[01:33:57.139] [11ty]     at async TemplateWriter.generateTemplates (/vercel/path0/node_modules/@11ty/eleventy/src/TemplateWriter.js:360:5)
-[01:33:57.139] [11ty] Copied 1 file / Wrote 0 files in 0.26 seconds (v2.0.1)
-[01:33:57.170] ERROR: "build:eleventy" exited with 1.
-[01:33:57.182] Error: Command "npm run build" exited with 1
-[01:33:57.509] 
+[01:37:45.640] Cloning github.com/RecursiveFunctions/digital-garden (Branch: main, Commit: 94c53b6)
+[01:37:47.644] Cloning completed: 2.003s
+[01:37:48.027] Restored build cache from previous deployment (F33kBnU7H8gTHoArvvRwUpctz2z2)
+[01:37:48.149] Running build in Washington, D.C., USA (East) – iad1
+[01:37:48.536] Running "vercel build"
+[01:37:48.920] Vercel CLI 41.4.1
+[01:37:50.118] Running "install" command: `npm install`...
+[01:37:53.406] 
+[01:37:53.408] up to date, audited 1004 packages in 3s
+[01:37:53.408] 
+[01:37:53.409] 172 packages are looking for funding
+[01:37:53.409]   run `npm fund` for details
+[01:37:53.409] 
+[01:37:53.409] found 0 vulnerabilities
+[01:37:53.856] 
+[01:37:53.858] > web@1.0.0 prebuild
+[01:37:53.859] > rimraf dist
+[01:37:53.859] 
+[01:37:53.929] 
+[01:37:53.929] > web@1.0.0 build
+[01:37:53.929] > npm-run-all get-theme build:*
+[01:37:53.929] 
+[01:37:54.213] 
+[01:37:54.214] > web@1.0.0 get-theme
+[01:37:54.215] > node src/site/get-theme.js
+[01:37:54.216] 
+[01:37:54.526] 
+[01:37:54.527] > web@1.0.0 build:eleventy
+[01:37:54.528] > cross-env ELEVENTY_ENV=prod NODE_OPTIONS=--max-old-space-size=4096 eleventy
+[01:37:54.528] 
+[01:37:55.526] Daily Notes index generated successfully!
+[01:37:55.527] Generating graph data for the digital garden...
+[01:37:55.528] Invalid data object. Missing collections property.
+[01:37:55.529] Error generating graph data: Error: Invalid data object
+[01:37:55.529]     at module.exports (/vercel/path0/src/site/_data/graph.js:19:13)
+[01:37:55.529]     at async TemplateData.getDataValue (/vercel/path0/node_modules/@11ty/eleventy/src/TemplateData.js:523:23)
+[01:37:55.530]     at async TemplateData.getAllGlobalData (/vercel/path0/node_modules/@11ty/eleventy/src/TemplateData.js:306:18)
+[01:37:55.530]     at async /vercel/path0/node_modules/@11ty/eleventy/src/TemplateData.js:360:26
+[01:37:56.234] File not found: ./src/site/notes/beaten zone.md
+[01:37:56.252] File not found: ./src/site/notes/distros.md
+[01:37:56.256] File not found: ./src/site/notes/PATH.md
+[01:37:56.261] File not found: ./src/site/notes/environment variable.md
+[01:37:56.269] File not found: ./src/site/notes/URL.md
+[01:37:56.274] File not found: ./src/site/notes/port.md
+[01:37:56.277] File not found: ./src/site/notes/Oracle JDBC driver.md
+[01:37:56.282] File not found: ./src/site/notes/dynamic class loading.md
+[01:37:56.307] File not found: ./src/site/notes/payload.md
+[01:37:56.312] File not found: ./src/site/notes/Social Engineering.md
+[01:37:56.321] File not found: ./src/site/notes/which.md
+[01:37:56.334] File not found: ./src/site/notes/Congress.md
+[01:37:56.339] File not found: ./src/site/notes/Senate.md
+[01:37:56.347] File not found: ./src/site/notes/House of Representatives.md
+[01:37:56.348] File not found: ./src/site/notes/<strong>House of Representatives</strong>.md
+[01:37:56.348] File not found: ./src/site/notes/<strong>Senate</strong>.md
+[01:37:56.352] File not found: ./src/site/notes/senators.md
+[01:37:56.356] File not found: ./src/site/notes/Congress.md
+[01:37:56.360] File not found: ./src/site/notes/Senate.md
+[01:37:56.364] File not found: ./src/site/notes/House of Representatives.md
+[01:37:56.367] File not found: ./src/site/notes/Electors.md
+[01:37:56.370] File not found: ./src/site/notes/ Qualifications requisite for Electors.md
+[01:37:56.374] File not found: ./src/site/notes/Executive Authority.md
+[01:37:56.378] File not found: ./src/site/notes/Writs of Election.md
+[01:37:56.383] File not found: ./src/site/notes/Speaker.md
+[01:37:56.386] File not found: ./src/site/notes/other Officers.md
+[01:37:56.390] File not found: ./src/site/notes/ Power of Impeachment.md
+[01:37:56.403] File not found: ./src/site/notes/ Vice President.md
+[01:37:56.409] File not found: ./src/site/notes/President of the Senate.md
+[01:37:56.411] File not found: ./src/site/notes/President pro tempore.md
+[01:37:56.415] File not found: ./src/site/notes/Chief Justice.md
+[01:37:56.421] File not found: ./src/site/notes/President.md
+[01:37:56.424] File not found: ./src/site/notes/ Commander in Chief.md
+[01:37:56.431] File not found: ./src/site/notes/Militia.md
+[01:37:56.432] File not found: ./src/site/notes/Power.md
+[01:37:56.436] File not found: ./src/site/notes/ Recess of the Senate.md
+[01:37:56.440] File not found: ./src/site/notes/Commissions.md
+[01:37:56.444] File not found: ./src/site/notes/ judicial Power.md
+[01:37:56.448] File not found: ./src/site/notes/supreme Court.md
+[01:37:56.452] File not found: ./src/site/notes/inferior Courts.md
+[01:37:56.455] File not found: ./src/site/notes/good Behaviour.md
+[01:37:56.459] File not found: ./src/site/notes/Attainder of Treason.md
+[01:37:56.463] File not found: ./src/site/notes/Corruption of Blood.md
+[01:37:56.467] File not found: ./src/site/notes/Forfeiture.md
+[01:37:56.470] File not found: ./src/site/notes/Full Faith and Credit.md
+[01:37:56.476] File not found: ./src/site/notes/filename.md
+[01:37:56.479] File not found: ./src/site/notes/filename.md
+[01:37:56.482] File not found: ./src/site/notes/note.md
+[01:37:56.485] File not found: ./src/site/notes/note.md
+[01:37:56.496] File not found: ./src/site/notes/file.md
+[01:37:56.500] File not found: ./src/site/notes/filename.md
+[01:37:56.503] File not found: ./src/site/notes/filename.md
+[01:37:56.521] File not found: ./src/site/notes/threat model.md
+[01:37:56.527] File not found: ./src/site/notes/\test\.md
+[01:37:56.534] File not found: ./src/site/notes/fascist.md
+[01:37:56.536] File not found: ./src/site/notes/fascism.md
+[01:37:56.551] File not found: ./src/site/notes/notes/About.md
+[01:37:56.552] File not found: ./src/site/notes/notes/About.md
+[01:37:56.554] File not found: ./src/site/notes/about/.md
+[01:37:56.593] File not found: ./src/site/notes/notes/About.md
+[01:37:56.594] File not found: ./src/site/notes/notes/About.md
+[01:37:56.596] File not found: ./src/site/notes/about/.md
+[01:37:56.618] File not found: ./src/site/notes/notes/About.md
+[01:37:56.618] File not found: ./src/site/notes/notes/About.md
+[01:37:56.620] File not found: ./src/site/notes/about/.md
+[01:37:56.643] File not found: ./src/site/notes/\test\.md
+[01:37:56.646] File not found: ./src/site/notes/fascist.md
+[01:37:56.650] File not found: ./src/site/notes/fascism.md
+[01:37:56.653] File not found: ./src/site/notes/\test\.md
+[01:37:56.657] File not found: ./src/site/notes/fascist.md
+[01:37:56.660] File not found: ./src/site/notes/fascism.md
+[01:37:56.665] File not found: ./src/site/notes/threat model.md
+[01:37:56.669] File not found: ./src/site/notes/threat model.md
+[01:37:56.686] File not found: ./src/site/notes/filename.md
+[01:37:56.689] File not found: ./src/site/notes/filename.md
+[01:37:56.693] File not found: ./src/site/notes/note.md
+[01:37:56.696] File not found: ./src/site/notes/note.md
+[01:37:56.699] File not found: ./src/site/notes/file.md
+[01:37:56.703] File not found: ./src/site/notes/filename.md
+[01:37:56.706] File not found: ./src/site/notes/filename.md
+[01:37:56.710] File not found: ./src/site/notes/filename.md
+[01:37:56.714] File not found: ./src/site/notes/filename.md
+[01:37:56.717] File not found: ./src/site/notes/note.md
+[01:37:56.720] File not found: ./src/site/notes/note.md
+[01:37:56.724] File not found: ./src/site/notes/file.md
+[01:37:56.727] File not found: ./src/site/notes/filename.md
+[01:37:56.731] File not found: ./src/site/notes/filename.md
+[01:37:56.736] File not found: ./src/site/notes/Congress.md
+[01:37:56.745] File not found: ./src/site/notes/Senate.md
+[01:37:56.746] File not found: ./src/site/notes/House of Representatives.md
+[01:37:56.750] File not found: ./src/site/notes/Electors.md
+[01:37:56.753] File not found: ./src/site/notes/ Qualifications requisite for Electors.md
+[01:37:56.758] File not found: ./src/site/notes/Executive Authority.md
+[01:37:56.761] File not found: ./src/site/notes/Writs of Election.md
+[01:37:56.765] File not found: ./src/site/notes/Speaker.md
+[01:37:56.768] File not found: ./src/site/notes/other Officers.md
+[01:37:56.773] File not found: ./src/site/notes/ Power of Impeachment.md
+[01:37:56.776] File not found: ./src/site/notes/ Vice President.md
+[01:37:56.780] File not found: ./src/site/notes/President of the Senate.md
+[01:37:56.783] File not found: ./src/site/notes/President pro tempore.md
+[01:37:56.786] File not found: ./src/site/notes/Chief Justice.md
+[01:37:56.790] File not found: ./src/site/notes/President.md
+[01:37:56.793] File not found: ./src/site/notes/ Commander in Chief.md
+[01:37:56.797] File not found: ./src/site/notes/Militia.md
+[01:37:56.800] File not found: ./src/site/notes/Power.md
+[01:37:56.803] File not found: ./src/site/notes/ Recess of the Senate.md
+[01:37:56.807] File not found: ./src/site/notes/Commissions.md
+[01:37:56.810] File not found: ./src/site/notes/ judicial Power.md
+[01:37:56.813] File not found: ./src/site/notes/supreme Court.md
+[01:37:56.817] File not found: ./src/site/notes/inferior Courts.md
+[01:37:56.821] File not found: ./src/site/notes/good Behaviour.md
+[01:37:56.824] File not found: ./src/site/notes/Attainder of Treason.md
+[01:37:56.827] File not found: ./src/site/notes/Corruption of Blood.md
+[01:37:56.832] File not found: ./src/site/notes/Forfeiture.md
+[01:37:56.835] File not found: ./src/site/notes/Full Faith and Credit.md
+[01:37:56.840] File not found: ./src/site/notes/Congress.md
+[01:37:56.848] File not found: ./src/site/notes/Senate.md
+[01:37:56.850] File not found: ./src/site/notes/House of Representatives.md
+[01:37:56.853] File not found: ./src/site/notes/Electors.md
+[01:37:56.860] File not found: ./src/site/notes/ Qualifications requisite for Electors.md
+[01:37:56.862] File not found: ./src/site/notes/Executive Authority.md
+[01:37:56.865] File not found: ./src/site/notes/Writs of Election.md
+[01:37:56.868] File not found: ./src/site/notes/Speaker.md
+[01:37:56.873] File not found: ./src/site/notes/other Officers.md
+[01:37:56.880] File not found: ./src/site/notes/ Power of Impeachment.md
+[01:37:56.880] File not found: ./src/site/notes/ Vice President.md
+[01:37:56.883] File not found: ./src/site/notes/President of the Senate.md
+[01:37:56.887] File not found: ./src/site/notes/President pro tempore.md
+[01:37:56.890] File not found: ./src/site/notes/Chief Justice.md
+[01:37:56.893] File not found: ./src/site/notes/President.md
+[01:37:56.897] File not found: ./src/site/notes/ Commander in Chief.md
+[01:37:56.900] File not found: ./src/site/notes/Militia.md
+[01:37:56.904] File not found: ./src/site/notes/Power.md
+[01:37:56.907] File not found: ./src/site/notes/ Recess of the Senate.md
+[01:37:56.910] File not found: ./src/site/notes/Commissions.md
+[01:37:56.914] File not found: ./src/site/notes/ judicial Power.md
+[01:37:56.917] File not found: ./src/site/notes/supreme Court.md
+[01:37:56.922] File not found: ./src/site/notes/inferior Courts.md
+[01:37:56.928] File not found: ./src/site/notes/good Behaviour.md
+[01:37:56.934] File not found: ./src/site/notes/Attainder of Treason.md
+[01:37:56.939] File not found: ./src/site/notes/Corruption of Blood.md
+[01:37:56.944] File not found: ./src/site/notes/Forfeiture.md
+[01:37:56.949] File not found: ./src/site/notes/Full Faith and Credit.md
+[01:37:56.954] File not found: ./src/site/notes/Congress.md
+[01:37:56.957] File not found: ./src/site/notes/Senate.md
+[01:37:56.961] File not found: ./src/site/notes/House of Representatives.md
+[01:37:56.964] File not found: ./src/site/notes/House of Representatives.md
+[01:37:56.967] File not found: ./src/site/notes/Senate.md
+[01:37:56.970] File not found: ./src/site/notes/senators.md
+[01:37:57.003] File not found: ./src/site/notes/Congress.md
+[01:37:57.003] File not found: ./src/site/notes/Senate.md
+[01:37:57.003] File not found: ./src/site/notes/House of Representatives.md
+[01:37:57.003] File not found: ./src/site/notes/<strong>House of Representatives</strong>.md
+[01:37:57.003] File not found: ./src/site/notes/<strong>Senate</strong>.md
+[01:37:57.003] File not found: ./src/site/notes/senators.md
+[01:37:57.031] File not found: ./src/site/notes/which.md
+[01:37:57.035] File not found: ./src/site/notes/which.md
+[01:37:57.039] File not found: ./src/site/notes/payload.md
+[01:37:57.044] File not found: ./src/site/notes/Social Engineering.md
+[01:37:57.047] File not found: ./src/site/notes/payload.md
+[01:37:57.051] File not found: ./src/site/notes/Social Engineering.md
+[01:37:57.079] File not found: ./src/site/notes/URL.md
+[01:37:57.082] File not found: ./src/site/notes/port.md
+[01:37:57.085] File not found: ./src/site/notes/Oracle JDBC driver.md
+[01:37:57.088] File not found: ./src/site/notes/dynamic class loading.md
+[01:37:57.092] File not found: ./src/site/notes/URL.md
+[01:37:57.095] File not found: ./src/site/notes/port.md
+[01:37:57.098] File not found: ./src/site/notes/Oracle JDBC driver.md
+[01:37:57.101] File not found: ./src/site/notes/dynamic class loading.md
+[01:37:57.106] File not found: ./src/site/notes/distros.md
+[01:37:57.110] File not found: ./src/site/notes/PATH.md
+[01:37:57.113] File not found: ./src/site/notes/environment variable.md
+[01:37:57.118] File not found: ./src/site/notes/distros.md
+[01:37:57.123] File not found: ./src/site/notes/PATH.md
+[01:37:57.126] File not found: ./src/site/notes/environment variable.md
+[01:37:57.142] File not found: ./src/site/notes/beaten zone.md
+[01:37:57.145] File not found: ./src/site/notes/beaten zone.md
+[01:37:57.161] [11ty] Problem writing Eleventy templates: (more in DEBUG output)
+[01:37:57.162] [11ty] Output conflict: multiple input files are writing to `dist/file/index.html`. Use distinct `permalink` values to resolve this conflict.
+[01:37:57.164] [11ty]   1. ./src/site/notes/rangerschool/25405001531RS.md
+[01:37:57.164] [11ty]   2. ./src/site/notes/25405213405CY.md
+[01:37:57.164] [11ty]   3. ./src/site/notes/25405212211linux.md
+[01:37:57.164] [11ty]   4. ./src/site/notes/25405215303CY.md
+[01:37:57.164] [11ty]   5. ./src/site/notes/25405215534CY.md
+[01:37:57.164] [11ty]   6. ./src/site/notes/25405222022CY.md
+[01:37:57.164] [11ty]   7. ./src/site/notes/rangerschool/25404212849RS.md
+[01:37:57.164] [11ty]   8. ./src/site/notes/rangerschool/25404225038RS.md (via DuplicatePermalinkOutputError)
+[01:37:57.164] [11ty] 
+[01:37:57.164] [11ty] Original error stack trace: (Repeated output has been truncated…)
+[01:37:57.164] [11ty]     at TemplateMap.checkForDuplicatePermalinks (/vercel/path0/node_modules/@11ty/eleventy/src/TemplateMap.js:803:13)
+[01:37:57.164] [11ty]     at TemplateMap.cache (/vercel/path0/node_modules/@11ty/eleventy/src/TemplateMap.js:488:10)
+[01:37:57.164] [11ty]     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+[01:37:57.164] [11ty]     at async TemplateWriter._createTemplateMap (/vercel/path0/node_modules/@11ty/eleventy/src/TemplateWriter.js:330:5)
+[01:37:57.164] [11ty]     at async TemplateWriter.generateTemplates (/vercel/path0/node_modules/@11ty/eleventy/src/TemplateWriter.js:360:5)
+[01:37:57.164] [11ty]     at async TemplateWriter.write (/vercel/path0/node_modules/@11ty/eleventy/src/TemplateWriter.js:407:23)
+[01:37:57.164] [11ty]     at async Eleventy.executeBuild (/vercel/path0/node_modules/@11ty/eleventy/src/Eleventy.js:1191:13)
+[01:37:57.164] [11ty] Benchmark    884ms  38%   300× (Configuration) "link" Nunjucks Filter
+[01:37:57.167] [11ty] Copied 1 file / Wrote 0 files in 1.76 seconds (v2.0.1)
+[01:37:57.196] ERROR: "build:eleventy" exited with 1.
+[01:37:57.209] Error: Command "npm run build" exited with 1
+[01:37:57.561] 
