@@ -21,24 +21,16 @@ module.exports = {
       if (data.tags && data.tags.indexOf("gardenEntry") != -1) {
         return "/";
       }
-      
-      // If a permalink is explicitly set in the frontmatter, use it
-      if (data.permalink) {
-        return data.permalink;
-      }
 
-      // Get the file path from inputPath if filePathStem is not available
+      // Get the file path and name
       const filePath = data.page.filePathStem || data.page.inputPath || '';
+      const fileName = path.basename(filePath).replace(/\.md$/, '');
       
-      // Handle files in subdirectories
+      // Handle files in subdirectories first
       if (filePath.includes('/rangerschool/')) {
-        const fileName = path.basename(filePath).replace(/\.md$/, '');
         return `/rangerschool/${fileName}/`;
       }
 
-      // Extract the filename without extension
-      const fileName = path.basename(filePath).replace(/\.md$/, '');
-      
       // Determine category from filename suffix
       if (fileName.endsWith('CY')) {
         return `/cybersecurity/${fileName}/`;
@@ -48,6 +40,14 @@ module.exports = {
         return `/ai/${fileName}/`;
       } else if (fileName.match(/linux$/i)) {
         return `/linux/${fileName}/`;
+      }
+
+      // If a permalink is explicitly set in the frontmatter and it's not /file/,
+      // and it ends with a slash, use it
+      if (data.permalink && 
+          data.permalink !== '/file/' && 
+          data.permalink.endsWith('/')) {
+        return data.permalink;
       }
 
       // Default to notes directory
