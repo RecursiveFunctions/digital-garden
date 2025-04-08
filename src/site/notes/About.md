@@ -9,9 +9,9 @@ tags:
 ---
 
 
-This is basically my [[202503280325|2nd brain]]. Collecting my thoughts and notes and structuring it in a way that's easy to share to the world. Since digital gardens are a continuous work in progress, expect a lot of broken links as you meander through here. But over time those links will be filled in and fleshed out as I eventually port over my knowledge base. 
+This is basically my [[202503280325|2nd brain]]. Collecting my thoughts and notes and structuring it in a way that connects concepts and ideas through bidirectional linking. Since digital gardens are a continuous work in progress, expect a lot of broken links as you meander through here. If you encounter one, just know it's because I intend to flesh out that idea at a later date. Over time those links will lead to new notes as I eventually port over my knowledge base. This digital garden in particular is somewhere between a blog and a knowledge management system, but I intend to write and design primarily for myself.
 
-This site is created using [[Obsidian]] , the [Digital Garden Plugin](https://dg-docs.ole.dev/), and deployed with [vercel](https://vercel.com/). 
+This site is created using [[Obsidian]] , the [Digital Garden Plugin](https://dg-docs.ole.dev/), and deployed with [vercel](https://vercel.com/). Underneath the hood, I use [[eleventy]] and [[nunjucks]]. 
 
 
 >[!Question] If you're interested in what I'm doing **[[Now|now]]**
@@ -37,10 +37,4 @@ This site is created using [[Obsidian]] , the [Digital Garden Plugin](https://dg
 >[!os] Operating Systems
 > [[Linux]]
 > [[Windows]]
-
->[!gov] Civics and Government
-> [[202503280149|Constitution]]
-
->[!note] Philosophy
-> [[Philosophy/Personal Views|Personal Views]]
 
