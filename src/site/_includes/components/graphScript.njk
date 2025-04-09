@@ -602,8 +602,15 @@
         // Log the unfiltered data for debugging
         console.log(`Unfiltered data: ${nodesArray.length} nodes, ${linksArray.length} links`);
         
+        console.log(`[renderFilteredGraph] Input: CentralNodeId=${window.centralNodeId}, Depth=${depth}`);
+        console.log(`[renderFilteredGraph] Input Nodes (${nodesArray.length}):`, JSON.stringify(nodesArray.map(n => ({id:n.id, url:n.url, title: n.title})).slice(0,10))); // Log first 10
+        console.log(`[renderFilteredGraph] Input Links (${linksArray.length}):`, JSON.stringify(linksArray.slice(0,10))); // Log first 10
+
         // Filter nodes by depth using breadth-first search
         const { filteredNodes, filteredLinks } = filterNodesByDepth(nodesArray, linksArray, window.centralNodeId, depth);
+        
+        console.log(`[renderFilteredGraph] Output Nodes (${filteredNodes.length}):`, JSON.stringify(filteredNodes.map(n => ({id:n.id, url:n.url, title: n.title}))));
+        console.log(`[renderFilteredGraph] Output Links (${filteredLinks.length}):`, JSON.stringify(filteredLinks));
         
         console.log(`Filtered to ${filteredNodes.length} nodes and ${filteredLinks.length} links at depth ${depth}`);
         
