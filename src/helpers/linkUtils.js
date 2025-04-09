@@ -66,7 +66,6 @@ function getGraph(data) {
     for (let idx = 0; idx < noteCollection.length; idx++) {
       const note = noteCollection[idx];
       const inputPath = note.inputPath; // Define inputPath early for logging
-      console.log(`[getGraph] Processing index ${idx}, path: ${inputPath || 'undefined'}`);
 
       // Get content and frontmatter safely
       let content = '';
@@ -82,20 +81,14 @@ function getGraph(data) {
           continue; // Skip this note
         }
 
-        console.log(`[getGraph] Reading file: ${inputPath}`);
         const rawContent = fs.readFileSync(inputPath, 'utf8');
-        console.log(`[getGraph] Successfully read file: ${inputPath}`);
         
-        console.log(`[getGraph] Parsing frontmatter for: ${inputPath}`);
         const parsed = matter(rawContent);
-        console.log(`[getGraph] Successfully parsed frontmatter for: ${inputPath}`);
         content = parsed.content;
         frontMatter = parsed.data;
       } catch (error) {
         console.error(`[getGraph] Error processing note at index ${idx} (path: ${inputPath}):`, error);
-        // Decide whether to skip or re-throw
-        // For now, we skip to allow processing other notes, but log the error
-        continue; // Skip this note if reading/parsing failed
+        throw error;
       }
 
       // Generate safe data without accessing any template properties

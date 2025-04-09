@@ -1,28 +1,6 @@
 <script type="module">
-    // Instead of importing React and ReactDOM, we'll load them from a CDN
-    const fetchGraphData = async () => {
-        try {
-            console.log('Fetching graph data...');
-            const response = await fetch('/graph.json');
-            
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            
-            const graphData = await response.json();
-            console.log('Raw graph data:', graphData);
-
-            // Validate graph data structure
-            if (!graphData || !graphData.nodes || !graphData.links) {
-                throw new Error('Invalid graph data structure');
-            }
-
-            return graphData;
-        } catch (error) {
-            console.error('Error fetching graph data:', error);
-            return null;
-        }
-    };
+    // Embed graph data directly from Eleventy collection
+    window.embeddedGraphData = {{ collections.notesAndGraph.graph | jsonify | safe }};
 
     function filterLocalGraphData(graphData, depth) {
         if (graphData == null) {
@@ -497,101 +475,71 @@
 
     // Filter nodes and links by depth using breadth-first search
     function filterNodesByDepth(allNodes, allLinks, centralNodeId, maxDepth) {
-        console.log(`[filterNodesByDepth] Starting filter. Central Node ID: ${centralNodeId}, Max Depth: ${maxDepth}`);
-        console.log('[filterNodesByDepth] All Nodes (simplified):', JSON.stringify(allNodes.map(n => ({ id: n.id, url: n.url, title: n.title }))));
-        console.log('[filterNodesByDepth] All Links:', JSON.stringify(allLinks));
-
         const nodeMap = new Map();
         allNodes.forEach(node => nodeMap.set(node.id, node));
-        console.log(`[filterNodesByDepth] Node Map created. Size: ${nodeMap.size}`);
 
         const distances = new Map();
         if (nodeMap.has(centralNodeId)) {
             distances.set(centralNodeId, 0);
-            console.log(`[filterNodesByDepth] Initialized distances with central node ${centralNodeId} at distance 0.`);
         } else {
             console.error(`[filterNodesByDepth] Central node ID ${centralNodeId} not found in nodeMap! Filtering cannot proceed.`);
-            // Attempt to find the node by URL if ID fails, as a fallback (less ideal)
             const centralNodeFallback = allNodes.find(n => n.url === window.location.pathname);
             if (centralNodeFallback) {
                 console.warn(`[filterNodesByDepth] Fallback: Found central node by URL: ID=${centralNodeFallback.id}. Using this ID.`);
                 centralNodeId = centralNodeFallback.id;
                 distances.set(centralNodeId, 0);
             } else {
-                 console.error(`[filterNodesByDepth] Fallback failed. Cannot find central node by ID or URL.`);
-                 return { filteredNodes: [], filteredLinks: [] };
+                console.error(`[filterNodesByDepth] Fallback failed. Cannot find central node by ID or URL.`);
+                return { filteredNodes: [], filteredLinks: [] };
             }
         }
 
         const queue = [{ id: centralNodeId, distance: 0 }];
-        console.log('[filterNodesByDepth] Initial Queue:', JSON.stringify(queue));
 
-        const visitedInLoop = new Set(); // Track nodes processed in the BFS loop
+        const visitedInLoop = new Set();
 
         while (queue.length > 0) {
             const { id, distance } = queue.shift();
-            // console.log(`[filterNodesByDepth] Processing Queue Item: ID=${id}, Distance=${distance}`); // Can be noisy
 
             if (visitedInLoop.has(id)) {
-                 // console.log(`[filterNodesByDepth] Already processed node ${id} in this BFS run, skipping.`); // Can be noisy
-                 continue;
+                continue;
             }
             visitedInLoop.add(id);
 
             if (distance >= maxDepth) {
-                 // console.log(`[filterNodesByDepth] Reached max depth (${maxDepth}) for node ${id}, stopping exploration.`); // Can be noisy
                 continue;
             }
 
-            // Find neighbors by iterating through links
             allLinks.forEach((link, linkIndex) => {
                 let neighborId = null;
                 let sourceId = link.source;
                 let targetId = link.target;
 
-                // Handle potential object format for source/target in links
                 if (typeof sourceId === 'object' && sourceId !== null) sourceId = sourceId.id;
                 if (typeof targetId === 'object' && targetId !== null) targetId = targetId.id;
 
-                // Check if the current node `id` is part of this link
                 if (sourceId === id) {
                     neighborId = targetId;
-                    // console.log(`[filterNodesByDepth] Link ${linkIndex}: Node ${id} is SOURCE. Neighbor is ${neighborId} (Target).`);
                 } else if (targetId === id) {
                     neighborId = sourceId;
-                    // console.log(`[filterNodesByDepth] Link ${linkIndex}: Node ${id} is TARGET. Neighbor is ${neighborId} (Source).`);
                 }
 
-                // If a neighbor is found and it exists in our node list
                 if (neighborId !== null && nodeMap.has(neighborId)) {
                     if (!distances.has(neighborId)) {
                         const newDistance = distance + 1;
                         distances.set(neighborId, newDistance);
                         queue.push({ id: neighborId, distance: newDistance });
-                        console.log(`[filterNodesByDepth] Found new neighbor ${neighborId} from node ${id} at distance ${newDistance}. Added to queue.`);
-                    } else {
-                        // console.log(`[filterNodesByDepth] Neighbor ${neighborId} (from node ${id}) already visited at distance ${distances.get(neighborId)}.`);
                     }
                 } else if (neighborId !== null) {
-                     // This can happen if graph.json includes links to nodes that were excluded (e.g., dg-graph-exclude: true)
-                     // console.warn(`[filterNodesByDepth] Neighbor ID ${neighborId} found in link ${linkIndex}, but not present in the 'allNodes' list passed to filter function.`);
                 }
             });
         }
 
-        console.log('[filterNodesByDepth] BFS Queue processed.');
-        // Use Map constructor for cleaner logging output of distances
-        console.log('[filterNodesByDepth] Final Distances Map:', JSON.stringify(Object.fromEntries(distances)));
-
-        // Filter nodes based on distances
         const filteredNodes = allNodes.filter(node => {
-             const included = distances.has(node.id) && distances.get(node.id) <= maxDepth;
-             // console.log(`[filterNodesByDepth] Node Check: ID=${node.id}, Title='${node.title}', URL='${node.url}', HasDistance=${distances.has(node.id)}, Distance=${distances.get(node.id)}, Included=${included}`);
-             return included;
+            const included = distances.has(node.id) && distances.get(node.id) <= maxDepth;
+            return included;
         });
-        console.log(`[filterNodesByDepth] Filtered Nodes (${filteredNodes.length}):`, JSON.stringify(filteredNodes.map(n=>({id:n.id, url:n.url, title: n.title}))));
 
-        // Filter links based on distances of both source and target
         const filteredLinks = allLinks.filter(link => {
             let sourceId = link.source;
             let targetId = link.target;
@@ -600,13 +548,9 @@
 
             const sourceInDist = distances.has(sourceId) && distances.get(sourceId) <= maxDepth;
             const targetInDist = distances.has(targetId) && distances.get(targetId) <= maxDepth;
-            const included = sourceInDist && targetInDist;
-             // console.log(`[filterNodesByDepth] Link Check: (${sourceId} -> ${targetId}): Source Included=${sourceInDist}, Target Included=${targetInDist}, Link Included=${included}`);
-            return included;
+            return sourceInDist && targetInDist;
         });
-         console.log(`[filterNodesByDepth] Filtered Links (${filteredLinks.length}):`, JSON.stringify(filteredLinks));
 
-        console.log('[filterNodesByDepth] Filtering complete.');
         return { filteredNodes, filteredLinks };
     }
     
@@ -690,29 +634,32 @@
 
     async function initializeGraph() {
         try {
-            console.log('Initializing graph...');
-            const graphData = await fetchGraphData();
-            
-            if (!graphData) {
-                console.error('Graph data is null or invalid');
+            console.log('D3 found, initializing graph...');
+            // Use the embedded graph data directly
+            const graphData = window.embeddedGraphData;
+
+            if (!graphData || !graphData.nodes || !graphData.links) {
+                console.error('Embedded graph data is invalid or missing.');
+                // Display error message in the graph container
+                const container = document.getElementById('link-graph');
+                if (container) {
+                    container.innerHTML = `<div style="padding: 20px; text-align: center; color: #f38ba8; background-color: #11111b; border-radius: 8px; margin: 10px;">Error: Embedded graph data is missing or invalid.</div>`;
+                }
                 return;
             }
-            
-            console.log('Graph data loaded:', graphData);
-            
+
+            console.log('Using embedded graph data:', graphData);
+
             // Store original graph data globally for filtering
-            window.originalGraphData = graphData;
-            
-            // Convert graph data nodes to array if it's an object
-            const nodesArray = Array.isArray(graphData.nodes) 
-                ? graphData.nodes 
-                : Object.values(graphData.nodes);
-            
-            // Convert graph data links to array if it's an object
-            const linksArray = Array.isArray(graphData.links) 
-                ? graphData.links 
-                : Object.values(graphData.links);
-            
+            // Convert nodes object to array if necessary
+            window.originalGraphData = {
+                nodes: Array.isArray(graphData.nodes) ? graphData.nodes : Object.values(graphData.nodes),
+                links: graphData.links || []
+            };
+
+            const nodesArray = window.originalGraphData.nodes;
+            const linksArray = window.originalGraphData.links;
+
             // Get current page URL to use as central node
             const currentPath = window.location.pathname;
             console.log(`Current page path: ${currentPath}`);
@@ -722,44 +669,46 @@
             
             if (!centralNode) {
                 console.warn('Could not find node for current page:', currentPath);
-                return; // Exit if no central node is found
+                // Optionally, render the full graph or a default state
+                // For now, just log and exit if no central node for the current page
+                const container = document.getElementById('link-graph');
+                 if (container) {
+                     container.innerHTML = `<div style="padding: 20px; text-align: center; color: #bac2de;">Graph data loaded, but no node found for this specific page (${currentPath}).</div>`;
+                 }
+                // return; 
+            }
+            else {
+                 console.log('Central node found:', centralNode);
+                 window.centralNodeId = centralNode.id;
+                // Center the root node
+                const container = document.getElementById('link-graph');
+                const width = Math.max(container.clientWidth, 1000) || 1000;
+                const height = Math.max(container.clientHeight, 800) || 800;
+                centralNode.x = width / 2;
+                centralNode.y = height / 2;
+                nodesArray.forEach(node => {
+                     if (node.id !== centralNode.id) {
+                         node.x = centralNode.x;
+                         node.y = centralNode.y;
+                     }
+                 });
+                 // Render local graph with initial depth of 3
+                renderFilteredGraph(3);
             }
 
-            console.log('Central node found:', centralNode);
-            
-            // Store the central node ID as a global variable for easier access
-            window.centralNodeId = centralNode.id;
-            
-            // Center the root node in the middle of the graph
-            const container = document.getElementById('link-graph');
-            const width = Math.max(container.clientWidth, 1000) || 1000;
-            const height = Math.max(container.clientHeight, 800) || 800;
-
-            // Set the root node's initial position to the center
-            centralNode.x = width / 2;
-            centralNode.y = height / 2;
-
-            // Set initial positions of all other nodes
-            nodesArray.forEach(node => {
-                node.x = centralNode.x || width / 2; // Center on current page node
-                node.y = centralNode.y || height / 2; // Center on current page node
-            });
-
-            // Render local graph with initial depth of 3
-            renderFilteredGraph(3);
-            
+           
             // Set up depth control event listener
             setupDepthSlider();
             
-            // Render full graph if needed
-            const fullGraphContainer = document.getElementById('full-graph-container');
-            if (fullGraphContainer) {
-                const fullData = filterLocalGraphData(graphData, 100); // Use a large depth for full graph
-                renderGraph(fullGraphContainer, fullData.nodes, fullData.edges);
-            }
+            // Render full graph if needed (this logic might need adjustment
+            // depending on whether you have a separate full graph view)
+            // const fullGraphContainer = document.getElementById('full-graph-container');
+            // if (fullGraphContainer) {
+            //     renderGraph(fullGraphContainer, nodesArray, linksArray);
+            // }
+
         } catch (error) {
             console.error('Error initializing graph:', error);
-            // Show error message in the graph container
             const container = document.getElementById('link-graph');
             if (container) {
                 container.innerHTML = `<div style="padding: 20px; text-align: center; color: #f38ba8; background-color: #11111b; border-radius: 8px; margin: 10px;">Error initializing graph: ${error.message}</div>`;
@@ -767,19 +716,12 @@
         }
     }
 
-    // Initialize graph when D3 is loaded
-    document.addEventListener('DOMContentLoaded', function() {
-        if (typeof d3 === 'undefined') {
-            console.error('D3 library not loaded');
-            const container = document.getElementById('link-graph');
-            if (container) {
-                container.innerHTML = '<div style="padding: 20px; text-align: center; color: #f38ba8; background-color: #11111b; border-radius: 8px; margin: 10px;">Error: D3 library not loaded. Please check your internet connection.</div>';
-            }
-            return;
+    document.addEventListener("DOMContentLoaded", () => {
+        if (typeof d3 !== 'undefined') {
+            initializeGraph();
+        } else {
+            console.error('D3.js is not loaded.');
         }
-        
-        console.log('D3 found, initializing graph...');
-        initializeGraph();
     });
     
     // Function to setup the depth slider

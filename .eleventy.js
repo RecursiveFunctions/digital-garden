@@ -17,6 +17,7 @@ const {
 
 const Image = require("@11ty/eleventy-img");
 const { sortNotes } = require("./src/helpers/collections");
+const linkUtils = require('./src/helpers/linkUtils');
 
 function transformImage(src, cls, alt, sizes, widths = ["500", "700", "auto"]) {
   let options = {
@@ -733,8 +734,40 @@ module.exports = function (eleventyConfig) {
     },
   });
 
-  // Add sorted notes collection
-  eleventyConfig.addCollection("notes", sortNotes);
+  // Add combined collection for notes and graph data
+  eleventyConfig.addCollection("notesAndGraph", async function(collectionApi) {
+    console.log("[notesAndGraph Collection] Starting computation...");
+    const notes = sortNotes(collectionApi); // Get the sorted notes first
+    console.log(`[notesAndGraph Collection] Got ${notes.length} notes from sortNotes.`);
+
+    // Now, generate graph data using the computed notes collection
+    // Construct a 'data'-like object for getGraph
+    // Ensure collections structure matches what getGraph expects
+    const graphInputData = { collections: { note: notes } }; 
+    let graphData;
+    try {
+        console.log("[notesAndGraph Collection] Calling linkUtils.getGraph...");
+        graphData = await linkUtils.getGraph(graphInputData);
+        const nodeCount = Object.keys(graphData.nodes || {}).length;
+        const linkCount = (graphData.links || []).length;
+        console.log(`[notesAndGraph Collection] Graph data generated successfully. Nodes: ${nodeCount}, Links: ${linkCount}`);
+    } catch (error) {
+        console.error('[notesAndGraph Collection] Error generating graph data:', error);
+        // Return fallback graph data if generation fails
+        graphData = {
+          homeAlias: "/",
+          nodes: { "/": { id: 0, title: "Home", url: "/", group: "none", home: true, outBound: [], neighbors: [], backLinks: [], size: 0 } },
+          links: []
+        };
+    }
+
+    // Return both the notes and the graph data
+    console.log("[notesAndGraph Collection] Computation finished.");
+    return {
+        notes: notes,
+        graph: graphData
+    };
+  });
 
   // Add global data for daily notes index
   eleventyConfig.addGlobalData("dailyNotesIndex", () => {
