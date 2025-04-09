@@ -664,15 +664,24 @@
             const currentPath = window.location.pathname;
             console.log(`[graphScript] Comparing against currentPath: '${currentPath}'`);
             
-            // Find the node that matches the current path
-            const centralNode = nodesArray.find(n => {
-                 // Add logging for each comparison
-                 // console.log(`[graphScript] Checking node URL: '${n.url}' === '${currentPath}' ? ${n.url === currentPath}`);
-                 return n.url === currentPath;
-             });
+            // Find the node that matches the current path OR is the designated home node
+            let centralNode;
+            if (currentPath === '/') {
+                console.log('[graphScript] Current path is root (/), searching for home node (node.home === true).');
+                centralNode = nodesArray.find(n => n.home === true);
+            } else {
+                 console.log(`[graphScript] Current path is not root, searching for node with URL: '${currentPath}'`);
+                 centralNode = nodesArray.find(n => n.url === currentPath);
+            }
+
+            // Fallback if specific node not found but home node exists (e.g., on 404 page)
+            if (!centralNode && currentPath !== '/') {
+                console.warn(`Could not find node for current page: ${currentPath}. Falling back to home node.`);
+                centralNode = nodesArray.find(n => n.home === true);
+            }
             
             if (!centralNode) {
-                console.warn('Could not find node for current page:', currentPath);
+                console.error(`Could not find node for current page: ${currentPath}`);
                 // Optionally, render the full graph or a default state
                 // For now, just log and exit if no central node for the current page
                 const container = document.getElementById('link-graph');
