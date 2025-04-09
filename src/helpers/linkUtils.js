@@ -65,25 +65,37 @@ function getGraph(data) {
     // Process each note in sequence
     for (let idx = 0; idx < noteCollection.length; idx++) {
       const note = noteCollection[idx];
-      
+      const inputPath = note.inputPath; // Define inputPath early for logging
+      console.log(`[getGraph] Processing index ${idx}, path: ${inputPath || 'undefined'}`);
+
       // Get content and frontmatter safely
       let content = '';
       let frontMatter = {};
       try {
         // Only access inputPath from the note object
-        const inputPath = note.inputPath;
-        if (!inputPath || !fs.existsSync(inputPath)) {
-          console.error(`Invalid or missing input path for note at index ${idx}`);
-          continue;
+        if (!inputPath) {
+          console.error(`[getGraph] Error: Missing inputPath for note at index ${idx}`);
+          continue; // Skip this note
+        }
+        if (!fs.existsSync(inputPath)) {
+          console.error(`[getGraph] Error: File does not exist for note at index ${idx}: ${inputPath}`);
+          continue; // Skip this note
         }
 
+        console.log(`[getGraph] Reading file: ${inputPath}`);
         const rawContent = fs.readFileSync(inputPath, 'utf8');
+        console.log(`[getGraph] Successfully read file: ${inputPath}`);
+        
+        console.log(`[getGraph] Parsing frontmatter for: ${inputPath}`);
         const parsed = matter(rawContent);
+        console.log(`[getGraph] Successfully parsed frontmatter for: ${inputPath}`);
         content = parsed.content;
         frontMatter = parsed.data;
       } catch (error) {
-        console.error(`Could not read content for note at index ${idx}:`, error);
-        continue;
+        console.error(`[getGraph] Error processing note at index ${idx} (path: ${inputPath}):`, error);
+        // Decide whether to skip or re-throw
+        // For now, we skip to allow processing other notes, but log the error
+        continue; // Skip this note if reading/parsing failed
       }
 
       // Generate safe data without accessing any template properties
