@@ -122,8 +122,9 @@ function getGraph(data) {
         graphExclude: safeData.data['dg-graph-exclude']
       });
 
-      if (safeData.data['dg-graph-exclude']) {
-        console.log(`Excluding note: ${safeData.url}`);
+      // Only exclude if dg-graph-exclude is explicitly true (boolean)
+      if (safeData.data['dg-graph-exclude'] === true) { 
+        console.log(`Excluding note: ${safeData.url} because dg-graph-exclude is true.`);
         excludedNodes.add(safeData.url);
         continue;
       }
