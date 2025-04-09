@@ -662,10 +662,14 @@
 
             // Get current page URL to use as central node
             const currentPath = window.location.pathname;
-            console.log(`Current page path: ${currentPath}`);
+            console.log(`[graphScript] Comparing against currentPath: '${currentPath}'`);
             
             // Find the node that matches the current path
-            const centralNode = nodesArray.find(n => n.url === currentPath);
+            const centralNode = nodesArray.find(n => {
+                 // Add logging for each comparison
+                 // console.log(`[graphScript] Checking node URL: '${n.url}' === '${currentPath}' ? ${n.url === currentPath}`);
+                 return n.url === currentPath;
+             });
             
             if (!centralNode) {
                 console.warn('Could not find node for current page:', currentPath);

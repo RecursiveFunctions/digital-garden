@@ -751,6 +751,12 @@ module.exports = function (eleventyConfig) {
         const nodeCount = Object.keys(graphData.nodes || {}).length;
         const linkCount = (graphData.links || []).length;
         console.log(`[notesAndGraph Collection] Graph data generated successfully. Nodes: ${nodeCount}, Links: ${linkCount}`);
+        // Log the generated node URLs for inspection
+        if (graphData.nodes) {
+            const generatedUrls = Object.values(graphData.nodes).map(n => n.url);
+            console.log("[notesAndGraph Collection] Generated Node URLs:", JSON.stringify(generatedUrls.slice(0, 20), null, 2)); // Log first 20
+            if (generatedUrls.length > 20) console.log("[notesAndGraph Collection] (... more URLs truncated)");
+        }
     } catch (error) {
         console.error('[notesAndGraph Collection] Error generating graph data:', error);
         // Return fallback graph data if generation fails
