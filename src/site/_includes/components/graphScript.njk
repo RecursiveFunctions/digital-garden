@@ -497,80 +497,116 @@
 
     // Filter nodes and links by depth using breadth-first search
     function filterNodesByDepth(allNodes, allLinks, centralNodeId, maxDepth) {
-        console.log(`Filtering by depth: ${maxDepth} from node ${centralNodeId}`);
-        
-        // Create node map for faster lookup
+        console.log(`[filterNodesByDepth] Starting filter. Central Node ID: ${centralNodeId}, Max Depth: ${maxDepth}`);
+        console.log('[filterNodesByDepth] All Nodes (simplified):', JSON.stringify(allNodes.map(n => ({ id: n.id, url: n.url, title: n.title }))));
+        console.log('[filterNodesByDepth] All Links:', JSON.stringify(allLinks));
+
         const nodeMap = new Map();
         allNodes.forEach(node => nodeMap.set(node.id, node));
-        
-        // Track distances from central node
+        console.log(`[filterNodesByDepth] Node Map created. Size: ${nodeMap.size}`);
+
         const distances = new Map();
-        distances.set(centralNodeId, 0);
-        
-        // Queue for BFS
+        if (nodeMap.has(centralNodeId)) {
+            distances.set(centralNodeId, 0);
+            console.log(`[filterNodesByDepth] Initialized distances with central node ${centralNodeId} at distance 0.`);
+        } else {
+            console.error(`[filterNodesByDepth] Central node ID ${centralNodeId} not found in nodeMap! Filtering cannot proceed.`);
+            // Attempt to find the node by URL if ID fails, as a fallback (less ideal)
+            const centralNodeFallback = allNodes.find(n => n.url === window.location.pathname);
+            if (centralNodeFallback) {
+                console.warn(`[filterNodesByDepth] Fallback: Found central node by URL: ID=${centralNodeFallback.id}. Using this ID.`);
+                centralNodeId = centralNodeFallback.id;
+                distances.set(centralNodeId, 0);
+            } else {
+                 console.error(`[filterNodesByDepth] Fallback failed. Cannot find central node by ID or URL.`);
+                 return { filteredNodes: [], filteredLinks: [] };
+            }
+        }
+
         const queue = [{ id: centralNodeId, distance: 0 }];
-        
-        // Process the queue
+        console.log('[filterNodesByDepth] Initial Queue:', JSON.stringify(queue));
+
+        const visitedInLoop = new Set(); // Track nodes processed in the BFS loop
+
         while (queue.length > 0) {
             const { id, distance } = queue.shift();
-            
-            // If we've reached max depth, don't explore further
-            if (distance >= maxDepth) continue;
-            
-            // Find all links connected to this node
-            allLinks.forEach(link => {
+            // console.log(`[filterNodesByDepth] Processing Queue Item: ID=${id}, Distance=${distance}`); // Can be noisy
+
+            if (visitedInLoop.has(id)) {
+                 // console.log(`[filterNodesByDepth] Already processed node ${id} in this BFS run, skipping.`); // Can be noisy
+                 continue;
+            }
+            visitedInLoop.add(id);
+
+            if (distance >= maxDepth) {
+                 // console.log(`[filterNodesByDepth] Reached max depth (${maxDepth}) for node ${id}, stopping exploration.`); // Can be noisy
+                continue;
+            }
+
+            // Find neighbors by iterating through links
+            allLinks.forEach((link, linkIndex) => {
                 let neighborId = null;
                 let sourceId = link.source;
                 let targetId = link.target;
-                
-                // Handle both object and primitive representations
-                if (typeof sourceId === 'object' && sourceId) {
-                    sourceId = sourceId.id;
-                }
-                
-                if (typeof targetId === 'object' && targetId) {
-                    targetId = targetId.id;
-                }
-                
-                // Check if this node is the source
+
+                // Handle potential object format for source/target in links
+                if (typeof sourceId === 'object' && sourceId !== null) sourceId = sourceId.id;
+                if (typeof targetId === 'object' && targetId !== null) targetId = targetId.id;
+
+                // Check if the current node `id` is part of this link
                 if (sourceId === id) {
                     neighborId = targetId;
-                }
-                // Check if this node is the target
-                else if (targetId === id) {
+                    // console.log(`[filterNodesByDepth] Link ${linkIndex}: Node ${id} is SOURCE. Neighbor is ${neighborId} (Target).`);
+                } else if (targetId === id) {
                     neighborId = sourceId;
+                    // console.log(`[filterNodesByDepth] Link ${linkIndex}: Node ${id} is TARGET. Neighbor is ${neighborId} (Source).`);
                 }
-                
-                // If we found a neighbor and haven't visited it yet
-                if (neighborId && !distances.has(neighborId)) {
-                    distances.set(neighborId, distance + 1);
-                    queue.push({ id: neighborId, distance: distance + 1 });
+
+                // If a neighbor is found and it exists in our node list
+                if (neighborId !== null && nodeMap.has(neighborId)) {
+                    if (!distances.has(neighborId)) {
+                        const newDistance = distance + 1;
+                        distances.set(neighborId, newDistance);
+                        queue.push({ id: neighborId, distance: newDistance });
+                        console.log(`[filterNodesByDepth] Found new neighbor ${neighborId} from node ${id} at distance ${newDistance}. Added to queue.`);
+                    } else {
+                        // console.log(`[filterNodesByDepth] Neighbor ${neighborId} (from node ${id}) already visited at distance ${distances.get(neighborId)}.`);
+                    }
+                } else if (neighborId !== null) {
+                     // This can happen if graph.json includes links to nodes that were excluded (e.g., dg-graph-exclude: true)
+                     // console.warn(`[filterNodesByDepth] Neighbor ID ${neighborId} found in link ${linkIndex}, but not present in the 'allNodes' list passed to filter function.`);
                 }
             });
         }
-        
-        // Filter nodes and links based on BFS results
-        const filteredNodes = allNodes.filter(node => distances.has(node.id) && distances.get(node.id) <= maxDepth);
-        
+
+        console.log('[filterNodesByDepth] BFS Queue processed.');
+        // Use Map constructor for cleaner logging output of distances
+        console.log('[filterNodesByDepth] Final Distances Map:', JSON.stringify(Object.fromEntries(distances)));
+
+        // Filter nodes based on distances
+        const filteredNodes = allNodes.filter(node => {
+             const included = distances.has(node.id) && distances.get(node.id) <= maxDepth;
+             // console.log(`[filterNodesByDepth] Node Check: ID=${node.id}, Title='${node.title}', URL='${node.url}', HasDistance=${distances.has(node.id)}, Distance=${distances.get(node.id)}, Included=${included}`);
+             return included;
+        });
+        console.log(`[filterNodesByDepth] Filtered Nodes (${filteredNodes.length}):`, JSON.stringify(filteredNodes.map(n=>({id:n.id, url:n.url, title: n.title}))));
+
+        // Filter links based on distances of both source and target
         const filteredLinks = allLinks.filter(link => {
             let sourceId = link.source;
             let targetId = link.target;
-            
-            // Handle both object and primitive representations
-            if (typeof sourceId === 'object' && sourceId) {
-                sourceId = sourceId.id;
-            }
-            
-            if (typeof targetId === 'object' && targetId) {
-                targetId = targetId.id;
-            }
-            
-            return distances.has(sourceId) && 
-                   distances.has(targetId) && 
-                   distances.get(sourceId) <= maxDepth && 
-                   distances.get(targetId) <= maxDepth;
+            if (typeof sourceId === 'object' && sourceId !== null) sourceId = sourceId.id;
+            if (typeof targetId === 'object' && targetId !== null) targetId = targetId.id;
+
+            const sourceInDist = distances.has(sourceId) && distances.get(sourceId) <= maxDepth;
+            const targetInDist = distances.has(targetId) && distances.get(targetId) <= maxDepth;
+            const included = sourceInDist && targetInDist;
+             // console.log(`[filterNodesByDepth] Link Check: (${sourceId} -> ${targetId}): Source Included=${sourceInDist}, Target Included=${targetInDist}, Link Included=${included}`);
+            return included;
         });
-        
+         console.log(`[filterNodesByDepth] Filtered Links (${filteredLinks.length}):`, JSON.stringify(filteredLinks));
+
+        console.log('[filterNodesByDepth] Filtering complete.');
         return { filteredNodes, filteredLinks };
     }
     
