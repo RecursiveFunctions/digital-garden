@@ -193,36 +193,21 @@
                 'Reference': colors.yellow
             };
 
-            // Assign initial positions just outside the viewport borders
-            const margin = 50; // How far outside the border to start
+            // Assign initial positions near the center with random offset
+            const offset = 50; // Max random offset from center
             nodes.forEach(node => {
-                if (node.fx == null && node.id !== window.centralNodeId) { 
-                    const side = Math.floor(Math.random() * 4); // 0: top, 1: right, 2: bottom, 3: left
-                    switch (side) {
-                        case 0: // Top
-                            node.x = Math.random() * width;
-                            node.y = -margin;
-                            break;
-                        case 1: // Right
-                            node.x = width + margin;
-                            node.y = Math.random() * height;
-                            break;
-                        case 2: // Bottom
-                            node.x = Math.random() * width;
-                            node.y = height + margin;
-                            break;
-                        case 3: // Left
-                            node.x = -margin;
-                            node.y = Math.random() * height;
-                            break;
-                    }
-                } else if (node.id === window.centralNodeId) {
-                     // Start central node near center, but let fix handle final position
-                     node.x = width / 2 + (Math.random() - 0.5) * 10;
-                     node.y = height / 2 + (Math.random() - 0.5) * 10;
+                if (node.fx == null) { // Only set if not fixed (e.g., by drag)
+                   node.x = width / 2 + (Math.random() - 0.5) * 2 * offset;
+                   node.y = height / 2 + (Math.random() - 0.5) * 2 * offset;
+                }
+                 // Ensure central node also starts near center if it was somehow missed
+                 // (though fx/fy will likely take precedence if set by drag)
+                 else if (node.id === window.centralNodeId && node.fx == null) {
+                    node.x = width / 2 + (Math.random() - 0.5) * 10; 
+                    node.y = height / 2 + (Math.random() - 0.5) * 10; 
                 }
             });
-            console.log("Assigned initial border positions to nodes.");
+            console.log("Assigned initial near-center positions to nodes.");
 
             // Set up force simulation with slightly adjusted parameters
             const simulation = d3.forceSimulation(nodes)
@@ -239,7 +224,11 @@
                 .selectAll("line")
                 .data(links)
                 .join("line")
-                .attr("stroke-width", d => Math.sqrt(d.value || 1) * 0.8);
+                .attr("stroke-width", d => Math.sqrt(d.value || 1) * 0.8)
+                .attr("x1", d => d.source.x)
+                .attr("y1", d => d.source.y)
+                .attr("x2", d => d.target.x)
+                .attr("y2", d => d.target.y);
 
             // Create nodes
             const node = g.append("g")
