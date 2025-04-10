@@ -209,6 +209,17 @@
                 .alpha(1)
                 .alphaDecay(0.0228);
 
+            // --- Fix the central node to the center ---
+            const centralNodeObject = nodes.find(n => n.id === window.centralNodeId);
+            if (centralNodeObject) {
+                centralNodeObject.fx = width / 2;
+                centralNodeObject.fy = height / 2;
+                console.log(`[renderGraph] Fixed central node ${window.centralNodeId} to center (${width/2}, ${height/2})`);
+            } else {
+                 console.warn(`[renderGraph] Could not find central node object with ID ${window.centralNodeId} in the filtered nodes to fix its position.`);
+            }
+            // -----------------------------------------
+
             // Create edges
             const link = g.append("g")
                 .attr("stroke", colors.overlay)
