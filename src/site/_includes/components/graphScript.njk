@@ -229,7 +229,7 @@
                 .attr("r", d => {
                     const numberOfNeighbors = d.neighbors?.length || 1;
                     const baseRadius = Math.min(10, Math.max(numberOfNeighbors / 1.5, 4));
-                    return baseRadius * 1.5;
+                    return baseRadius * 3;
                 })
                 .attr("fill", d => d.id === window.centralNodeId ? colors.green : groupColors[d.group] || colors.blue)
                 .attr("stroke", colors.text)
@@ -352,10 +352,10 @@
                 .selectAll("text")
                 .data(nodes)
                 .join("text")
-                .text(d => d.title || d.id)
-                .attr('x', width / 2 + 12)
-                .attr('y', height / 2 + 3)
-                .style('font-size', '12px')
+                .text(d => d.dgGraphTitle || d.url || d.title || d.id)
+                .attr('x', d => d.x + (d.r || 5) * 1.5)
+                .attr('y', d => d.y + (d.r || 5) * 0.5)
+                .style('font-size', '10px')
                 .style('pointer-events', 'none')
                 .style('fill', colors.text)
                 .style('font-family', 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif')
@@ -530,9 +530,12 @@
             id: node.id,
             originalId: node.id,
             url: node.url,
-            title: node.title || node.id,
+            title: node.title,
+            dgGraphTitle: node["dg-graph-title"],
             neighbors: node.neighbors || [],
-            group: node.group || 'none'
+            group: node.group || 'none',
+            x: node.x,
+            y: node.y
         }));
         
         const processedEdges = filteredLinks.map(link => {
