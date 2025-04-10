@@ -193,21 +193,38 @@
                 'Reference': colors.yellow
             };
 
-            // Assign initial random positions to nodes before simulation
+            // Assign initial positions just outside the viewport borders
+            const margin = 50; // How far outside the border to start
             nodes.forEach(node => {
-                // Only randomize if position isn't already fixed (e.g., by dragging)
-                if (node.fx == null) { 
-                    // Randomize over a wider area (2x width centered)
-                    node.x = (width / 2) - width + (Math.random() * width * 2);
-                }
-                if (node.fy == null) {
-                     // Randomize over a wider area (2x height centered)
-                    node.y = (height / 2) - height + (Math.random() * height * 2);
+                if (node.fx == null && node.id !== window.centralNodeId) { 
+                    const side = Math.floor(Math.random() * 4); // 0: top, 1: right, 2: bottom, 3: left
+                    switch (side) {
+                        case 0: // Top
+                            node.x = Math.random() * width;
+                            node.y = -margin;
+                            break;
+                        case 1: // Right
+                            node.x = width + margin;
+                            node.y = Math.random() * height;
+                            break;
+                        case 2: // Bottom
+                            node.x = Math.random() * width;
+                            node.y = height + margin;
+                            break;
+                        case 3: // Left
+                            node.x = -margin;
+                            node.y = Math.random() * height;
+                            break;
+                    }
+                } else if (node.id === window.centralNodeId) {
+                     // Start central node near center, but let fix handle final position
+                     node.x = width / 2 + (Math.random() - 0.5) * 10;
+                     node.y = height / 2 + (Math.random() - 0.5) * 10;
                 }
             });
-            console.log("Assigned initial wildly random positions to nodes.");
+            console.log("Assigned initial border positions to nodes.");
 
-            // --- Immediately fix non-central nodes to these random positions ---
+            // --- Immediately fix non-central nodes to these border positions ---
             nodes.forEach(node => {
                 if (node.id !== window.centralNodeId) { // Only fix non-central nodes initially
                     node.fx = node.x;
