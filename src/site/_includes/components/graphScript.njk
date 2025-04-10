@@ -237,7 +237,8 @@
                 .join("circle")
                 .attr("r", d => {
                     const numberOfNeighbors = d.neighbors?.length || 1;
-                    return Math.min(10, Math.max(numberOfNeighbors / 1.5, 4));
+                    const baseRadius = Math.min(10, Math.max(numberOfNeighbors / 1.5, 4));
+                    return baseRadius * 1.5;
                 })
                 .attr("fill", d => d.id === window.centralNodeId ? colors.green : groupColors[d.group] || colors.blue)
                 .attr("stroke", colors.text)
