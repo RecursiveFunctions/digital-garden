@@ -649,12 +649,6 @@
                 const height = Math.max(container.clientHeight, 800) || 800;
                 centralNode.x = width / 2;
                 centralNode.y = height / 2;
-                nodesArray.forEach(node => {
-                     if (node.id !== centralNode.id) {
-                         node.x = centralNode.x;
-                         node.y = centralNode.y;
-                     }
-                 });
                  // Render local graph with initial depth of 3
                 renderFilteredGraph(3);
             }
