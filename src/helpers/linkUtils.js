@@ -3,6 +3,7 @@ const internalLinkRegex = /href="\/(.*?)"/g;
 const matter = require('gray-matter');
 const path = require('path');
 const fs = require('fs');
+const slugify = require("@sindresorhus/slugify");
 
 function caselessCompare(a, b) {
   return a.toLowerCase() === b.toLowerCase();
@@ -39,6 +40,53 @@ function generateDefaultUrl(inputPath) {
   return `/notes/${relativePath}`;
 }
 
+// NEW FUNCTION: Resolve a link string to a target URL based on files/frontmatter
+function resolveLinkToUrl(linkString, allNotePaths) {
+    let fileName = linkString.replaceAll("&amp;", "&");
+    let header = "";
+    
+    if (fileName.startsWith('/') && fileName.endsWith('/')) {
+        // Assume it's already a resolved permalink
+        return fileName;
+    }
+
+    if (fileName.includes("#")) {
+        [fileName, header] = fileName.split("#");
+    }
+
+    let targetUrl = null;
+    const noteFile = fileName.endsWith('.md') ? fileName : `${fileName}.md`;
+
+    // 1. Check for exact match in the list of known note paths
+    const exactMatchPath = allNotePaths.find(p => p.toLowerCase().endsWith(`/${noteFile.toLowerCase()}`));
+
+    if (exactMatchPath) {
+        try {
+            const fileContent = fs.readFileSync(exactMatchPath, 'utf8');
+            const frontMatter = matter(fileContent).data;
+            if (frontMatter.permalink) {
+                targetUrl = frontMatter.permalink;
+            } else if (frontMatter['dg-home'] === true || (frontMatter.tags && frontMatter.tags.includes('gardenEntry'))) {
+                targetUrl = "/"; // Assume home note maps to root
+            } else {
+                 // Fallback to default URL generation based on path
+                 targetUrl = generateDefaultUrl(exactMatchPath);
+            }
+        } catch (e) {
+             console.warn(`[resolveLinkToUrl] Error reading file ${exactMatchPath} for link "${linkString}":`, e);
+             // Fallback: generate default based on the *expected* path structure
+             targetUrl = `/notes/${slugify(fileName)}`;
+        }
+    } else {
+        // 2. If no exact path match, maybe it's an alias? (More complex, skipping for now)
+        // console.warn(`[resolveLinkToUrl] Could not find exact path for link "${linkString}". Alias resolution not yet implemented here.`);
+        // Fallback for unresolved links: best guess based on slug
+        targetUrl = `/notes/${slugify(fileName)}`;
+    }
+
+    return targetUrl; // Return URL without header for now
+}
+
 function getGraph(data) {
   return new Promise((resolve) => {
     console.log('Graph generation started. Collections:', Object.keys(data.collections));
@@ -61,6 +109,10 @@ function getGraph(data) {
       });
       return;
     }
+
+    // Create a list of all inputPaths ONCE for the resolver
+    const allNotePaths = noteCollection.map(note => note.inputPath).filter(Boolean);
+    console.log(`[getGraph] Collected ${allNotePaths.length} input paths for link resolution.`);
 
     // Process each note in sequence
     for (let idx = 0; idx < noteCollection.length; idx++) {
@@ -145,9 +197,10 @@ function getGraph(data) {
         id: idx,
         title: safeData.data['dg-graph-title'] || safeData.data.title,
         url: safeData.url,
+        inputPath: safeData.inputPath, // Store input path
         group,
         home: safeData.data['dg-home'],
-        outBound: outboundLinks.filter(link => !excludedNodes.has(link)),
+        outBound: outboundLinks, // Store raw outbound links initially
         neighbors: new Set(),
         backLinks: new Set(),
         noteIcon: safeData.data.noteIcon,
@@ -176,31 +229,38 @@ function getGraph(data) {
     let invalidLinkCount = 0;
     
     Object.values(nodes).forEach((node) => {
-      let outBound = new Set();
+      // node.outBound currently holds raw extracted link strings
+      let resolvedOutBound = new Set();
       node.outBound.forEach((olink) => {
-        let link = (stemURLs[olink] || olink).split("#")[0];
-        if (nodes[link] && !excludedNodes.has(link)) {
-          outBound.add(link);
+        // Resolve the raw link string (olink) to a target URL
+        const targetUrl = resolveLinkToUrl(olink, allNotePaths);
+        
+        if (targetUrl && nodes[targetUrl] && !excludedNodes.has(targetUrl)) {
+          // If resolved URL exists as a node and isn't excluded, add it
+          resolvedOutBound.add(targetUrl);
           validLinkCount++;
+          // console.log(`[getGraph] Resolved link "${olink}" to "${targetUrl}" from node ${node.url}`);
         } else {
           invalidLinkCount++;
-          console.log(`Invalid link: ${olink} from node ${node.url}`);
+           console.log(`[getGraph] Invalid or excluded link: raw="${olink}", resolved="${targetUrl || 'null'}", from node=${node.url}`);
         }
       });
-      node.outBound = Array.from(outBound);
-      node.outBound.forEach((link) => {
-        let n = nodes[link];
-        if (n && !excludedNodes.has(n.url)) {
-          n.neighbors.add(node.url);
-          n.backLinks.add(node.url);
-          node.neighbors.add(n.url);
-          links.push({ 
-            source: node.id, 
-            target: n.id,
-            value: 1
-          });
-          console.log(`Added link from ${node.id} (${node.url}) to ${n.id} (${n.url})`);
-        }
+
+      // Update node.outBound to store the resolved URLs
+      node.outBound = Array.from(resolvedOutBound);
+
+      // Now create links based on resolved outbound URLs
+      node.outBound.forEach((targetUrl) => {
+        let n = nodes[targetUrl]; // Target node already validated
+        n.neighbors.add(node.url); 
+        n.backLinks.add(node.url);
+        node.neighbors.add(n.url); // Use targetUrl here
+        links.push({ 
+          source: node.id, 
+          target: n.id,
+          value: 1
+        });
+        // console.log(`Added link from ${node.id} (${node.url}) to ${n.id} (${targetUrl})`);
       });
     });
 
@@ -222,4 +282,5 @@ function getGraph(data) {
 exports.wikiLinkRegex = wikiLinkRegex;
 exports.internalLinkRegex = internalLinkRegex;
 exports.extractLinks = extractLinks;
+exports.resolveLinkToUrl = resolveLinkToUrl; // Export new function if needed elsewhere
 exports.getGraph = getGraph;
