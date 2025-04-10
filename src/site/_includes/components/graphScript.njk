@@ -147,21 +147,13 @@
             
             // Define the zoom behavior
             const zoom = d3.zoom()
-                .scaleExtent([0.5, 5]) // Adjust the scale extent as needed
+                .scaleExtent([0.1, 4]) // Wider zoom range
                 .on("zoom", (event) => {
-                    svg.attr("transform", event.transform);
+                    g.attr("transform", event.transform); // Apply transform to the group
                 });
 
-            // Apply zoom to the SVG
+            // Apply zoom *only* to the SVG element to capture events
             svg.call(zoom);
-
-            // Set the initial zoom level (e.g., 1.5 for 150% zoom)
-            const initialScale = 3.5;
-            const initialTranslateX = 0; // Adjust as needed
-            const initialTranslateY = 0; // Adjust as needed
-
-            // Apply the initial transformation
-            svg.attr("transform", `translate(${initialTranslateX}, ${initialTranslateY}) scale(${initialScale})`);
 
             // Define colors object for consistent reference
             window.colors = window.colors || {
@@ -201,13 +193,13 @@
                 'Reference': colors.yellow
             };
 
-            // Set up force simulation with optimized parameters
+            // Set up force simulation with slightly adjusted parameters
             const simulation = d3.forceSimulation(nodes)
-                .force("link", d3.forceLink(links).id(d => d.id).distance(100).strength(0.5))
-                .force("charge", d3.forceManyBody().strength(-150))
+                .force("link", d3.forceLink(links).id(d => d.id).distance(120).strength(0.6)) // Increase distance/strength slightly
+                .force("charge", d3.forceManyBody().strength(-200)) // Increase repulsion slightly
                 .force("center", d3.forceCenter(width / 2, height / 2))
                 .alpha(1)
-                .alphaDecay(0.0228);
+                .alphaDecay(0.03); // Slightly faster decay
 
             // --- Fix the central node to the center ---
             const centralNodeObject = nodes.find(n => n.id === window.centralNodeId);
@@ -369,13 +361,13 @@
 
             // Update node and edge positions on each tick
             simulation.on("tick", () => {
-                // Keep nodes within bounds
-                nodes.forEach(d => {
-                    d.x = Math.max(10, Math.min(width - 10, d.x));
-                    d.y = Math.max(10, Math.min(height - 10, d.y));
-                });
+                // Keep nodes within bounds (relative to their container 'g')
+                // This might need adjustment depending on zoom/pan
+                /* nodes.forEach(d => {
+                    // Revisit boundary logic if needed after zoom changes
+                });*/
 
-                // Update positions directly - REMOVED setTimeout
+                // Update positions directly
                 link.attr("x1", d => d.source.x)
                     .attr("y1", d => d.source.y)
                     .attr("x2", d => d.target.x)
