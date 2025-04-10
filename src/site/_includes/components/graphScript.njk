@@ -193,6 +193,18 @@
                 'Reference': colors.yellow
             };
 
+            // Assign initial random positions to nodes before simulation
+            nodes.forEach(node => {
+                // Only randomize if position isn't already fixed (e.g., by dragging)
+                if (node.fx == null) { 
+                    node.x = Math.random() * width;
+                }
+                if (node.fy == null) {
+                    node.y = Math.random() * height;
+                }
+            });
+            console.log("Assigned initial random positions to nodes.");
+
             // Set up force simulation with slightly adjusted parameters
             const simulation = d3.forceSimulation(nodes)
                 .force("link", d3.forceLink(links).id(d => d.id).distance(120).strength(0.6))
