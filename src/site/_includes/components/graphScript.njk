@@ -196,8 +196,9 @@
             // --- STATIC GRID LAYOUT (Debugging) ---
             const numNodes = nodes.length;
             const cols = Math.ceil(Math.sqrt(numNodes));
-            const cellWidth = width / (cols + 1);
-            const cellHeight = height / (cols + 1);
+            const rows = Math.ceil(numNodes / cols); // Calculate rows needed
+            const cellWidth = width / (cols + 1); // Divide width by cols + padding
+            const cellHeight = height / (rows + 1); // Divide height by rows + padding
 
             nodes.forEach((node, i) => {
                 const row = Math.floor(i / cols);
