@@ -193,42 +193,22 @@
                 'Reference': colors.yellow
             };
 
-            // Assign initial positions near the center with random offset
-            const offset = 50; // Max random offset from center
-            nodes.forEach(node => {
-                if (node.fx == null) { // Only set if not fixed (e.g., by drag)
-                   node.x = width / 2 + (Math.random() - 0.5) * 2 * offset;
-                   node.y = height / 2 + (Math.random() - 0.5) * 2 * offset;
-                }
-                 // Ensure central node also starts near center if it was somehow missed
-                 // (though fx/fy will likely take precedence if set by drag)
-                 else if (node.id === window.centralNodeId && node.fx == null) {
-                    node.x = width / 2 + (Math.random() - 0.5) * 10; 
-                    node.y = height / 2 + (Math.random() - 0.5) * 10; 
-                }
+            // --- STATIC GRID LAYOUT (Debugging) ---
+            const numNodes = nodes.length;
+            const cols = Math.ceil(Math.sqrt(numNodes));
+            const cellWidth = width / (cols + 1);
+            const cellHeight = height / (cols + 1);
+
+            nodes.forEach((node, i) => {
+                const row = Math.floor(i / cols);
+                const col = i % cols;
+                node.x = (col + 1) * cellWidth;
+                node.y = (row + 1) * cellHeight;
             });
-            console.log("Assigned initial near-center positions to nodes.");
+            console.log("Assigned static grid positions to nodes.");
+            // --- END STATIC GRID LAYOUT ---
 
-            // Set up force simulation (standard decay)
-            const simulation = d3.forceSimulation(nodes)
-                .force("link", d3.forceLink(links).id(d => d.id).distance(120).strength(0.6))
-                .force("charge", d3.forceManyBody().strength(-250)) 
-                .force("center", d3.forceCenter(width / 2, height / 2).strength(0.01))
-                .alphaDecay(0.02); // Standard decay
-                // Removed alphaMin, no longer relying on early stop
-
-            // --- Pre-calculate the layout by running ticks manually ---
-            // Run simulation for a fixed number of iterations based on decay.
-            // See https://github.com/d3/d3-force/blob/main/README.md#simulation_tick
-            const numTicks = Math.ceil(Math.log(simulation.alphaMin()) / Math.log(1 - simulation.alphaDecay()));
-            console.log(`Pre-calculating layout with ${numTicks} ticks...`);
-            for (let i = 0; i < numTicks; ++i) {
-                simulation.tick();
-            }
-            console.log("Layout pre-calculation finished.");
-            // --------------------------------------------------------
-
-            // Create edges (using final positions)
+            // Create edges (using static grid positions)
             const link = g.append("g")
                 .attr("stroke", colors.overlay)
                 .attr("stroke-opacity", 0.5)
@@ -258,7 +238,6 @@
                 .attr("class", "graph-node")
                 .attr("cx", d => d.x)
                 .attr("cy", d => d.y)
-                .call(drag(simulation))
                 .on("mouseover", function(event, d) {
                     // Highlight the node
                     d3.select(this)
@@ -396,7 +375,7 @@
             
             // Return the components for external access
             return {
-                svg, g, node, link, label, simulation
+                svg, g, node, link, label
             };
 
         } catch (error) {
