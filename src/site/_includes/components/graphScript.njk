@@ -227,11 +227,12 @@
                 .selectAll("circle")
                 .data(nodes)
                 .join("circle")
-                .attr("r", d => {
+                .each(function(d) { // Store radius on data object
                     const numberOfNeighbors = d.neighbors?.length || 1;
                     const baseRadius = Math.min(10, Math.max(numberOfNeighbors / 1.5, 4));
-                    return baseRadius * 3;
+                    d.r = baseRadius * 3; // Assign radius to d.r
                 })
+                .attr("r", d => d.r) // Use stored radius
                 .attr("fill", d => d.id === window.centralNodeId ? colors.green : groupColors[d.group] || colors.blue)
                 .attr("stroke", colors.text)
                 .attr("stroke-width", 1)
@@ -353,9 +354,10 @@
                 .selectAll("text")
                 .data(nodes)
                 .join("text")
-                .text(d => d.dgGraphTitle || d.url || d.title || d.id)
-                .attr('x', d => d.x + (d.r || 5) * 1.5)
-                .attr('y', d => d.y + (d.r || 5) * 0.5)
+                // --- Simplified Label Text for Debugging ---
+                .text(d => d.id) // Display ONLY the ID for now
+                .attr('x', d => d.x + d.r * 1.1) // Use stored d.r, position slightly outside node
+                .attr('y', d => d.y + d.r * 0.4) // Use stored d.r, position slightly down
                 .style('font-size', '10px')
                 .style('pointer-events', 'none')
                 .style('fill', colors.text)
