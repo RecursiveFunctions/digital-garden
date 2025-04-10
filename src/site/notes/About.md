@@ -1,11 +1,11 @@
 ---
 dg-publish: true
-permalink: /about/
+# permalink: /about/ # Removed, gardenEntry takes precedence
 pinned: true
 dgShowFileTree: false
 dgFilterDailyNotes: true
 tags:
-  - gardenEntry
+  - gardenEntry # Restored this tag to make it the homepage
 ---
 
 

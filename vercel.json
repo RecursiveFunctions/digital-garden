@@ -3,6 +3,10 @@
     "installCommand": "npm install",
     "buildCommand": "npm run build",
     "devCommand": "npm run start",
+    "rewrites": [
+        { "source": "/about", "destination": "/" },
+        { "source": "/about/", "destination": "/" }
+    ],
     "routes": [
         { "handle": "filesystem" },
         { "src": "/(.*)", "status": 404, "dest": "/404" }
