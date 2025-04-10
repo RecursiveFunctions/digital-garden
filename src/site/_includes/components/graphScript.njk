@@ -197,13 +197,15 @@
             nodes.forEach(node => {
                 // Only randomize if position isn't already fixed (e.g., by dragging)
                 if (node.fx == null) { 
-                    node.x = Math.random() * width;
+                    // Randomize over a wider area (2x width centered)
+                    node.x = (width / 2) - width + (Math.random() * width * 2);
                 }
                 if (node.fy == null) {
-                    node.y = Math.random() * height;
+                     // Randomize over a wider area (2x height centered)
+                    node.y = (height / 2) - height + (Math.random() * height * 2);
                 }
             });
-            console.log("Assigned initial random positions to nodes.");
+            console.log("Assigned initial wildly random positions to nodes.");
 
             // Set up force simulation with slightly adjusted parameters
             const simulation = d3.forceSimulation(nodes)
