@@ -657,12 +657,6 @@
             else {
                  console.log('Central node found:', centralNode);
                  window.centralNodeId = centralNode.id;
-                // Center the root node
-                const container = document.getElementById('link-graph');
-                const width = Math.max(container.clientWidth, 1000) || 1000;
-                const height = Math.max(container.clientHeight, 800) || 800;
-                centralNode.x = width / 2;
-                centralNode.y = height / 2;
                  // Render local graph with initial depth of 3
                 renderFilteredGraph(3);
             }
