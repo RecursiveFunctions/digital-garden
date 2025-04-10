@@ -224,16 +224,6 @@
             });
             console.log("Assigned initial border positions to nodes.");
 
-            // --- Immediately fix non-central nodes to these border positions ---
-            nodes.forEach(node => {
-                if (node.id !== window.centralNodeId) { // Only fix non-central nodes initially
-                    node.fx = node.x;
-                    node.fy = node.y;
-                }
-            });
-            console.log("Initially fixed non-central nodes to random positions.");
-            // -----------------------------------------------------------------
-
             // Set up force simulation with slightly adjusted parameters
             const simulation = d3.forceSimulation(nodes)
                 .force("link", d3.forceLink(links).id(d => d.id).distance(120).strength(0.6))
@@ -265,6 +255,8 @@
                 .attr("stroke-width", 1)
                 .attr("data-node-id", d => d.id)
                 .attr("class", "graph-node")
+                .attr("cx", d => d.x)
+                .attr("cy", d => d.y)
                 .call(drag(simulation))
                 .on("mouseover", function(event, d) {
                     // Highlight the node
@@ -388,39 +380,6 @@
                 .style('fill', colors.text)
                 .style('font-family', 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif')
                 .style('opacity', 0);
-
-            // --- Fix central node after a short delay ---
-            setTimeout(() => {
-                const centralNodeObject = nodes.find(n => n.id === window.centralNodeId);
-                if (centralNodeObject) {
-                    centralNodeObject.fx = width / 2;
-                    centralNodeObject.fy = height / 2;
-                    console.log(`[renderGraph] Fixed central node ${window.centralNodeId} after delay.`);
-                    // Give simulation a small kick to adjust to the fixed node
-                    simulation.alphaTarget(0.1).restart(); 
-                    // Optional: schedule cooling down if needed, 
-                    // but letting alpha decay naturally might be fine
-                    // setTimeout(() => simulation.alphaTarget(0), 500);
-                } else {
-                     console.warn(`[renderGraph] Could not find central node ${window.centralNodeId} after delay to fix position.`);
-                }
-            }, 100); // Delay of 100ms
-            // -------------------------------------------
-
-            // --- Release non-central nodes after a slightly longer delay ---
-            setTimeout(() => {
-                nodes.forEach(node => {
-                    if (node.id !== window.centralNodeId) {
-                        node.fx = null;
-                        node.fy = null;
-                    }
-                });
-                console.log("Released initial fixed positions for non-central nodes.");
-                // Give simulation another small kick if needed
-                // simulation.alphaTarget(0.1).restart();
-                // setTimeout(() => simulation.alphaTarget(0), 500);
-            }, 200); // Delay of 200ms (longer than central node fix)
-            // -------------------------------------------------------------
 
             // Update node and edge positions on each tick
             simulation.on("tick", () => {
