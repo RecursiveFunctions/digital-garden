@@ -197,30 +197,9 @@
             const simulation = d3.forceSimulation(nodes)
                 .force("link", d3.forceLink(links).id(d => d.id).distance(120).strength(0.6))
                 .force("charge", d3.forceManyBody().strength(-250)) // Slightly stronger repulsion
-                .force("center", d3.forceCenter(width / 2, height / 2).strength(0.01)) // WEAKENED center force significantly
+                .force("center", d3.forceCenter(width / 2, height / 2).strength(0.05)) // Slightly stronger center force than before, but still weak
                 .alpha(1)
                 .alphaDecay(0.03);
-
-            // --- Fix the central node to the center ---
-            const centralNodeObject = nodes.find(n => n.id === window.centralNodeId);
-            if (centralNodeObject) {
-                centralNodeObject.fx = width / 2;
-                centralNodeObject.fy = height / 2;
-                console.log(`[renderGraph] Fixed central node ${window.centralNodeId} to center (${width/2}, ${height/2})`);
-            } else {
-                 console.warn(`[renderGraph] Could not find central node object with ID ${window.centralNodeId} in the filtered nodes to fix its position.`);
-            }
-            // -----------------------------------------
-            
-            // --- Set initial random positions for non-central nodes ---
-            nodes.forEach(n => {
-                if (n.id !== window.centralNodeId) {
-                    // Start near the center, but with a WIDER random offset
-                    n.x = width / 2 + (Math.random() - 0.5) * 300; // Increased offset range
-                    n.y = height / 2 + (Math.random() - 0.5) * 300; // Increased offset range
-                }
-            });
-            // -------------------------------------------------------
 
             // Create edges
             const link = g.append("g")
@@ -368,6 +347,24 @@
                 .style('fill', colors.text)
                 .style('font-family', 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif')
                 .style('opacity', 0);
+
+            // --- Fix central node after a short delay ---
+            setTimeout(() => {
+                const centralNodeObject = nodes.find(n => n.id === window.centralNodeId);
+                if (centralNodeObject) {
+                    centralNodeObject.fx = width / 2;
+                    centralNodeObject.fy = height / 2;
+                    console.log(`[renderGraph] Fixed central node ${window.centralNodeId} after delay.`);
+                    // Give simulation a small kick to adjust to the fixed node
+                    simulation.alphaTarget(0.1).restart(); 
+                    // Optional: schedule cooling down if needed, 
+                    // but letting alpha decay naturally might be fine
+                    // setTimeout(() => simulation.alphaTarget(0), 500);
+                } else {
+                     console.warn(`[renderGraph] Could not find central node ${window.centralNodeId} after delay to fix position.`);
+                }
+            }, 100); // Delay of 100ms
+            // -------------------------------------------
 
             // Update node and edge positions on each tick
             simulation.on("tick", () => {
