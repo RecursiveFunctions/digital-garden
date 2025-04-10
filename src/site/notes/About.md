@@ -20,7 +20,7 @@ This site is created using [[Obsidian]] , the [Digital Garden Plugin](https://dg
 
 > [!ai] Artificial Intelligence
 >>[!info]+ Using generative AI for coding
->>[[AI/Fixing Daily Notes sort order with AI|Using Cursor to change sort order]]
+>>[[Fixing Daily Notes sort order with AI|Using Cursor to change sort order]]
 >> [[AI/Lessons learned from file operations|AI documented changes on file operations]]
 >> [[AI/Lessons learned from Nunjucks template development|AI documented changes on Nunjucks template modifications]]
 >>[[202503272044| Using Cursor to debug transclusions on this site]]
