@@ -211,6 +211,16 @@
                  console.warn(`[renderGraph] Could not find central node object with ID ${window.centralNodeId} in the filtered nodes to fix its position.`);
             }
             // -----------------------------------------
+            
+            // --- Set initial random positions for non-central nodes ---
+            nodes.forEach(n => {
+                if (n.id !== window.centralNodeId) {
+                    // Start near the center, but not exactly on it
+                    n.x = width / 2 + (Math.random() - 0.5) * 50; // Random offset within 50px of center X
+                    n.y = height / 2 + (Math.random() - 0.5) * 50; // Random offset within 50px of center Y
+                }
+            });
+            // -------------------------------------------------------
 
             // Create edges
             const link = g.append("g")
