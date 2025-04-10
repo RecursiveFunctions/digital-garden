@@ -195,11 +195,11 @@
 
             // Set up force simulation with slightly adjusted parameters
             const simulation = d3.forceSimulation(nodes)
-                .force("link", d3.forceLink(links).id(d => d.id).distance(120).strength(0.6)) // Increase distance/strength slightly
-                .force("charge", d3.forceManyBody().strength(-200)) // Increase repulsion slightly
-                .force("center", d3.forceCenter(width / 2, height / 2))
+                .force("link", d3.forceLink(links).id(d => d.id).distance(120).strength(0.6))
+                .force("charge", d3.forceManyBody().strength(-250)) // Slightly stronger repulsion
+                .force("center", d3.forceCenter(width / 2, height / 2).strength(0.01)) // WEAKENED center force significantly
                 .alpha(1)
-                .alphaDecay(0.03); // Slightly faster decay
+                .alphaDecay(0.03);
 
             // --- Fix the central node to the center ---
             const centralNodeObject = nodes.find(n => n.id === window.centralNodeId);
@@ -215,9 +215,9 @@
             // --- Set initial random positions for non-central nodes ---
             nodes.forEach(n => {
                 if (n.id !== window.centralNodeId) {
-                    // Start near the center, but not exactly on it
-                    n.x = width / 2 + (Math.random() - 0.5) * 50; // Random offset within 50px of center X
-                    n.y = height / 2 + (Math.random() - 0.5) * 50; // Random offset within 50px of center Y
+                    // Start near the center, but with a WIDER random offset
+                    n.x = width / 2 + (Math.random() - 0.5) * 300; // Increased offset range
+                    n.y = height / 2 + (Math.random() - 0.5) * 300; // Increased offset range
                 }
             });
             // -------------------------------------------------------
